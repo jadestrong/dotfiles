@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: text align
+# key: text
+# --
+
+.text-center {
+    text-align: center;
+}
+.font-weight-bold {
+    font-weight: bold;
+}
+.font-weight-normal {
+    font-weight: normal;
+}

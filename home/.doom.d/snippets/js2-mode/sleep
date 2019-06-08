@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: sleep
+# key: seleep
+# --
+
+function sleep (duration) {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, duration);
+    });
+}
+
+sleep(1000).then(() => { console.log('finish') });

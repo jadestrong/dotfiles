@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: vue-template
+# key: vue
+# --
+<template>
+
+</template>
+
+<script>
+export default {
+    props: {},
+    data () {
+        return {};
+    },
+    methods: {},
+};
+</script>

@@ -9,13 +9,9 @@ local key2App = {
     d = 'DingTalk',
     b = 'Beyond Compare',
     m = 'MailMaster',
-    n = 'Navicat Premium',
-    p = 'Preview',
     v = 'Visual Studio Code',
-    c = 'Qt Creator',
     s = 'PxCook',
     w = 'MacVim',
-    k = 'qutebrowser',
 }
 
 for key, app in pairs(key2App) do

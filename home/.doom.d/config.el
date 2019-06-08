@@ -2,16 +2,28 @@
 
 ;; Place your private configuration here
 ;; js2-mode config
-(add-hook! js2-mode
-  (setq js2-basic-offset 4
-        js-indent-level 4
-        js-switch-indent-offset 4)
-  )
+;; (add-hook! js2-mode
+;;   (setq js2-basic-offset 4
+;;         js-indent-level 4
+;;         js-switch-indent-offset 4)
+;;   )
 
 (after! js2-mode
   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
   (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag)
 )
+
+;; (defun js2-mode-use-eslint-indent ()
+;;   (let ((json-object-type 'hash-table)
+;;     (json-config (shell-command-to-string (format  "eslint --print-config %s"
+;;                                (shell-quote-argument
+;;                             (buffer-file-name))))))
+;;     (ignore-errors
+;;       (setq js-indent-level
+;;         (aref (gethash "indent" (gethash  "rules" (json-read-from-string json-config))) 1)))))
+
+;; (add-hook! js2-mode #'js2-mode-use-eslint-indent)
+
 ;; web-mode
 (add-hook! web-mode
   (setq web-mode-markup-indent-offset 2
@@ -22,6 +34,11 @@
         web-mode-comment-style 2
         web-mode-enable-auto-quoting nil
         web-mode-content-types-alist '(("jsx" . ".*\\.js\\'"))))
+
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
+;; 设置jsx中html的缩进
+(add-hook! rjsx-mode
+  (setq sgml-basic-offset 2))
 
 (setq-default
  user-full-name "JadeStrong"

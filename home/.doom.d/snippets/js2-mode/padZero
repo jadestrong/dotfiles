@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: padZero
+# key: padZero
+# --
+
+const padZero = digit => `${digit < 10 ? '0' : ''}${digit}`;
