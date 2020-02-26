@@ -24,8 +24,8 @@ set guioptions-=L
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 syntax enable
 
-set background=dark
-colorscheme solarized
+"set background=dark
+"colorscheme solarized
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " toggle commenting of lines with command + /
 nmap <D-/> :Commentary<CR>
