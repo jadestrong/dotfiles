@@ -9,10 +9,8 @@
 (package! js-doc)
 (package! react-snippets)
 (package! evil-matchit)
-;; (package! leetcode)
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
+(package! rime :recipe (:host github :repo "DogLooksGood/emacs-rime" :files ("rime.el" "rime-predicates.el" "Makefile" "lib.c")))
+(package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
 ;; (package! leetcode-emacs :recipe
 ;;   (:host github :repo "ginqi7/leetcode-emacs"))
-
-;; (package! mmm-mode)
-;; (package! mmm-mako :recipe (:host github :repo "emacsmirror/mmm-mako"))

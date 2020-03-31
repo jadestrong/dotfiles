@@ -11,7 +11,8 @@ local key2App = {
     s = 'PxCook',
     p = 'PDF Expert',
     d = 'DingTalk',
-    t = 'Terminal'
+    t = 'Terminal',
+    e = 'Emacs'
 }
 
 for key, app in pairs(key2App) do

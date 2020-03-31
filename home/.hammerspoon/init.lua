@@ -4,6 +4,8 @@ require "modules/windows"
 require "modules/launch"
 -- require "modules/system"
 require "modules/auto_reload"
-local bindings = require "bindings"
+require "modules/ime"
+-- require "modules/input_method"
+-- local bindings = require "bindings"
 
-bindings.init()
+-- bindings.init()

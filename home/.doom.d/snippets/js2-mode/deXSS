@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: deXSS
+# uuid:
+# key: trigger-key
+# condition: t
+# --
+
+const deXSS = str => {
+  if (typeof str !== 'undefined' && str !== null && typeof str === 'string') {
+    return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  }
+  return str;
+};

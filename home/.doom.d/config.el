@@ -6,7 +6,7 @@
 (after! js2-mode
   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
   (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag)
-)
+  )
 
 ;;;; js-mode
 (add-hook 'js-mode-hook 'js2-minor-mode)
@@ -28,8 +28,8 @@
 (setq flycheck-checker-error-threshold 50)
 ;;让web-mode支持javascript-eslint，默认不支持
 ;; (after! 'flycheck
-  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-  ;; )
+;; (flycheck-add-mode 'javascript-eslint 'web-mode)
+;; )
 ;; (lsp-ui-flycheck-enable) 这个方法会默认设置flycheck-checker为lsp-ui，当设置了这个值
 ;; 后，flycheck就只会使用这一个checker进行检查，否则才会遍历flycheck-checkers这个列表中的可用
 ;; checker依次做检查。此处禁用enable这个函数，才能同时启用lsp-ui和javascript-eslint来检查web-mode下的vue文件,
@@ -84,6 +84,8 @@
 
 ;; evil-matchit
 (global-evil-matchit-mode 1)
+(evilmi-load-plugin-rules '(web-mode) '(simple template html))
+(evilmi-load-plugin-rules '(html-mode) '(simple template html))
 
 ;; disable deft auto save
 (setq deft-auto-save-interval 0)
@@ -99,7 +101,7 @@
     (buffer-disable-undo)
     (fundamental-mode)
     ;; (lsp-mode -1)
-    ; (message "Buffer is set to read-only because it is large.  Undo also disabled.")
+                                        ; (message "Buffer is set to read-only because it is large.  Undo also disabled.")
     ))
 
 (add-hook 'find-file-hook 'my-find-file-check-make-large-file-read-only-hook)
@@ -138,3 +140,124 @@
 ;; (use-package! mmm-mode
 ;;   :config
 ;;   (mmm-add-mode-ext-class 'html-mode "\\.mako\\'" 'mako))
+
+(setq rustic-lsp-server 'rust-analyzer)
+
+;; emacs-rime
+(use-package! rime
+  :bind
+  ("M-j" . #'+rime-convert-string-at-point)
+  ("C-SPC" . #'toggle-input-method)
+  (:map rime-active-mode-map
+    ("M-j" . #'rime-inline-ascii))
+  (:map rime-mode-map
+    ("C-`" . #'rime-send-keybinding))
+  :custom
+  (default-input-method "rime")
+  (rime-librime-root "~/.doom.d/librime/dist")
+  ;; (rime-share-data-dir
+  ;;  (cl-some (lambda (dir)
+  ;;             (let ((abs-dir (expand-file-name dir)))
+  ;;               (when (file-directory-p abs-dir)
+  ;;                 abs-dir)))
+  ;;           (cond (IS-MAC
+  ;;                  '("~/Library/Rime"
+  ;;                    "/Library/Input Methods/Squirrel.app/Contents/SharedSupport"))
+  ;;                 (IS-LINUX
+  ;;                  '("~/.config/ibus/rime"
+  ;;                    "~/.config/fcitx/rime"
+  ;;                    "/usr/share/local"
+  ;;                    "/usr/share")))))
+  (rime-inline-ascii-trigger 'shift-l)
+  ;; :hook
+  ;; ('after-init . (lambda ()
+  ;;                  (when (fboundp 'rime-lib-sync-user-data)
+  ;;                    (ignore-errors (rime-sync)))))
+  ;; ('kill-emacs . (lambda ()
+  ;;                  (when (fboundp 'rime-lib-sync-user-data)
+  ;;                    (ignore-errors (rime-sync)))))
+  :config
+  (defun +rime-force-enable ()
+    "Forced into Chinese input state.
+If current input method is not `rime', active it first. If it is
+currently in the `evil' non-editable state, then switch to
+`evil-insert-state'."
+    (interactive)
+    (let ((input-method "rime"))
+      (unless (string= current-input-method input-method)
+        (activate-input-method input-method))
+      (when (rime-predicate-evil-mode-p)
+        (if (= (+ 1 (point)) (line-end-position))
+            (evil-append 1)
+          (evil-insert 1)))
+      (rime-force-enable)))
+
+  (defun +rime-convert-string-at-point ()
+    "Convert the string at point to Chinese using the current input scheme.
+First call `+rime-force-enable' to active the input method, and
+then search back from the current cursor for available string (if
+a string is selected, use it) as the input code, call the current
+input scheme to convert to Chinese."
+    (interactive)
+    (+rime-force-enable)
+    (let ((string (if mark-active
+                      (buffer-substring-no-properties
+                       (region-beginning) (region-end))
+                    (buffer-substring-no-properties
+                     (line-beginning-position) (point))))
+          code
+          length)
+      (cond ((string-match "\\([a-z'-]+\\|[[:punct:]]\\) *$" string)
+             (setq code (replace-regexp-in-string
+                         "^[-']" ""
+                         (match-string 0 string)))
+             (setq length (length code))
+             (setq code (replace-regexp-in-string " +" "" code))
+             (if mark-active
+                 (delete-region (region-beginning) (region-end))
+               (when (> length 0)
+                 (delete-char (- 0 length))))
+             (when (> length 0)
+               (setq unread-command-events
+                     (append (listify-key-sequence code)
+                             unread-command-events))))
+            (t (message "`+rime-convert-string-at-point' did nothing.")))))
+  ;; (unless (fboundp 'rime--posframe-display-content)
+  ;;     (error "Function `rime--posframe-display-content' is not available."))
+  ;; (defadvice! +rime--posframe-display-content-a (args)
+  ;;   "给 `rime--posframe-display-content' 传入的字符串加一个全角空
+  ;; 格，以解决 `posframe' 偶尔吃字的问题。"
+  ;;   :filter-args #'rime--posframe-display-content
+  ;;   (cl-destructuring-bind (content) args
+  ;;     (let ((newresult (if (string-blank-p content)
+  ;;                          content
+  ;;                        (concat content "　"))))
+  ;;       (list newresult))))
+  ;; (load! "+rime-predicates")
+  (setq-default rime-disable-predicates
+                '(rime-predicate-evil-mode-p
+                  ;; rime-predicate-ace-window-mode-p
+                  ;; rime-predicate-punctuation-line-begin-p
+                  rime-predicate-after-alphabet-char-p
+                  rime-predicate-prog-in-code-p
+                  ;; rime-predicate-auto-english-p
+                  ;; +rime-predicate-beancount-p
+                  ))
+  ;; (setq-default rime-inline-predicates
+  ;;               '(rime-predicate-evil-mode-p
+  ;;                 rime-predicate-punctuation-line-begin-p
+  ;;                 rime-predicate-after-alphabet-char-p
+  ;;                 rime-predicate-prog-in-code-p))
+  (setq-default rime-inline-predicates
+                '(rime-predicate-space-after-cc-p))
+  )
+
+(use-package! insert-translated-name)
+
+(defun org-brain-deft ()
+  "Use `deft' for files in `org-brain-path'."
+  (interactive)
+  (let ((deft-directory org-brain-path)
+        (deft-recursive t)
+        (deft-extensions '("org")))
+    (deft)))
