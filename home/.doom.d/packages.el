@@ -12,5 +12,7 @@
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
 (package! rime :recipe (:host github :repo "DogLooksGood/emacs-rime" :files ("rime.el" "rime-predicates.el" "Makefile" "lib.c")))
 (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
+(package! eslintd-fix)
+;; (package! nox :recipe (:host github :repo "manateelazycat/nox"))
 ;; (package! leetcode-emacs :recipe
 ;;   (:host github :repo "ginqi7/leetcode-emacs"))

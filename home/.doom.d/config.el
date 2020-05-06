@@ -6,6 +6,7 @@
 (after! js2-mode
   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
   (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag)
+  ;; (set-company-backend! 'js2-mode 'company-tide 'company-yasnippet)
   )
 
 ;;;; js-mode
@@ -36,14 +37,44 @@
 ;; 缺点是不能同时起作用，只有修复了lsp-ui的warning之后，才会再使用eslint检查
 ;; 补充：设置了 :none 就不使用 lsp-ui 做为 checker 了， :(
 (add-hook! lsp-ui-mode
-  (setq lsp-ui-sideline-show-code-actions nil) ;; 禁用可执行提醒，如 refactor remove 等
-  ;; (setq lsp-ui-doc-enable t)
-  (setq lsp-eldoc-prefer-signature-help nil
-        lsp-eldoc-enable-signature-help nil
-        lsp-eldoc-enable-hover t)
+  ;; (setq lsp-ui-doc-enable t
+  ;;       lsp-ui-doc-use-webkit nil
+  ;;       lsp-ui-doc-delay 0.2
+  ;;       lsp-ui-doc-include-signature t
+  ;;       lsp-ui-doc-position 'at-point
+  ;;       lsp-ui-doc-border (face-foreground 'default)
+  ;;       lsp-eldoc-enable-hover nil ; Disable eldoc displays in minibuffer
+
+  ;;       lsp-ui-sideline-enable t
+  ;;       lsp-ui-sideline-show-hover nil
+  ;;       lsp-ui-sideline-show-diagnostics nil
+  ;;       lsp-ui-sideline-ignore-duplicate t
+  ;;       ;; lsp-ui-sideline-show-code-actions nil ;; 禁用可执行提醒，如 refactor remove 等
+  ;;       )
+  ;; (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
+  ;; ;; `C-g' to close doc
+  ;; (advice-add #'keyboard-quit :before #'lsp-ui-doc-hide)
+  ;; ;; Reset `lsp-ui-doc-background' after loading theme
+  ;; (add-hook 'after-load-theme-hook
+  ;;           (lambda ()
+  ;;             (setq lsp-ui-doc-border (face-foreground 'default))
+  ;;             (set-face-background 'lsp-ui-doc-background
+  ;;                                  (face-background 'tooltip))))
+  ;; (setq lsp-eldoc-prefer-signature-help nil
+  ;;       lsp-eldoc-enable-signature-help nil
+  ;;       lsp-eldoc-enable-hover t)
   (cond ((and (equal mode-name "Web") (equal web-mode-content-type "vue")) ;; 放在lsp-ui-mode-hook 里面是因为它比web-mode 执行晚，否则 lsp-prefer-flymake 会又被覆盖
          (my/web-vue-setup)))
   )
+
+(after! lsp-mode
+  (setq lsp-log-io nil) ;; 开启log,每个project开启一个单独的lsp-log
+  (setq lsp-eldoc-render-all t)
+  )
+
+;; (setq
+;;     lsp-signature-auto-activate t
+;;     lsp-signature-doc-lines 1)
 
 (defun my/web-vue-setup()
   "Setup for js related."
@@ -54,10 +85,6 @@
   ;; (setq company-backends (remove 'company-yasnippet company-backends))
   )
 
-
-(after! lsp-mode
-  (setq lsp-log-io nil) ;; 开启log,每个project开启一个单独的lsp-log
-  )
 
 ;;;; font-size
 (setq-default doom-font (font-spec :family "Monaco" :size 14))
@@ -83,9 +110,12 @@
 (setq evil-want-fine-undo 'fine)
 
 ;; evil-matchit
-(global-evil-matchit-mode 1)
-(evilmi-load-plugin-rules '(web-mode) '(simple template html))
-(evilmi-load-plugin-rules '(html-mode) '(simple template html))
+(use-package! evil-matchit-mode
+  :hook (web-mode html-mode)
+  :init
+  (evilmi-load-plugin-rules '(web-mode) '(simple template html))
+  (evilmi-load-plugin-rules '(html-mode) '(simple template html)))
+;; (global-evil-matchit-mode 1)
 
 ;; disable deft auto save
 (setq deft-auto-save-interval 0)
@@ -261,3 +291,24 @@ input scheme to convert to Chinese."
         (deft-recursive t)
         (deft-extensions '("org")))
     (deft)))
+
+;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
+(defun color-buffer (proc &rest args)
+  (interactive)
+  (with-current-buffer (process-buffer proc)
+    (read-only-mode -1)
+    (ansi-color-apply-on-region (point-min) (point-max))
+    (read-only-mode 1)))
+
+(advice-add 'magit-process-filter :after #'color-buffer)
+
+(map! "M-p" #'switch-to-prev-buffer
+      "M-n" #'switch-to-next-buffer)
+
+(use-package! eslintd-fix
+  :commands eslintd-fix
+  :config
+  (setq-hook! 'eslintd-fix-mode-hook
+    flycheck-javascript-eslint-executable eslintd-fix-executable))
+(setq company-lsp-match-candidate-predicate #'company-lsp-match-candidate-prefix)
+(setq company-minimum-prefix-length 1)
