@@ -261,3 +261,47 @@ input scheme to convert to Chinese."
         (deft-recursive t)
         (deft-extensions '("org")))
     (deft)))
+
+(use-package! company
+  :init
+  (setq company-minimum-prefix-length 1))
+
+(use-package! company-lsp
+  :defer t
+  :config
+  (setq company-lsp-cache-candidates 'auto))
+
+;; (use-package! lsp-mode
+;;   :init
+;;   (setq lsp-prefer-capf nil))
+
+(defvar +lsp-company-backend 'company-lsp)
+(defvar +lsp-capf-blacklist '(ts-ls gopls))
+
+(defadvice! +lsp-init-company-h-my ()
+  :override #'+lsp-init-company-h
+  (if (not (bound-and-true-p company-mode))
+      (progn
+        (remove-hook 'company-mode-hook #'+lsp-init-company-h t)
+        (add-hook 'company-mode-hook #'+lsp-init-company-h-my t t))
+    (let ((preferred-backend +lsp-company-backend))
+      (lsp-foreach-workspace
+       (when (memq (lsp--client-server-id (lsp--workspace-client lsp--cur-workspace))
+                   +lsp-capf-blacklist)
+         (setq preferred-backend 'company-lsp)))
+      (if (eq 'company-capf preferred-backend)
+          ;; use capf backend
+          (progn
+            (setq-local lsp-enable-completion-at-point t)
+            (setq-local lsp-prefer-capf t)
+            (setq-local company-backends
+                        (cons 'company-capf (remq 'company-capf company-backends))))
+        ;; use company-lsp backend (may need to be loaded first)
+        (require 'company-lsp)
+        (setq-local lsp-enable-completion-at-point nil)
+        (setq-local lsp-prefer-capf nil)
+        (setq-local company-backends
+                    (cons 'company-lsp (remq 'company-capf company-backends)))
+        (message "comapny-backends: %s" company-backends)
+        (setq-default company-lsp-cache-candidates 'auto))
+      (remove-hook 'company-mode-hook #'+lsp-init-company-h-my t))))
