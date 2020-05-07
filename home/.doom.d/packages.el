@@ -14,5 +14,6 @@
 (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
 (when (featurep! :completion company)
   (package! company-lsp :recipe (:host github :repo "jadestrong/company-lsp")))
+(package! eslintd-fix)
 ;; (package! leetcode-emacs :recipe
 ;;   (:host github :repo "ginqi7/leetcode-emacs"))

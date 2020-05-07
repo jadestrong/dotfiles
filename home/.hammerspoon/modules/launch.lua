@@ -7,12 +7,14 @@ local key2App = {
     j = 'Google Chrome',
     i = 'iTerm',
     m = 'MailMaster',
-    v = 'Visual Studio Code',
+    v = 'code',
     s = 'PxCook',
     p = 'PDF Expert',
-    d = 'DingTalk',
+    d = '知音楼',
     t = 'Terminal',
-    e = 'Emacs'
+    e = 'Emacs',
+    c = 'DingTalk',
+    k = 'Firefox'
 }
 
 for key, app in pairs(key2App) do
