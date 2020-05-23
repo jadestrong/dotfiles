@@ -286,7 +286,7 @@ input scheme to convert to Chinese."
 (use-package! company
   :init
   (setq company-minimum-prefix-length 1
-        company-lsp-match-candidate-predicate #'company-lsp-match-candidate-prefix))
+        company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex))
 
 (use-package! company-lsp
   :defer t
