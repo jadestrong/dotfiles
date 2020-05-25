@@ -327,6 +327,15 @@ input scheme to convert to Chinese."
         (message "comapny-backends: %s" company-backends)
         (setq-default company-lsp-cache-candidates 'auto))
       (remove-hook 'company-mode-hook #'+lsp-init-company-h-my t))))
+
+;; Fix a bug which will throw a file not exist error when create a new file
+(defadvice! +lsp-clients-flow-activate-p (file-name _mode)
+  :override #'lsp-clients-flow-activate-p
+  (and (derived-mode-p 'js-mode 'web-mode 'js2-mode 'flow-js2-mode 'rjsx-mode)
+       (or (lsp-clients-flow-project-p file-name)
+           (and (f-file-p file-name)
+                (lsp-clients-flow-tag-file-present-p file-name)))))
+
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
 (defun color-buffer (proc &rest args)
   (interactive)
