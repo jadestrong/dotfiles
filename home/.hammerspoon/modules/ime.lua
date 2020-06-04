@@ -14,7 +14,7 @@ local app2Ime = {
     { 'Google Chrome', 'Chinese' },
     { '钉钉', 'Chinese' },
     { '访达', 'English' },
-    { '知音楼', 'Chinese' }
+    { 'Kim', 'Chinese' }
 }
 -- local app2Ime = {
 --     {'/Applications/iTerm.app', 'English'},

@@ -10,10 +10,9 @@ local key2App = {
     v = 'code',
     s = 'PxCook',
     p = 'PDF Expert',
-    d = '知音楼',
+    d = 'Kim',
     t = 'Terminal',
     e = 'Emacs',
-    c = 'DingTalk',
     k = 'Firefox'
 }
 
