@@ -9,6 +9,9 @@
 
 ;;;; js-mode
 (add-hook 'js-mode-hook 'js2-minor-mode)
+(advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
+;; (setq js-expr-indent-offset 0)
+
 
 ;;;; web-mode
 (after! web-mode
@@ -293,13 +296,15 @@ input scheme to convert to Chinese."
   :config
   (setq company-lsp-cache-candidates 'auto))
 
-;; (use-package! lsp-mode
-;;   :init
-;;   (setq lsp-prefer-capf nil))
+(use-package! lsp-mode
+  :init
+  ;; (setq lsp-prefer-capf nil)
+  (setq lsp-clients-typescript-log-verbosity "off")) ;;; 关闭 typescript-langauge-server 的 tsserver log 文件生成
 
 (defvar +lsp-company-backend 'company-lsp)
 (defvar +lsp-capf-blacklist '(ts-ls gopls))
 
+;;;; change js2-mode's company-backend to company-lsp
 (defadvice! +lsp-init-company-h-my ()
   :override #'+lsp-init-company-h
   (if (not (bound-and-true-p company-mode))
@@ -324,7 +329,6 @@ input scheme to convert to Chinese."
         (setq-local lsp-prefer-capf nil)
         (setq-local company-backends
                     (cons 'company-lsp (remq 'company-capf company-backends)))
-        (message "comapny-backends: %s" company-backends)
         (setq-default company-lsp-cache-candidates 'auto))
       (remove-hook 'company-mode-hook #'+lsp-init-company-h-my t))))
 
@@ -335,6 +339,36 @@ input scheme to convert to Chinese."
        (or (lsp-clients-flow-project-p file-name)
            (and (f-file-p file-name)
                 (lsp-clients-flow-tag-file-present-p file-name)))))
+
+(defadvice! +web-mode-stylus-indentation (pos initial-column language-offset language &optional limit)
+  :override #'web-mode-stylus-indentation
+  (unless limit (setq limit nil))
+  (let (offset h prev-line prev-indentation open-ctx)
+    (setq h (web-mode-previous-line pos limit))
+    (when h
+      (setq prev-line (car h))
+      (setq prev-indentation (cdr h))
+      (message "here: prev-line=%S , prev-indentation=%S" prev-line prev-indentation)
+      (message "current-indent=%s" (current-indentation))
+      (message "match?=%s" (string-match-p "^\\([\s\/]?\\)+[\.#&@\[:].+[^,]$" prev-line))
+      (cond
+       ((or (string-match-p "^\\([\s\/]?\\)+[\.#&@\[:].+[^,]$" prev-line)
+            (string-match-p "\s&\\(.*\\)[^,]$|&$" prev-line)
+            (string-match-p "^\\(\s?\\)+\d{1,3}%" prev-line)
+            (string-match-p "^\\(\s?\\)+for.+in.+$" prev-line))
+        (setq offset (+ prev-indentation language-offset)))
+       (t
+        (setq offset prev-indentation))))
+    ;; (save-excursion
+    ;;   (goto-char pos)
+    ;;   (setq offset (current-column))
+    ;;   (if (looking-at-p "[[:alnum:]-]+:")
+    ;;       (setq offset (+ initial-column language-offset))
+    ;;     (setq offset (+ initial-column language-offset)))
+    ;;   ) ;save-excursion
+    ;; (message "%S %S %S %S" pos (point) initial-column language-offset)
+    (message "offset=%s" offset)
+    (cons (if (<= offset initial-column) initial-column offset) nil)))
 
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
 (defun color-buffer (proc &rest args)
@@ -353,3 +387,19 @@ input scheme to convert to Chinese."
   :config
   (setq-hook! 'eslintd-fix-mode-hook
     flycheck-javascript-eslint-executable eslintd-fix-executable))
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default-input-method "rime")
+ '(rime-inline-ascii-trigger 'shift-l)
+ '(rime-librime-root "~/.doom.d/librime/dist")
+ '(safe-local-variable-values '((org-roam-directory . "~/.deft/"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
