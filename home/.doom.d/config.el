@@ -2,6 +2,9 @@
 
 ;; Place your private configuration here
 ;;
+;;
+;;;; font-size
+(setq-default doom-font (font-spec :family "Monaco" :size 14))
 ;;;;;js2-mode
 (after! js2-mode
   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
@@ -23,7 +26,6 @@
         web-mode-comment-style 2
         web-mode-enable-auto-quoting nil
         web-mode-content-types-alist '(("jsx" . ".*\\.js\\'") ("vue" . ".*\\.vue\\'")))
-  ;; (setq company-idle-delay 0.2)
   (flycheck-add-mode 'javascript-eslint 'web-mode)
   )
 
@@ -65,29 +67,26 @@
   ;;       lsp-eldoc-enable-signature-help nil
   ;;       lsp-eldoc-enable-hover t)
   (cond ((and (equal mode-name "Web") (equal web-mode-content-type "vue")) ;; 放在lsp-ui-mode-hook 里面是因为它比web-mode 执行晚，否则 lsp-prefer-flymake 会又被覆盖
-         (my/web-vue-setup)))
-  )
-
-(after! lsp-mode
-  (setq lsp-log-io nil) ;; 开启log,每个project开启一个单独的lsp-log
-  (setq lsp-eldoc-render-all nil))
-
-;; (setq
-;;     lsp-signature-auto-activate t
-;;     lsp-signature-doc-lines 1)
-
+         (my/web-vue-setup))))
 (defun my/web-vue-setup()
   "Setup for js related."
   (setq-local lsp-prefer-flymake :none)
+  ;; (setq lsp-enable-completion-at-point t)
   ;; (setq company-backends (remove 'company-css company-backends))
   ;; (setq company-backends (remove 'company-web-html company-backends))
   ;; (setq company-backends (remove 'company-lsp company-backends))
   ;; (setq company-backends (remove 'company-yasnippet company-backends))
   )
 
+(after! lsp-mode
+  (setq read-process-output-max (* 1024 1024))
+  (setq lsp-log-io nil) ;; 开启log,每个project开启一个单独的lsp-log
+  (setq lsp-print-performance nil)
+  (setq lsp-eldoc-render-all nil)
+  )
 
-;;;; font-size
-(setq-default doom-font (font-spec :family "Monaco" :size 14))
+
+
 
 ;;;; osx-keys
 (when IS-MAC
@@ -109,21 +108,17 @@
 ;; evil-undo
 (setq evil-want-fine-undo 'fine)
 
-;; evil-matchit
+;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug ，使用它主要解决 doom-emacs 自带的 % 功能不支持 html 标签匹配跳转
 (use-package! evil-matchit-mode
   :hook (web-mode html-mode)
   :init
   (evilmi-load-plugin-rules '(web-mode) '(simple template html))
   (evilmi-load-plugin-rules '(html-mode) '(simple template html)))
-;; (global-evil-matchit-mode 1)
 
 ;; disable deft auto save
 (setq deft-auto-save-interval 0)
 
-;;;; rust-mode
-;; (after! rustic
-;;   (setq rustic-lsp-server 'rust-analyzer))
-
+;；遇到大文件时语法检查贼满，因此强制使用 fundamental-mode
 (defun my-find-file-check-make-large-file-read-only-hook ()
   "If a file is over a given size, make the buffer read only."
   (when (> (buffer-size) (* 2 1024 1024))
@@ -133,20 +128,11 @@
     ;; (lsp-mode -1)
                                         ; (message "Buffer is set to read-only because it is large.  Undo also disabled.")
     ))
-
 (add-hook 'find-file-hook 'my-find-file-check-make-large-file-read-only-hook)
 
 
 (set-popup-rule! "^\\* \\(Chez\\|Mit\\) REPL \\*" :side 'right :quit nil :size 0.5 :select nil :modeline t)
 ;; (set-popup-rule! "^\\*leetcode-testcase\\*" :side 'right :quit nil :size 0.5 :select nil :modeline t)
-
-;; (use-package leetcode-emacs
-;;   :config
-;;   (setq leetcode-path "~/Dropbox/Leetcode/"
-;;         leetcode-language "javascript")
-;;   )
-
-;; (setq url-debug t)
 
 ;;;; leetcode
 (use-package! leetcode
@@ -163,6 +149,7 @@
         "r" #'leetcode-refresh
         "g" #'leetcode-refresh-fetch))
 
+;; 让 web-mode 支持 mako 文件
 (add-to-list 'auto-mode-alist '("\\.mako\\'" . web-mode))
 
 (setq rustic-lsp-server 'rust-analyzer)
@@ -179,27 +166,7 @@
   :custom
   (default-input-method "rime")
   (rime-librime-root "~/.doom.d/librime/dist")
-  ;; (rime-share-data-dir
-  ;;  (cl-some (lambda (dir)
-  ;;             (let ((abs-dir (expand-file-name dir)))
-  ;;               (when (file-directory-p abs-dir)
-  ;;                 abs-dir)))
-  ;;           (cond (IS-MAC
-  ;;                  '("~/Library/Rime"
-  ;;                    "/Library/Input Methods/Squirrel.app/Contents/SharedSupport"))
-  ;;                 (IS-LINUX
-  ;;                  '("~/.config/ibus/rime"
-  ;;                    "~/.config/fcitx/rime"
-  ;;                    "/usr/share/local"
-  ;;                    "/usr/share")))))
   (rime-inline-ascii-trigger 'shift-l)
-  ;; :hook
-  ;; ('after-init . (lambda ()
-  ;;                  (when (fboundp 'rime-lib-sync-user-data)
-  ;;                    (ignore-errors (rime-sync)))))
-  ;; ('kill-emacs . (lambda ()
-  ;;                  (when (fboundp 'rime-lib-sync-user-data)
-  ;;                    (ignore-errors (rime-sync)))))
   :config
   (defun +rime-force-enable ()
     "Forced into Chinese input state.
@@ -246,35 +213,12 @@ input scheme to convert to Chinese."
                      (append (listify-key-sequence code)
                              unread-command-events))))
             (t (message "`+rime-convert-string-at-point' did nothing.")))))
-  ;; (unless (fboundp 'rime--posframe-display-content)
-  ;;     (error "Function `rime--posframe-display-content' is not available."))
-  ;; (defadvice! +rime--posframe-display-content-a (args)
-  ;;   "给 `rime--posframe-display-content' 传入的字符串加一个全角空
-  ;; 格，以解决 `posframe' 偶尔吃字的问题。"
-  ;;   :filter-args #'rime--posframe-display-content
-  ;;   (cl-destructuring-bind (content) args
-  ;;     (let ((newresult (if (string-blank-p content)
-  ;;                          content
-  ;;                        (concat content "　"))))
-  ;;       (list newresult))))
-  ;; (load! "+rime-predicates")
   (setq-default rime-disable-predicates
                 '(rime-predicate-evil-mode-p
-                  ;; rime-predicate-ace-window-mode-p
-                  ;; rime-predicate-punctuation-line-begin-p
                   rime-predicate-after-alphabet-char-p
-                  rime-predicate-prog-in-code-p
-                  ;; rime-predicate-auto-english-p
-                  ;; +rime-predicate-beancount-p
-                  ))
-  ;; (setq-default rime-inline-predicates
-  ;;               '(rime-predicate-evil-mode-p
-  ;;                 rime-predicate-punctuation-line-begin-p
-  ;;                 rime-predicate-after-alphabet-char-p
-  ;;                 rime-predicate-prog-in-code-p))
+                  rime-predicate-prog-in-code-p))
   (setq-default rime-inline-predicates
-                '(rime-predicate-space-after-cc-p))
-  )
+                '(rime-predicate-space-after-cc-p)))
 
 (use-package! insert-translated-name)
 
@@ -299,9 +243,35 @@ input scheme to convert to Chinese."
 (use-package! lsp-mode
   :init
   ;; (setq lsp-prefer-capf nil)
+  (setq lsp-auto-guess-root t)
   (setq lsp-clients-typescript-log-verbosity "off")) ;;; 关闭 typescript-langauge-server 的 tsserver log 文件生成
 
-(defvar +lsp-company-backend 'company-lsp)
+(defun company//sort-by-tabnine (candidates)
+  (if (or (functionp company-backend)
+          (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
+      candidates
+    (let ((candidates-table (make-hash-table :test #'equal))
+          candidates-1
+          candidates-2)
+      (dolist (candidate candidates)
+        (if (eq (get-text-property 0 'company-backend candidate)
+                'company-tabnine)
+            (unless (gethash candidate candidates-table)
+              (push candidate candidates-2))
+          (push candidate candidates-1)
+          (puthash candidate t candidates-table)))
+      (setq candidates-1 (nreverse candidates-1))
+      (setq candidates-2 (nreverse candidates-2))
+      (nconc (seq-take candidates-1 2)
+             (seq-take candidates-2 2)
+             (seq-drop candidates-1 2)
+             (seq-drop candidates-2 2)))))
+
+(add-to-list 'company-transformers 'company//sort-by-tabnine t)
+
+
+(defvar +lsp-company-backend '(company-lsp :with company-tabnine :separate))
+;; (defvar +lsp-company-backend 'company-lsp)
 (defvar +lsp-capf-blacklist '(ts-ls gopls))
 
 ;;;; change js2-mode's company-backend to company-lsp
@@ -322,13 +292,13 @@ input scheme to convert to Chinese."
             (setq-local lsp-enable-completion-at-point t)
             (setq-local lsp-prefer-capf t)
             (setq-local company-backends
-                        (cons 'company-capf (remq 'company-capf company-backends))))
+                        (cons preferred-backend (remq 'company-capf company-backends))))
         ;; use company-lsp backend (may need to be loaded first)
         (require 'company-lsp)
         (setq-local lsp-enable-completion-at-point nil)
         (setq-local lsp-prefer-capf nil)
         (setq-local company-backends
-                    (cons 'company-lsp (remq 'company-capf company-backends)))
+                    (cons preferred-backend (remq 'company-capf company-backends)))
         (setq-default company-lsp-cache-candidates 'auto))
       (remove-hook 'company-mode-hook #'+lsp-init-company-h-my t))))
 
@@ -340,6 +310,7 @@ input scheme to convert to Chinese."
            (and (f-file-p file-name)
                 (lsp-clients-flow-tag-file-present-p file-name)))))
 
+;; 修正 web-mode 的 stylus 不能自动缩进的问题，方案不完美，未涵盖所有情况，或许需要参考 sass-mode 或者 pug-mode 的方式，允许 tab 可以随意缩进 TODO
 (defadvice! +web-mode-stylus-indentation (pos initial-column language-offset language &optional limit)
   :override #'web-mode-stylus-indentation
   (unless limit (setq limit nil))
@@ -348,9 +319,6 @@ input scheme to convert to Chinese."
     (when h
       (setq prev-line (car h))
       (setq prev-indentation (cdr h))
-      (message "here: prev-line=%S , prev-indentation=%S" prev-line prev-indentation)
-      (message "current-indent=%s" (current-indentation))
-      (message "match?=%s" (string-match-p "^\\([\s\/]?\\)+[\.#&@\[:].+[^,]$" prev-line))
       (cond
        ((or (string-match-p "^\\([\s\/]?\\)+[\.#&@\[:].+[^,]$" prev-line)
             (string-match-p "\s&\\(.*\\)[^,]$|&$" prev-line)
@@ -359,15 +327,6 @@ input scheme to convert to Chinese."
         (setq offset (+ prev-indentation language-offset)))
        (t
         (setq offset prev-indentation))))
-    ;; (save-excursion
-    ;;   (goto-char pos)
-    ;;   (setq offset (current-column))
-    ;;   (if (looking-at-p "[[:alnum:]-]+:")
-    ;;       (setq offset (+ initial-column language-offset))
-    ;;     (setq offset (+ initial-column language-offset)))
-    ;;   ) ;save-excursion
-    ;; (message "%S %S %S %S" pos (point) initial-column language-offset)
-    (message "offset=%s" offset)
     (cons (if (<= offset initial-column) initial-column offset) nil)))
 
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
@@ -387,19 +346,3 @@ input scheme to convert to Chinese."
   :config
   (setq-hook! 'eslintd-fix-mode-hook
     flycheck-javascript-eslint-executable eslintd-fix-executable))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default-input-method "rime")
- '(rime-inline-ascii-trigger 'shift-l)
- '(rime-librime-root "~/.doom.d/librime/dist")
- '(safe-local-variable-values '((org-roam-directory . "~/.deft/"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
