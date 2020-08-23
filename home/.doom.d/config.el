@@ -29,16 +29,18 @@
 
 
       ;; company and company-lsp
-      ;; company-minimum-prefix-length 1
-      ;; company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex
-      ;; company-lsp-cache-candidates 'auto
+      company-minimum-prefix-length 1
+      company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex
+      company-lsp-cache-candidates 'auto
+      ;; +lsp-company-backends 'company-tabnine
+      ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
 
       ;; More common use-case
       evil-ex-substitute-global t
-      evil-want-fine-undo 'fine)
+      evil-want-fine-undo nil)
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
@@ -174,6 +176,7 @@
 
 (use-package! insert-translated-name)
 
+;; (use-package! company-tabnine :ensure t)
 
 ;;
 ;;; Language customizations
@@ -229,7 +232,7 @@
     (cons (if (<= offset initial-column) initial-column offset) nil)))
 
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
-(defun color-buffer (proc)
+(defun color-buffer (proc &rest args)
   (interactive)
   (with-current-buffer (process-buffer proc)
     (read-only-mode -1)
@@ -238,15 +241,15 @@
 (advice-add 'magit-process-filter :after #'color-buffer)
 
 
-(use-package! company
-   :init
-   (setq company-minimum-prefix-length 1
-         company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex))
+;; (use-package! company
+;;    :init
+;;    (setq company-minimum-prefix-length 1
+;;          company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex))
 
-(use-package! company-lsp
-   :defer t
-   :config
-   (setq company-lsp-cache-candidates 'auto))
+;; (use-package! company-lsp
+;;    :defer t
+;;    :config
+;;    (setq company-lsp-cache-candidates 'auto))
 
 ;; (defun company//sort-by-tabnine (candidates)
 ;;   (if (or (functionp company-backend)
