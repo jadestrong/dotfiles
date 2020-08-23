@@ -38,7 +38,7 @@ vmap <D-/> :Commentary<CR>
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Use babylon parser with prettier
-let g:prettier#config#parser="babylon"
+" let g:prettier#config#parser="babylon"
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Run prettier asynchronously before saving
 " let g:prettier#autoformat=0

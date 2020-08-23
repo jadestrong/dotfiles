@@ -10,7 +10,6 @@
 (package! react-snippets)
 (package! evil-matchit)
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
-(package! rime :recipe (:host github :repo "DogLooksGood/emacs-rime" :files ("rime.el" "rime-predicates.el" "Makefile" "lib.c")))
 (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
 (when (featurep! :completion company)
   (package! company-lsp :recipe (:host github :repo "jadestrong/company-lsp"))
