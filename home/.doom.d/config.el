@@ -26,6 +26,7 @@
       lsp-log-io nil
       lsp-eldoc-render-all nil
       lsp-clients-typescript-log-verbosity "off"
+      +lsp-company-backends '(company-capf :with company-tabnine :separate)
 
 
       ;; company and company-lsp
@@ -40,7 +41,10 @@
 
       ;; More common use-case
       evil-ex-substitute-global t
-      evil-want-fine-undo nil)
+      evil-want-fine-undo nil
+      ;; evil-want-minibuffer t
+      ;; evil-collection-setup-minibuffer t
+      )
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
@@ -104,12 +108,12 @@
       evil-vsplit-window-right t)
 
 ;;; :lang javascript
-(after! js2-mode
+(after! js2
   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
   (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag))
 
 (add-hook 'js-mode-hook 'js2-minor-mode)
-(advice-add 'js--multi-line-declaration-indentation :around (lambda () nil))
+(advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
 
 ;;; :tools lsp
 (after! lsp-mode
@@ -118,10 +122,47 @@
         lsp-log-io nil
         lsp-eldoc-render-all nil))
 
+;;; :tools magit
+(setq magit-inhibit-save-previous-winconf t
+      ;; transient-values '((magit-rebase "--autosquash"))
+      )
+
+
+;;; :complete company
+(defun company//sort-by-tabnine (candidates)
+  (if (or (functionp company-backend)
+          (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
+      candidates
+    (let ((candidates-table (make-hash-table :test #'equal))
+          candidates-1
+          candidates-2)
+      (dolist (candidate candidates)
+        (if (eq (get-text-property 0 'company-backend candidate)
+                'company-tabnine)
+            (unless (gethash candidate candidates-table)
+              (push candidate candidates-2))
+          (push candidate candidates-1)
+          (puthash candidate t candidates-table)))
+      (setq candidates-1 (nreverse candidates-1))
+      (setq candidates-2 (nreverse candidates-2))
+      (nconc (seq-take candidates-1 2)
+             (seq-take candidates-2 2)
+             (seq-drop candidates-1 2)
+             (seq-drop candidates-2 2)))))
+(after! company
+  (add-to-list 'company-transformers 'company//sort-by-tabnine t))
+
+
 
 ;;; :lang web
 ;; 让 web-mode 支持 mako 文件
 (add-to-list 'auto-mode-alist '("\\.mako\\'" . web-mode))
+(setq web-mode-style-padding 0
+      web-mode-script-padding 0
+      web-mode-comment-style 2
+      web-mode-code-indent-offset 4
+      web-mode-css-indent-offset 4
+      web-mode-markup-indent-offset 2)
 
 ;; (after! web-mode
 ;;   (setq web-mode-markup-indent-offset 2
@@ -153,7 +194,7 @@
 ;;   "Setup for js related."
 ;;   (setq-local lsp-prefer-flymake :none))
 
-;;;; leetcode
+;;; leetcode
 (use-package! leetcode
   :init
   (setq leetcode-prefer-language "javascript")
@@ -175,6 +216,18 @@
     flycheck-javascript-eslint-executable eslintd-fix-executable))
 
 (use-package! insert-translated-name)
+
+
+;;; :lang org
+(setq org-directory "~/org/"
+      org-archive-location (concat org-directory ".archive/%s::")
+      ;; org-roam-directory (concat org-directory "notes/")
+      deft-directory (concat org-directory "deft/")
+      org-journal-encrypt-journal t
+      org-journal-file-format "%Y%m%d.org"
+      org-ellipsis " ▼ "
+      org-superstar-headline-bullets-list '("#"))
+
 
 ;; (use-package! company-tabnine :ensure t)
 
@@ -251,28 +304,21 @@
 ;;    :config
 ;;    (setq company-lsp-cache-candidates 'auto))
 
-;; (defun company//sort-by-tabnine (candidates)
-;;   (if (or (functionp company-backend)
-;;           (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
-;;       candidates
-;;     (let ((candidates-table (make-hash-table :test #'equal))
-;;           candidates-1
-;;           candidates-2)
-;;       (dolist (candidate candidates)
-;;         (if (eq (get-text-property 0 'company-backend candidate)
-;;                 'company-tabnine)
-;;             (unless (gethash candidate candidates-table)
-;;               (push candidate candidates-2))
-;;           (push candidate candidates-1)
-;;           (puthash candidate t candidates-table)))
-;;       (setq candidates-1 (nreverse candidates-1))
-;;       (setq candidates-2 (nreverse candidates-2))
-;;       (nconc (seq-take candidates-1 2)
-;;              (seq-take candidates-2 2)
-;;              (seq-drop candidates-1 2)
-;;              (seq-drop candidates-2 2)))))
+;; workaround for company-transformers
+;; (setq company-tabnine--disable-next-transform nil)
+;; (defun my-company--transform-candidates (func &rest args)
+;;   (if (not company-tabnine--disable-next-transform)
+;;       (apply func args)
+;;     (setq company-tabnine--disable-next-transform nil)
+;;     (car args)))
 
-;; (add-to-list 'company-transformers 'company//sort-by-tabnine t)
+;; (defun my-company-tabnine (func &rest args)
+;;   (when (eq (car args) 'candidates)
+;;     (setq company-tabnine--disable-next-transform t))
+;;   (apply func args))
+
+;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
+;; (advice-add #'company-tabnine :around #'my-company-tabnine)
 
 
 ;; (defvar +lsp-company-backend '(company-lsp :with company-tabnine :separate))
