@@ -12,8 +12,9 @@
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
 (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
 (when (featurep! :completion company)
-  (package! company-lsp :recipe (:host github :repo "jadestrong/company-lsp"))
+  ;; (package! company-lsp :recipe (:host github :repo "jadestrong/company-lsp"))
   (package! company-tabnine :recipe (:host github :repo "TommyX12/company-tabnine")))
 (package! eslintd-fix)
-;; (package! leetcode-emacs :recipe
-;;   (:host github :repo "ginqi7/leetcode-emacs"))
+(package! tsc :recipe (:host github :repo "ubolonton/emacs-tree-sitter" :files ("core/*.el")))
+(package! tree-sitter :recipe (:host github :repo "ubolonton/emacs-tree-sitter" :files ("lisp/*.el")))
+(package! tree-sitter-langs :recipe (:host github :repo "ubolonton/emacs-tree-sitter" :files ("langs/*.el" "langs/queries")))

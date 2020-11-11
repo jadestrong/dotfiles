@@ -27,6 +27,7 @@
       lsp-eldoc-render-all nil
       lsp-clients-typescript-log-verbosity "off"
       +lsp-company-backends '(company-capf :with company-tabnine :separate)
+      lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
 
 
       ;; company and company-lsp
@@ -49,6 +50,7 @@
 (when IS-MAC
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none))
+(setq lsp-log-io nil)
 
 ;;
 ;;; UI
@@ -56,7 +58,7 @@
 
 ;; "monospace" means use the system default. However, the default is usually two
 ;; points larger than I'd like, so I specify size 12 here.
-(setq doom-font (font-spec :family "Monaco" :size 14)
+(setq doom-font (font-spec :family "Monaco" :size 16)
       ;; doom-variable-pitch-font (font-spec :family "sans" :size 14)
       )
 
@@ -108,9 +110,12 @@
       evil-vsplit-window-right t)
 
 ;;; :lang javascript
-(after! js2
-  (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
-  (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag))
+(map! :map (js2-mode-map typescript-mode-map)
+      "C-c j" 'js-doc-insert-function-doc
+      "@" 'js-doc-insert-tag)
+;; (after! js2
+;;   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
+;;   (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag))
 
 (add-hook 'js-mode-hook 'js2-minor-mode)
 (advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
@@ -157,12 +162,27 @@
 ;;; :lang web
 ;; 让 web-mode 支持 mako 文件
 (add-to-list 'auto-mode-alist '("\\.mako\\'" . web-mode))
-(setq web-mode-style-padding 0
-      web-mode-script-padding 0
-      web-mode-comment-style 2
-      web-mode-code-indent-offset 4
-      web-mode-css-indent-offset 4
-      web-mode-markup-indent-offset 2)
+(defun my-web-mode-hook ()
+  (setq web-mode-style-padding 0
+        web-mode-script-padding 0
+        web-mode-comment-style 2
+        ;; web-mode-code-indent-offset 4
+        ;; web-mode-css-indent-offset 4
+        ;; web-mode-markup-indent-offset 2
+        )
+  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
+  )
+(add-hook! 'web-mode-hook #'my-web-mode-hook)
+
+;; (after! web
+;;   (setq web-mode-style-padding 0
+;;         web-mode-script-padding 0
+;;         web-mode-comment-style 2
+;;         web-mode-code-indent-offset 4
+;;         web-mode-css-indent-offset 4
+;;         web-mode-markup-indent-offset 2
+;;         web-mode-content-types-alist '(("jsx" . ".*\\.js\\'") ("vue" . ".*\\.vue\\'"))))
+
 
 ;; (after! web-mode
 ;;   (setq web-mode-markup-indent-offset 2
@@ -226,7 +246,8 @@
       org-journal-encrypt-journal t
       org-journal-file-format "%Y%m%d.org"
       org-ellipsis " ▼ "
-      org-superstar-headline-bullets-list '("#"))
+      ;; org-superstar-headline-bullets-list '("#")
+      )
 
 
 ;; (use-package! company-tabnine :ensure t)
@@ -293,6 +314,15 @@
     (read-only-mode 1)))
 (advice-add 'magit-process-filter :after #'color-buffer)
 
+
+;;; Customize function
+
+(defconst target-dir-path "~/Downloads/" "My Download directory")
+(defun goto-download-dir ()
+  (interactive)
+  (dired target-dir-path))
+
+(use-package! tree-sitter-langs)
 
 ;; (use-package! company
 ;;    :init

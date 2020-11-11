@@ -1,5 +1,5 @@
 require "modules/hotkey"
--- require "modules/screens"
+require "modules/screen"
 require "modules/windows"
 require "modules/launch"
 -- require "modules/system"
