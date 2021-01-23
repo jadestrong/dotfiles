@@ -28,6 +28,7 @@
       lsp-clients-typescript-log-verbosity "off"
       +lsp-company-backends '(company-capf :with company-tabnine :separate)
       lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
+      lsp-vetur-experimental-template-interpolation-service nil
 
 
       ;; company and company-lsp
@@ -38,13 +39,15 @@
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
 
       ;; rust
-      rustic-lsp-server 'rust-analyzer
+      ;; rustic-lsp-server 'rust-analyzer
+      rustic-lsp-server 'rls
 
       ;; More common use-case
       evil-ex-substitute-global t
       evil-want-fine-undo nil
       ;; evil-want-minibuffer t
       ;; evil-collection-setup-minibuffer t
+      auto-save-default nil
       )
 
 (when IS-MAC
@@ -174,6 +177,11 @@
   )
 (add-hook! 'web-mode-hook #'my-web-mode-hook)
 
+;; disable org-mode company-mode
+(defun disable-company-hook ()
+  (company-mode -1))
+(add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook)
+
 ;; (after! web
 ;;   (setq web-mode-style-padding 0
 ;;         web-mode-script-padding 0
@@ -274,6 +282,8 @@
     ))
 (add-hook 'find-file-hook 'my-find-file-check-make-large-file-read-only-hook)
 
+;; Disable it only for rust buffers - doc not auto display in mini buffer
+(setq-hook! 'rustic-mode-hook lsp-signature-auto-activate nil)
 
 ;;
 ;;; Fix bugs
@@ -322,7 +332,11 @@
   (interactive)
   (dired target-dir-path))
 
-(use-package! tree-sitter-langs)
+(defun flycheck-disable-on-temp-buffers ()
+  (unless (and buffer-file-name (file-exists-p buffer-file-name)) (flycheck-mode -1)))
+(add-hook 'prog-mode-hook 'flycheck-disable-on-temp-buffers)
+
+;; (use-package! tree-sitter-langs)
 
 ;; (use-package! company
 ;;    :init
