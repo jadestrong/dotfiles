@@ -22,7 +22,11 @@ local key2App = {
 for key, app in pairs(key2App) do
     hotkey.bind(hyper, key, function()
         --application.launchOrFocus(app)
-        toggle_application(app)
+        if app == 'CocosCreator' then
+            toggle_cocos_creator(app)
+        else
+            toggle_application(app)
+        end
     end)
 end
 
@@ -61,4 +65,30 @@ function toggle_application(_app)
             -- nothing to do
         end
     end
+end
+
+function toggle_cocos_creator(_app) 
+    local focusedWindow = hs.window.focusedWindow()
+    if focusedWindow == nil then
+        application.launchOrFocus(_app)
+    elseif focusedWindow:application():bundleID() == 'com.cocos.creator' then
+        -- 如果当前窗口就是 cocos 则尝试切换下一个
+        local app = focusedWindow:application()
+        local apps = application.applicationsForBundleID('com.cocos.creator')
+        local len = get_table_length(apps)
+        local idx = hs.fnutils.indexOf(apps, app);
+        local next = idx + 1 > len and idx + 1 - len or idx + 1 
+        apps[next]:activate(true)
+        app[next]:focus()
+    else
+        application.launchOrFocus(_app)
+    end
+end
+
+function get_table_length(tbl)
+    local getN = 0
+    for n in pairs(tbl) do 
+      getN = getN + 1 
+    end
+    return getN
 end
