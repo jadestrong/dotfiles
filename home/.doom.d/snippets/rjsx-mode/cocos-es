@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: cocos-es
+# key: ces
+# --
+
+const { ccclass, property } = cc._decorator;
+
+@ccclass
+export default class ${1:Name} extends cc.Component {
+    @property
+    foo = 0;
+
+    onLoad() {
+
+    }
+
+    update(dt) {
+
+    }
+}

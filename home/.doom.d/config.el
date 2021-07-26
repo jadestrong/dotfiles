@@ -336,6 +336,25 @@
   (unless (and buffer-file-name (file-exists-p buffer-file-name)) (flycheck-mode -1)))
 (add-hook 'prog-mode-hook 'flycheck-disable-on-temp-buffers)
 
+(defun ediff-copy-both-to-C ()
+  (interactive)
+  (ediff-copy-diff ediff-current-difference nil 'C nil
+                   (concat
+                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+(defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+
+(defun remove-dos-eol ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (setq buffer-display-table (make-display-table))
+  (aset buffer-display-table ?\^M []))
+
+;; 检查一个 buffer 是否为空
+(defun buffer-empty-p (&optional buffer)
+  (= (buffer-size buffer) 0))
+
 ;; (use-package! tree-sitter-langs)
 
 ;; (use-package! company

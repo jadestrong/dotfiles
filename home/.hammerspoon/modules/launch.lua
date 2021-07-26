@@ -69,19 +69,29 @@ end
 
 function toggle_cocos_creator(_app) 
     local focusedWindow = hs.window.focusedWindow()
+    local apps = application.applicationsForBundleID('com.cocos.creator')
+    local len = get_table_length(apps)
     if focusedWindow == nil then
-        application.launchOrFocus(_app)
+        if len >= 1 then
+            apps[1]:activate(true)
+            apps[1]:focus()
+        else
+            application.launchOrFocus(_app)
+        end
     elseif focusedWindow:application():bundleID() == 'com.cocos.creator' then
         -- 如果当前窗口就是 cocos 则尝试切换下一个
         local app = focusedWindow:application()
-        local apps = application.applicationsForBundleID('com.cocos.creator')
-        local len = get_table_length(apps)
         local idx = hs.fnutils.indexOf(apps, app);
         local next = idx + 1 > len and idx + 1 - len or idx + 1 
         apps[next]:activate(true)
         app[next]:focus()
     else
-        application.launchOrFocus(_app)
+        if len >= 1 then
+            apps[1]:activate(true)
+            apps[1]:focus()
+        else
+            application.launchOrFocus(_app)
+        end
     end
 end
 
