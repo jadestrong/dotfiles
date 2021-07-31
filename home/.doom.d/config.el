@@ -23,11 +23,11 @@
       ;; lsp
       lsp-auto-guess-root t
       read-process-output-max (* 1024 1024)
-      lsp-log-io nil
       lsp-eldoc-render-all nil
       lsp-clients-typescript-log-verbosity "off"
       +lsp-company-backends '(company-capf :with company-tabnine :separate)
-      lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
+      lsp-eslint-enable nil
+      ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
 
 
@@ -35,25 +35,21 @@
       company-minimum-prefix-length 1
       company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex
       company-lsp-cache-candidates 'auto
-      ;; +lsp-company-backends 'company-tabnine
-      ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
 
       ;; rust
-      ;; rustic-lsp-server 'rust-analyzer
-      rustic-lsp-server 'rls
+      rustic-lsp-server 'rust-analyzer
 
       ;; More common use-case
       evil-ex-substitute-global t
       evil-want-fine-undo nil
       ;; evil-want-minibuffer t
       ;; evil-collection-setup-minibuffer t
-      auto-save-default nil
-      )
+      auto-save-default nil)
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none))
-(setq lsp-log-io nil)
+;; (setq lsp-log-io t)
 
 ;;
 ;;; UI
@@ -227,6 +223,8 @@
   :init
   (setq leetcode-prefer-language "javascript")
   (setq leetcode-prefer-sql "mysql")
+  (setq leetcode-save-solutions t)
+  (setq leetcode-directory "~/.leetcode")
   (set-popup-rule! "^\\*html\\*" :side 'right :quit nil :size 0.5 :select nil :modeline t) ;; leetcode--display-description
   :config
   (map! :map leetcode--problems-mode-map
@@ -244,6 +242,10 @@
     flycheck-javascript-eslint-executable eslintd-fix-executable))
 
 (use-package! insert-translated-name)
+
+(use-package! prescient
+  :hook ((company-mode . company-prescient-mode)
+         (company-mode . prescient-persist-mode)))
 
 
 ;;; :lang org

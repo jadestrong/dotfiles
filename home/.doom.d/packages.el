@@ -15,6 +15,7 @@
   ;; (package! company-lsp :recipe (:host github :repo "jadestrong/company-lsp"))
   (package! company-tabnine :recipe (:host github :repo "TommyX12/company-tabnine")))
 (package! eslintd-fix)
+(package! prescient :recipe (:host github :repo "raxod502/prescient.el" :files ("*.el")))
 ;; (package! tsc :recipe (:host github :repo "ubolonton/emacs-tree-sitter" :files ("core/*.el")))
 ;; (package! tree-sitter :recipe (:host github :repo "ubolonton/emacs-tree-sitter" :files ("lisp/*.el")))
 ;; (package! tree-sitter-langs :recipe (:host github :repo "ubolonton/emacs-tree-sitter" :files ("langs/*.el" "langs/queries")))

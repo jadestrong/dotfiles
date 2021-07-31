@@ -15,8 +15,8 @@ local key2App = {
     e = 'Emacs',
     k = 'Firefox',
     o = 'Outlook',
-    c = 'Charles',
-    x = 'XMind'
+    x = 'XMind',
+    h = 'CocosCreator'
 }
 
 for key, app in pairs(key2App) do
