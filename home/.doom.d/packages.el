@@ -9,6 +9,7 @@
 (package! js-doc)
 (package! react-snippets)
 (package! evil-matchit)
+(package! pinyinlib)
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
 (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
 (when (featurep! :completion company)

@@ -445,6 +445,14 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 
      (set-marker end nil))))
 
+(use-package! pinyinlib)
+;; 支持拼音搜索中文文件
+(defun completion--regex-pinyin (str)
+  (orderless-regexp (pinyinlib-build-regexp-string str)))
+(after! orderless
+ (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
+
+
 ;;; Customize function
 
 (defconst target-dir-path "~/Downloads/" "My Download directory")
