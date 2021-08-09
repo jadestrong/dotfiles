@@ -226,7 +226,8 @@
                       (t normal-indent)))))))
            (advice-add #'calculate-lisp-indent :around #'wrap~calculate-lisp-indent))
      (org-roam-directory . "~/.deft/")))
- '(warning-suppress-log-types '((lsp-mode))))
+ '(warning-suppress-log-types '((lsp-mode) ((flycheck syntax-checker))))
+ '(warning-suppress-types '((doom-switch-buffer-hook) ((flycheck syntax-checker)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

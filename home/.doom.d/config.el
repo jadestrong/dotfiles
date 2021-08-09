@@ -44,7 +44,9 @@
       evil-want-fine-undo nil
       ;; evil-want-minibuffer t
       ;; evil-collection-setup-minibuffer t
-      auto-save-default nil)
+      auto-save-default nil
+      ;; flycheck-checker-error-threshold nil
+      )
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
@@ -112,9 +114,6 @@
 (map! :map (js2-mode-map typescript-mode-map)
       "C-c j" 'js-doc-insert-function-doc
       "@" 'js-doc-insert-tag)
-;; (after! js2
-;;   (define-key js2-mode-map (kbd "C-c j") 'js-doc-insert-function-doc)
-;;   (define-key js2-mode-map (kbd "@") 'js-doc-insert-tag))
 
 (add-hook 'js-mode-hook 'js2-minor-mode)
 (advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
@@ -152,10 +151,10 @@
       (nconc (seq-take candidates-1 2)
              (seq-take candidates-2 2)
              (seq-drop candidates-1 2)
-             (seq-drop candidates-2 2)))))
-(after! company
-  (add-to-list 'company-transformers 'company//sort-by-tabnine t))
-
+             (seq-drop candidates-2 2))))
+  )
+;; (after! company
+;;   (add-to-list 'company-transformers 'company//sort-by-tabnine t))
 
 
 ;;; :lang web
@@ -177,6 +176,8 @@
 (defun disable-company-hook ()
   (company-mode -1))
 (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook)
+
+
 
 ;; (after! web
 ;;   (setq web-mode-style-padding 0
@@ -244,8 +245,21 @@
 (use-package! insert-translated-name)
 
 (use-package! prescient
-  :hook ((company-mode . company-prescient-mode)
-         (company-mode . prescient-persist-mode)))
+  :hook (company-mode . company-prescient-mode)
+  :hook (company-mode . prescient-persist-mode)
+  :config
+  (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
+
+(use-package! citre
+  :defer t
+  :init
+  (require 'citre-config)
+  (global-set-key (kbd "C-x c j") 'citre-jump)
+  (global-set-key (kbd "C-x c J") 'citre-jump-back)
+  (global-set-key (kbd "C-x c p") 'citre-ace-peek)
+  :config
+  (setq
+   citre-project-root-function #'projectile-project-root))
 
 
 ;;; :lang org
@@ -258,6 +272,77 @@
       org-ellipsis " ▼ "
       ;; org-superstar-headline-bullets-list '("#")
       )
+;; (after! org
+;;   (appendq! +ligatures-extra-symbols
+;;             `(:checkbox      "☐"
+;;               :pending       "◼"
+;;               :checkedbox    "☑"
+;;               :list_property "∷"
+
+;;               :ellipses      "…"
+;;               :arrow_right   "→"
+;;               :arrow_left    "←"
+;;               :title         "❤"
+;;               :subtitle      "𝙩"
+;;               :author        "✍"
+;;               :date          "⚓"
+;;               :property      "☸"
+;;               :options       "⌥"
+;;               :latex_class   "🄲"
+;;               :latex_header  "⇥"
+;;               :beamer_header "↠"
+;;               :attr_latex    "🄛"
+;;               :attr_html     "🄗"
+;;               :begin_quote   "❮"
+;;               :end_quote     "❯"
+;;               :caption       "☰"
+;;               :header        "›"
+;;               :results       "🍌"
+;;               :begin_export  "⏩"
+;;               :end_export    "⏪"
+;;               :properties    "⚙"
+;;               :end           "∎"
+;;               :priority_a   ,(propertize "🅰" 'face 'all-the-icons-red)
+;;               :priority_b   ,(propertize "🅱" 'face 'all-the-icons-orange)
+;;               :priority_c   ,(propertize "🅲" 'face 'all-the-icons-yellow)
+;;               :priority_d   ,(propertize "🅳" 'face 'all-the-icons-green)
+;;               :priority_e   ,(propertize "🅴" 'face 'all-the-icons-blue)))
+;;   (set-ligatures! 'org-mode
+;;                   :merge t
+;;                   :checkbox      "[ ]"
+;;                   :pending       "[-]"
+;;                   :checkedbox    "[X]"
+;;                   :list_property "::"
+;;                   :em_dash       "---"
+;;                   :ellipsis      "..."
+;;                   :arrow_right   "->"
+;;                   :arrow_left    "<-"
+;;                   :title         "#+title:"
+;;                   :subtitle      "#+subtitle:"
+;;                   :author        "#+author:"
+;;                   :date          "#+date:"
+;;                   :property      "#+property:"
+;;                   :options       "#+options:"
+;;                   :latex_class   "#+latex_class:"
+;;                   :latex_header  "#+latex_header:"
+;;                   :beamer_header "#+beamer_header:"
+;;                   :attr_latex    "#+attr_latex:"
+;;                   :attr_html     "#+attr_latex:"
+;;                   :begin_quote   "#+begin_quote"
+;;                   :end_quote     "#+end_quote"
+;;                   :caption       "#+caption:"
+;;                   :header        "#+header:"
+;;                   :begin_export  "#+begin_export"
+;;                   :end_export    "#+end_export"
+;;                   :results       "#+RESULTS:"
+;;                   :property      ":PROPERTIES:"
+;;                   :end           ":END:"
+;;                   :priority_a    "[#A]"
+;;                   :priority_b    "[#B]"
+;;                   :priority_c    "[#C]"
+;;                   :priority_d    "[#D]"
+;;                   :priority_e    "[#E]")
+;;   (plist-put +ligatures-extra-symbols :name "⁍"))
 
 
 ;; (use-package! company-tabnine :ensure t)
@@ -294,6 +379,7 @@
 (defadvice! +lsp-clients-flow-activate-p (file-name _mode)
   :override #'lsp-clients-flow-activate-p
   (and (derived-mode-p 'js-mode 'web-mode 'js2-mode 'flow-js2-mode 'rjsx-mode)
+       (not (derived-mode-p 'json-mode))
        (or (lsp-clients-flow-project-p file-name)
            (and (f-file-p file-name)
                 (lsp-clients-flow-tag-file-present-p file-name)))))
@@ -317,9 +403,84 @@
         (setq offset prev-indentation))))
     (cons (if (<= offset initial-column) initial-column offset) nil)))
 
+(defadvice! +plantuml-server-encode-url (string)
+  :override #'plantuml-server-encode-url
+  (let* ((coding-system (or buffer-file-coding-system
+                            "utf8"))
+         (encoded-string (base64-encode-string (encode-coding-string string 'utf-8) t)))
+    (concat plantuml-server-url "/" plantuml-output-type "/-base64-" encoded-string)))
+
+;; See https://github.com/universal-ctags/citre/wiki/Use-Citre-together-with-lsp-mode
+(define-advice xref--create-fetcher (:around (-fn &rest -args) fallback)
+  (let ((fetcher (apply -fn -args))
+        (citre-fetcher
+         (let ((xref-backend-functions '(citre-xref-backend t)))
+           (apply -fn -args))))
+    (lambda ()
+      (or (with-demoted-errors "%s, fallback to citre"
+            (funcall fetcher))
+          (funcall citre-fetcher)))))
+
+(defadvice! +rjsx-uncomment-region-function (beg end &optional _)
+  :override #'rjsx-uncomment-region-function
+  (js2-mode-wait-for-parse
+   (lambda ()
+     (goto-char beg)
+     (setq end (copy-marker end))
+     (let (cs ts te ce matched-start)
+       ;; find comment start
+       (while (and (<= (point) end)
+                   (setq matched-start
+                         (and (re-search-forward comment-start-skip end t 1)
+                              (match-string-no-properties 0))))
+         (let ((spt (match-beginning 1))
+               (ept (progn
+                      (goto-char spt)
+                      (unless (or (forward-comment 1)
+                                  (eobp))
+                        (error "Can't find the comment end"))
+                      (point))))
+           (save-restriction
+             (narrow-to-region spt ept)
+             (message "spt: %s , ept: %s " spt ept)))
+         ;; delete comment-start
+         (setq cs (match-beginning 1))
+         (setq ts (match-end 1))
+         (goto-char cs)
+         (delete-region cs ts)
+
+         ;; delete comment-padding start
+         (when (and comment-padding (looking-at (regexp-quote comment-padding)))
+           (delete-region (point) (+ (point) (length comment-padding))))
+
+         ;; find comment end
+         (when (re-search-forward (if (string-match "//+" matched-start) "\n" "\\*/}?") end t 1)
+           (setq te (or (match-beginning 1) (match-beginning 0)))
+           (setq ce (or (match-end 1) (match-end 0)))
+           (goto-char te)
+
+           ;; delete commend-end if it's not a newline
+           (unless (string= "\n" (match-string-no-properties 0))
+             (delete-region te ce)
+
+             ;; delete comment-padding end
+             (when comment-padding
+               (backward-char (length comment-padding))
+               (when (looking-at (regexp-quote comment-padding))
+                 (delete-region (point) (+ (point) (length comment-padding))))))
+
+           ;; unescape inner comments if any
+           (save-restriction
+             (narrow-to-region cs (point))
+             (comment-quote-nested "{/*" "*/}" t)))))
+
+     (rjsx-maybe-unwrap-expr beg end)
+
+     (set-marker end nil))))
+
+
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
 (defun color-buffer (proc &rest args)
-  (interactive)
   (with-current-buffer (process-buffer proc)
     (read-only-mode -1)
     (ansi-color-apply-on-region (point-min) (point-max))
@@ -327,7 +488,6 @@
 (advice-add 'magit-process-filter :after #'color-buffer)
 
 ;; 修复 rjsx-mode 反注释会影响行内的 // 的 bug
-
 (setq rjsx-comment-start-skip "[[:space:]]*\\(?://+\\|{?/\\*+\\)")
 (defun +comment-search-forward (limit &optional noerror)
   "Find a comment start between point and LIMIT.
@@ -445,8 +605,8 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 
      (set-marker end nil))))
 
-(use-package! pinyinlib)
 ;; 支持拼音搜索中文文件
+(use-package! pinyinlib)
 (defun completion--regex-pinyin (str)
   (orderless-regexp (pinyinlib-build-regexp-string str)))
 (after! orderless
@@ -484,62 +644,3 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
   (= (buffer-size buffer) 0))
 
 ;; (use-package! tree-sitter-langs)
-
-;; (use-package! company
-;;    :init
-;;    (setq company-minimum-prefix-length 1
-;;          company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex))
-
-;; (use-package! company-lsp
-;;    :defer t
-;;    :config
-;;    (setq company-lsp-cache-candidates 'auto))
-
-;; workaround for company-transformers
-;; (setq company-tabnine--disable-next-transform nil)
-;; (defun my-company--transform-candidates (func &rest args)
-;;   (if (not company-tabnine--disable-next-transform)
-;;       (apply func args)
-;;     (setq company-tabnine--disable-next-transform nil)
-;;     (car args)))
-
-;; (defun my-company-tabnine (func &rest args)
-;;   (when (eq (car args) 'candidates)
-;;     (setq company-tabnine--disable-next-transform t))
-;;   (apply func args))
-
-;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-;; (advice-add #'company-tabnine :around #'my-company-tabnine)
-
-
-;; (defvar +lsp-company-backend '(company-lsp :with company-tabnine :separate))
-;; ;; (defvar +lsp-company-backend 'company-lsp)
-;; (defvar +lsp-capf-blacklist '(ts-ls gopls))
-
-;; ;;;; change js2-mode's company-backend to company-lsp
-;; (defadvice! +lsp-init-company-h-my ()
-;;   :override #'+lsp-init-company-h
-;;   (if (not (bound-and-true-p company-mode))
-;;       (progn
-;;         (remove-hook 'company-mode-hook #'+lsp-init-company-h t)
-;;         (add-hook 'company-mode-hook #'+lsp-init-company-h-my t t))
-;;     (let ((preferred-backend +lsp-company-backend))
-;;       (lsp-foreach-workspace
-;;        (when (memq (lsp--client-server-id (lsp--workspace-client lsp--cur-workspace))
-;;                    +lsp-capf-blacklist)
-;;          (setq preferred-backend 'company-lsp)))
-;;       (if (eq 'company-capf preferred-backend)
-;;           ;; use capf backend
-;;           (progn
-;;             (setq-local lsp-enable-completion-at-point t)
-;;             (setq-local lsp-prefer-capf t)
-;;             (setq-local company-backends
-;;                         (cons preferred-backend (remq 'company-capf company-backends))))
-;;         ;; use company-lsp backend (may need to be loaded first)
-;;         (require 'company-lsp)
-;;         (setq-local lsp-enable-completion-at-point nil)
-;;         (setq-local lsp-prefer-capf nil)
-;;         (setq-local company-backends
-;;                     (cons preferred-backend (remq 'company-capf company-backends)))
-;;         (setq-default company-lsp-cache-candidates 'auto))
-;;       (remove-hook 'company-mode-hook #'+lsp-init-company-h-my t))))

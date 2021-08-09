@@ -9,13 +9,15 @@ local key2App = {
     m = 'MailMaster',
     v = 'code',
     s = 'PxCook',
-    p = 'PDF Expert',
+    p = 'Preview',
     d = 'Kim',
     t = 'Terminal',
     e = 'Emacs',
     k = 'Firefox',
     o = 'Outlook',
     x = 'XMind',
+    n = 'PDF',
+    c = 'Charles',
     h = 'CocosCreator'
 }
 
