@@ -12,15 +12,11 @@
       ;; disabling them outweighs the utility of always keeping them on.
       ;; display-line-numbers-type nil
 
+      ;; lsp
       ;; lsp-ui-sideline is redundant with eldoc and much more invasive, so
       ;; disable it by default.
       lsp-ui-sideline-enable nil
       lsp-enable-symbol-highlighting nil
-
-      ;; disable deft auto save
-      deft-auto-save-interval 0
-
-      ;; lsp
       lsp-auto-guess-root t
       read-process-output-max (* 1024 1024)
       lsp-eldoc-render-all nil
@@ -30,6 +26,8 @@
       ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
 
+      ;; disable deft auto save
+      deft-auto-save-interval 0
 
       ;; company and company-lsp
       company-minimum-prefix-length 1
@@ -118,13 +116,6 @@
 (add-hook 'js-mode-hook 'js2-minor-mode)
 (advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
 
-;;; :tools lsp
-(after! lsp-mode
-  (setq lsp-auto-guess-root t
-        read-process-output-max (* 1024 1024)
-        lsp-log-io nil
-        lsp-eldoc-render-all nil))
-
 ;;; :tools magit
 (setq magit-inhibit-save-previous-winconf t
       ;; transient-values '((magit-rebase "--autosquash"))
@@ -153,8 +144,8 @@
              (seq-drop candidates-1 2)
              (seq-drop candidates-2 2))))
   )
-;; (after! company
-;;   (add-to-list 'company-transformers 'company//sort-by-tabnine t))
+(after! company
+  (add-to-list 'company-transformers 'company//sort-by-tabnine t))
 
 
 ;;; :lang web
@@ -244,11 +235,11 @@
 
 (use-package! insert-translated-name)
 
-(use-package! prescient
-  :hook (company-mode . company-prescient-mode)
-  :hook (company-mode . prescient-persist-mode)
-  :config
-  (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
+;; (use-package! prescient
+;;   :hook (company-mode . company-prescient-mode)
+;;   :hook (company-mode . prescient-persist-mode)
+;;   :config
+;;   (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
 
 (use-package! citre
   :defer t
@@ -604,6 +595,28 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
      (rjsx-maybe-unwrap-expr beg end)
 
      (set-marker end nil))))
+
+;; emacs-rime 在 web-mode 下判断是否在字符串内有问题，在 script 内的字符串后面输入字符时也会被识别为字符串
+;; 这里通过 inside-string-p
+;; https://emacs.stackexchange.com/questions/14269/how-to-detect-if-the-point-is-within-a-comment-area
+(defun inside-string-p (&optional pos)
+  "Test if character at POS is string.  If POS is nil, character at `(point)' is tested"
+  (interactive)
+  (unless pos (setq pos (point)))
+  (let* ((fontfaces (get-text-property pos 'face)))
+    (when (not (listp fontfaces))
+      (setf fontfaces (list fontfaces)))
+    (or (member 'font-lock-string-face fontfaces)
+        (member 'web-mode-javascript-string-face fontfaces))))
+
+(defadvice! +rime-predicate-prog-in-code-p ()
+  :override #'rime-predicate-prog-in-code-p
+  "If cursor is in code.
+
+Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
+  (and (derived-mode-p 'prog-mode 'conf-mode)
+       (not (or (and (nth 3 (syntax-ppss)) (inside-string-p))
+                (nth 4 (syntax-ppss))))))
 
 ;; 支持拼音搜索中文文件
 (use-package! pinyinlib)
