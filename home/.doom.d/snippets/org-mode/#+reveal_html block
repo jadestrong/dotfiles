@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: #+reveal_html block
+# uuid: <rd
+# key: <rd
+# condition: t
+# --
+#+reveal_html: <div>
+`%`$0
+#+reveal_html: </div>

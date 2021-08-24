@@ -15,7 +15,8 @@
 ;;      directory (for easy access to its source code).
 
 (doom! :input
-       chinese
+       chinese2
+       ;; chinese
        ;;japanese
        ;;layout            ; auie,ctsrnm is the superior home row
 
@@ -36,7 +37,7 @@
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;;hydra
        ;;indent-guides     ; highlighted indent columns
-       ;; ligatures         ; ligatures and symbols to make your code pretty again
+       ligatures         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
        modeline          ; snazzy, Atom-inspired modeline, plus API
        ;;nav-flash         ; blink cursor line after big motions
@@ -154,10 +155,10 @@
         +brain
         +dragndrop       ; drag & drop files/images into org buffers
         ;;+gnuplot
-        +hugo            ; use Emacs for hugo blogging
+        ;; +hugo            ; use Emacs for hugo blogging
         +journal
         ;;+jupyter        ; ipython/jupyter support for babel
-        ;;+pandoc          ; export-with-pandoc support
+        +pandoc          ; export-with-pandoc support
         ;;+pomodoro        ; be fruitful with the tomato technique
         +roam2
         +present)        ; using org-mode for presentations

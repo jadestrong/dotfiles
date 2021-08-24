@@ -142,7 +142,30 @@
       (nconc (seq-take candidates-1 2)
              (seq-take candidates-2 2)
              (seq-drop candidates-1 2)
-             (seq-drop candidates-2 2))))
+             (seq-drop candidates-2 2)))))
+
+(defun company/remove-duplicate-cands (candidates)
+  ;; (dolist (candidate candidates)
+  ;;   (setq backend-property (get-text-property 0 'company-backend candidate))
+  ;;   (setq completion-item (get-text-property 0 'lsp-completion-item candidate))
+  ;;   (message "%s" backend-property)
+  ;;   (message "%s" completion-item))
+  ;; candidates
+  (let ((newseq))
+    (dolist (candidate candidates)
+      (setq backend-property (get-text-property 0 'company-backend candidate))
+      (setq completion-item (get-text-property 0 'lsp-completion-item candidate))
+      (if (not (member candidate newseq))
+          (push candidate newseq)
+        (if completion-item
+            (progn
+              (setq newseq (delq candidate candidates))
+              (push candidate candidates)
+              )
+          )
+        )
+      )
+    (nreverse newseq))
   )
 (after! company
   (add-to-list 'company-transformers 'company//sort-by-tabnine t))
@@ -263,77 +286,77 @@
       org-ellipsis " ▼ "
       ;; org-superstar-headline-bullets-list '("#")
       )
-;; (after! org
-;;   (appendq! +ligatures-extra-symbols
-;;             `(:checkbox      "☐"
-;;               :pending       "◼"
-;;               :checkedbox    "☑"
-;;               :list_property "∷"
+(after! org
+  (appendq! +ligatures-extra-symbols
+            `(:checkbox      "☐"
+              :pending       "◼"
+              :checkedbox    "☑"
+              :list_property "∷"
 
-;;               :ellipses      "…"
-;;               :arrow_right   "→"
-;;               :arrow_left    "←"
-;;               :title         "❤"
-;;               :subtitle      "𝙩"
-;;               :author        "✍"
-;;               :date          "⚓"
-;;               :property      "☸"
-;;               :options       "⌥"
-;;               :latex_class   "🄲"
-;;               :latex_header  "⇥"
-;;               :beamer_header "↠"
-;;               :attr_latex    "🄛"
-;;               :attr_html     "🄗"
-;;               :begin_quote   "❮"
-;;               :end_quote     "❯"
-;;               :caption       "☰"
-;;               :header        "›"
-;;               :results       "🍌"
-;;               :begin_export  "⏩"
-;;               :end_export    "⏪"
-;;               :properties    "⚙"
-;;               :end           "∎"
-;;               :priority_a   ,(propertize "🅰" 'face 'all-the-icons-red)
-;;               :priority_b   ,(propertize "🅱" 'face 'all-the-icons-orange)
-;;               :priority_c   ,(propertize "🅲" 'face 'all-the-icons-yellow)
-;;               :priority_d   ,(propertize "🅳" 'face 'all-the-icons-green)
-;;               :priority_e   ,(propertize "🅴" 'face 'all-the-icons-blue)))
-;;   (set-ligatures! 'org-mode
-;;                   :merge t
-;;                   :checkbox      "[ ]"
-;;                   :pending       "[-]"
-;;                   :checkedbox    "[X]"
-;;                   :list_property "::"
-;;                   :em_dash       "---"
-;;                   :ellipsis      "..."
-;;                   :arrow_right   "->"
-;;                   :arrow_left    "<-"
-;;                   :title         "#+title:"
-;;                   :subtitle      "#+subtitle:"
-;;                   :author        "#+author:"
-;;                   :date          "#+date:"
-;;                   :property      "#+property:"
-;;                   :options       "#+options:"
-;;                   :latex_class   "#+latex_class:"
-;;                   :latex_header  "#+latex_header:"
-;;                   :beamer_header "#+beamer_header:"
-;;                   :attr_latex    "#+attr_latex:"
-;;                   :attr_html     "#+attr_latex:"
-;;                   :begin_quote   "#+begin_quote"
-;;                   :end_quote     "#+end_quote"
-;;                   :caption       "#+caption:"
-;;                   :header        "#+header:"
-;;                   :begin_export  "#+begin_export"
-;;                   :end_export    "#+end_export"
-;;                   :results       "#+RESULTS:"
-;;                   :property      ":PROPERTIES:"
-;;                   :end           ":END:"
-;;                   :priority_a    "[#A]"
-;;                   :priority_b    "[#B]"
-;;                   :priority_c    "[#C]"
-;;                   :priority_d    "[#D]"
-;;                   :priority_e    "[#E]")
-;;   (plist-put +ligatures-extra-symbols :name "⁍"))
+              :ellipses      "…"
+              :arrow_right   "→"
+              :arrow_left    "←"
+              :title         "❤"
+              :subtitle      "𝙩"
+              :author        "✍"
+              :date          "⚓"
+              :property      "☸"
+              :options       "⌥"
+              :latex_class   "🄲"
+              :latex_header  "⇥"
+              :beamer_header "↠"
+              :attr_latex    "🄛"
+              :attr_html     "🄗"
+              :begin_quote   "❮"
+              :end_quote     "❯"
+              :caption       "☰"
+              :header        "›"
+              :results       "🍌"
+              :begin_export  "⏩"
+              :end_export    "⏪"
+              :properties    "⚙"
+              :end           "∎"
+              :priority_a   ,(propertize "🅰" 'face 'all-the-icons-red)
+              :priority_b   ,(propertize "🅱" 'face 'all-the-icons-orange)
+              :priority_c   ,(propertize "🅲" 'face 'all-the-icons-yellow)
+              :priority_d   ,(propertize "🅳" 'face 'all-the-icons-green)
+              :priority_e   ,(propertize "🅴" 'face 'all-the-icons-blue)))
+  (set-ligatures! 'org-mode
+                  :merge t
+                  :checkbox      "[ ]"
+                  :pending       "[-]"
+                  :checkedbox    "[X]"
+                  :list_property "::"
+                  :em_dash       "---"
+                  :ellipsis      "..."
+                  :arrow_right   "->"
+                  :arrow_left    "<-"
+                  :title         "#+title:"
+                  :subtitle      "#+subtitle:"
+                  :author        "#+author:"
+                  :date          "#+date:"
+                  :property      "#+property:"
+                  :options       "#+options:"
+                  :latex_class   "#+latex_class:"
+                  :latex_header  "#+latex_header:"
+                  :beamer_header "#+beamer_header:"
+                  :attr_latex    "#+attr_latex:"
+                  :attr_html     "#+attr_latex:"
+                  :begin_quote   "#+begin_quote"
+                  :end_quote     "#+end_quote"
+                  :caption       "#+caption:"
+                  :header        "#+header:"
+                  :begin_export  "#+begin_export"
+                  :end_export    "#+end_export"
+                  :results       "#+RESULTS:"
+                  :property      ":PROPERTIES:"
+                  :end           ":END:"
+                  :priority_a    "[#A]"
+                  :priority_b    "[#B]"
+                  :priority_c    "[#C]"
+                  :priority_d    "[#D]"
+                  :priority_e    "[#E]")
+  (plist-put +ligatures-extra-symbols :name "⁍"))
 
 
 ;; (use-package! company-tabnine :ensure t)
