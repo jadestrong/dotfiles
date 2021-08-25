@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: reveal code attr_reveal
+# uuid: <rca
+# key: <rca
+# condition: t
+# --
+#+ATTR_REVEAL: :code_attribs data-line-numbers=''

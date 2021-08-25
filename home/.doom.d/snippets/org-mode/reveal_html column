@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: reveal_html column
+# uuid: <rhc
+# key: <rhc
+# condition: t
+# --
+#+reveal_html: <div class="column" style="float:left; width: 50%">
+`%`$1
+#+reveal_html: </div>
+#+reveal_html: <div class="column" style="float:right; width: 50%">
+`%`$0
+#+reveal_html: </div>
