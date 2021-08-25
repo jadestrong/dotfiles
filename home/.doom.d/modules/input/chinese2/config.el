@@ -61,6 +61,7 @@ input scheme to convert to Chinese."
   (setq-default rime-disable-predicates
                 '(rime-predicate-evil-mode-p
                   rime-predicate-after-alphabet-char-p
-                  rime-predicate-prog-in-code-p))
+                  rime-predicate-prog-in-code-p
+                  rime-predicate-in-code-string-p))
   (setq-default rime-inline-predicates
                 '(rime-predicate-space-after-cc-p)))
