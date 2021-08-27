@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: reveal div src
+# uuid: <rds
+# key: <rds
+# condition: t
+# --
+#+reveal_html: <div style="font-size: 60%;">
+#+attr_reveal: :code_attribs data-line-numbers='$0'
+#+begin_src $2
+`%`$1
+#+end_src
+#+reveal_html: </div>

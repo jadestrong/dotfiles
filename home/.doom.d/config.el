@@ -286,78 +286,6 @@
       org-ellipsis " ▼ "
       ;; org-superstar-headline-bullets-list '("#")
       )
-(after! org
-  (appendq! +ligatures-extra-symbols
-            `(:checkbox      "☐"
-              :pending       "◼"
-              :checkedbox    "☑"
-              :list_property "∷"
-
-              :ellipses      "…"
-              :arrow_right   "→"
-              :arrow_left    "←"
-              :title         "❤"
-              :subtitle      "𝙩"
-              :author        "✍"
-              :date          "⚓"
-              :property      "☸"
-              :options       "⌥"
-              :latex_class   "🄲"
-              :latex_header  "⇥"
-              :beamer_header "↠"
-              :attr_latex    "🄛"
-              :attr_html     "🄗"
-              :begin_quote   "❮"
-              :end_quote     "❯"
-              :caption       "☰"
-              :header        "›"
-              :results       "🍌"
-              :begin_export  "⏩"
-              :end_export    "⏪"
-              :properties    "⚙"
-              :end           "∎"
-              :priority_a   ,(propertize "🅰" 'face 'all-the-icons-red)
-              :priority_b   ,(propertize "🅱" 'face 'all-the-icons-orange)
-              :priority_c   ,(propertize "🅲" 'face 'all-the-icons-yellow)
-              :priority_d   ,(propertize "🅳" 'face 'all-the-icons-green)
-              :priority_e   ,(propertize "🅴" 'face 'all-the-icons-blue)))
-  (set-ligatures! 'org-mode
-                  :merge t
-                  :checkbox      "[ ]"
-                  :pending       "[-]"
-                  :checkedbox    "[X]"
-                  :list_property "::"
-                  :em_dash       "---"
-                  :ellipsis      "..."
-                  :arrow_right   "->"
-                  :arrow_left    "<-"
-                  :title         "#+title:"
-                  :subtitle      "#+subtitle:"
-                  :author        "#+author:"
-                  :date          "#+date:"
-                  :property      "#+property:"
-                  :options       "#+options:"
-                  :latex_class   "#+latex_class:"
-                  :latex_header  "#+latex_header:"
-                  :beamer_header "#+beamer_header:"
-                  :attr_latex    "#+attr_latex:"
-                  :attr_html     "#+attr_latex:"
-                  :begin_quote   "#+begin_quote"
-                  :end_quote     "#+end_quote"
-                  :caption       "#+caption:"
-                  :header        "#+header:"
-                  :begin_export  "#+begin_export"
-                  :end_export    "#+end_export"
-                  :results       "#+RESULTS:"
-                  :property      ":PROPERTIES:"
-                  :end           ":END:"
-                  :priority_a    "[#A]"
-                  :priority_b    "[#B]"
-                  :priority_c    "[#C]"
-                  :priority_d    "[#D]"
-                  :priority_e    "[#E]")
-  (plist-put +ligatures-extra-symbols :name "⁍"))
-
 
 ;; (use-package! company-tabnine :ensure t)
 
@@ -648,6 +576,18 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 (after! orderless
  (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
 
+;; 当当前buffer 禁用了 flycheck-mode 时， lsp 还会尝试调用它，会导致报错
+;; 这里会先检查是否启用了 flycheck-mode
+(defadvice! +lsp-diagnostics--flycheck-buffer ()
+  :override #'lsp-diagnostics--flycheck-buffer
+  "Trigger flycheck on buffer."
+  (remove-hook 'lsp-on-idle-hook #'lsp-diagnostics--flycheck-buffer t)
+  (when (bound-and-true-p flycheck-mode)
+    (flycheck-buffer)))
+
+;; https://emacs-lsp.github.io/lsp-mode/page/faq/#how-do-i-force-lsp-mode-to-forget-the-workspace-folders-for-multi-root
+;; 默认 lsp 会记住所有之前打开的 vue 项目，并每次启动的时候都会在每个项目里面都启用一个 vls 服务，这里强制其遗忘
+(advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
 
 ;;; Customize function
 

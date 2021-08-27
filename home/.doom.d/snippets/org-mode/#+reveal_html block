@@ -4,6 +4,6 @@
 # key: <rd
 # condition: t
 # --
-#+reveal_html: <div>
+#+reveal_html: <div style="$1">
 `%`$0
 #+reveal_html: </div>

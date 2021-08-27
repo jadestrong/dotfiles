@@ -4,4 +4,4 @@
 # key: <rca
 # condition: t
 # --
-#+ATTR_REVEAL: :code_attribs data-line-numbers=''
+#+ATTR_REVEAL: :code_attribs data-line-numbers='$0'
