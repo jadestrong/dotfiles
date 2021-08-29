@@ -589,6 +589,26 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 ;; 默认 lsp 会记住所有之前打开的 vue 项目，并每次启动的时候都会在每个项目里面都启用一个 vls 服务，这里强制其遗忘
 (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
 
+;; 当打开压缩后的 js 文件时， dtrt-indent-mode 会因为单行内容太长，生成的正则太长而报错，这里忽略其抛出的错误
+(defadvice! +doom-detect-indentation-h nil
+  :override #'doom-detect-indentation-h
+  (if
+      (or
+       (not after-init-time)
+       doom-inhibit-indent-detection doom-large-file-p
+       (memq major-mode doom-detect-indentation-excluded-modes)
+       (member
+        (substring
+         (buffer-name)
+         0 1)
+        '(" " "*")))
+      nil
+    (let
+        ((inhibit-message
+          (not doom-debug-p)))
+      (ignore-errors
+        (dtrt-indent-mode 1)))))
+
 ;;; Customize function
 
 (defconst target-dir-path "~/Downloads/" "My Download directory")
