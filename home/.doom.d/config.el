@@ -32,8 +32,6 @@
 
       ;; company and company-lsp
       company-minimum-prefix-length 1
-      company-lsp-match-candidate-predicate #'company-lsp-match-candidate-flex
-      company-lsp-cache-candidates 'auto
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
@@ -60,7 +58,7 @@
 ;; points larger than I'd like, so I specify size 12 here.
 (setq doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'regular)
       doom-variable-pitch-font (font-spec :family "Noto Serif" :size 17)
-      ivy-posframe-font (font-spec :family "JetBrainsMono" :size 16))
+      ivy-posframe-font (font-spec :family "JetBrains Mono" :size 16))
 
 ;; Prevents some cases of Emacs flickering
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
@@ -200,29 +198,6 @@
   (company-mode -1))
 (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook)
 
-
-
-;; (after! web
-;;   (setq web-mode-style-padding 0
-;;         web-mode-script-padding 0
-;;         web-mode-comment-style 2
-;;         web-mode-code-indent-offset 4
-;;         web-mode-css-indent-offset 4
-;;         web-mode-markup-indent-offset 2
-;;         web-mode-content-types-alist '(("jsx" . ".*\\.js\\'") ("vue" . ".*\\.vue\\'"))))
-
-
-;; (after! web-mode
-;;   (setq web-mode-markup-indent-offset 2
-;;         web-mode-code-indent-offset 4
-;;         web-mode-css-indent-offset 4
-;;         web-mode-style-padding 0
-;;         web-mode-script-padding 0
-;;         web-mode-comment-style 2
-;;         web-mode-enable-auto-quoting nil
-;;         web-mode-content-types-alist '(("jsx" . ".*\\.js\\'") ("vue" . ".*\\.vue\\'")))
-;;   (flycheck-add-mode 'javascript-eslint 'web-mode))
-
 ;; (setq flycheck-checker-error-threshold 50)
 ;;让web-mode支持javascript-eslint，默认不支持
 ;; (after! 'flycheck
@@ -236,11 +211,6 @@
 ;; (add-hook! lsp-ui-mode
 ;;   (cond ((and (equal mode-name "Web") (equal web-mode-content-type "vue")) ;; 放在lsp-ui-mode-hook 里面是因为它比web-mode 执行晚，否则 lsp-prefer-flymake 会又被覆盖
 ;;          (my/web-vue-setup))))
-
-
-;; (defun my/web-vue-setup()
-;;   "Setup for js related."
-;;   (setq-local lsp-prefer-flymake :none))
 
 ;;; leetcode
 (use-package! leetcode
@@ -296,19 +266,17 @@
       ;; org-superstar-headline-bullets-list '("#")
       )
 
-;; (use-package! company-tabnine :ensure t)
-
-;;
 ;;; Language customizations
 
-;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug ，使用它主要解决 doom-emacs 自带的 % 功能不支持 html 标签匹配跳转
+;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug
+;; 使用它主要解决 doom-emacs 自带的 % 功能不支持 html 标签匹配跳转
 (use-package! evil-matchit-mode
   :hook (web-mode html-mode)
   :init
   (evilmi-load-plugin-rules '(web-mode) '(simple template html))
   (evilmi-load-plugin-rules '(html-mode) '(simple template html)))
 
-;；遇到大文件时语法检查贼满，因此强制使用 fundamental-mode
+;；遇到大文件时语法检查贼慢，因此强制使用 fundamental-mode
 (defun my-find-file-check-make-large-file-read-only-hook ()
   "If a file is over a given size, make the buffer read only."
   (when (> (buffer-size) (* 2 1024 1024))
@@ -371,64 +339,6 @@
       (or (with-demoted-errors "%s, fallback to citre"
             (funcall fetcher))
           (funcall citre-fetcher)))))
-
-(defadvice! +rjsx-uncomment-region-function (beg end &optional _)
-  :override #'rjsx-uncomment-region-function
-  (js2-mode-wait-for-parse
-   (lambda ()
-     (goto-char beg)
-     (setq end (copy-marker end))
-     (let (cs ts te ce matched-start)
-       ;; find comment start
-       (while (and (<= (point) end)
-                   (setq matched-start
-                         (and (re-search-forward comment-start-skip end t 1)
-                              (match-string-no-properties 0))))
-         (let ((spt (match-beginning 1))
-               (ept (progn
-                      (goto-char spt)
-                      (unless (or (forward-comment 1)
-                                  (eobp))
-                        (error "Can't find the comment end"))
-                      (point))))
-           (save-restriction
-             (narrow-to-region spt ept)
-             (message "spt: %s , ept: %s " spt ept)))
-         ;; delete comment-start
-         (setq cs (match-beginning 1))
-         (setq ts (match-end 1))
-         (goto-char cs)
-         (delete-region cs ts)
-
-         ;; delete comment-padding start
-         (when (and comment-padding (looking-at (regexp-quote comment-padding)))
-           (delete-region (point) (+ (point) (length comment-padding))))
-
-         ;; find comment end
-         (when (re-search-forward (if (string-match "//+" matched-start) "\n" "\\*/}?") end t 1)
-           (setq te (or (match-beginning 1) (match-beginning 0)))
-           (setq ce (or (match-end 1) (match-end 0)))
-           (goto-char te)
-
-           ;; delete commend-end if it's not a newline
-           (unless (string= "\n" (match-string-no-properties 0))
-             (delete-region te ce)
-
-             ;; delete comment-padding end
-             (when comment-padding
-               (backward-char (length comment-padding))
-               (when (looking-at (regexp-quote comment-padding))
-                 (delete-region (point) (+ (point) (length comment-padding))))))
-
-           ;; unescape inner comments if any
-           (save-restriction
-             (narrow-to-region cs (point))
-             (comment-quote-nested "{/*" "*/}" t)))))
-
-     (rjsx-maybe-unwrap-expr beg end)
-
-     (set-marker end nil))))
-
 
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
 (defun color-buffer (proc &rest args)
@@ -647,5 +557,3 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 ;; 检查一个 buffer 是否为空
 (defun buffer-empty-p (&optional buffer)
   (= (buffer-size buffer) 0))
-
-;; (use-package! tree-sitter-langs)
