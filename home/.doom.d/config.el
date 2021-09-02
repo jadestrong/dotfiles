@@ -25,6 +25,7 @@
       lsp-eslint-enable nil
       ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
+      +lsp-prompt-to-install-server 'quiet
 
       ;; disable deft auto save
       deft-auto-save-interval 0
@@ -57,9 +58,9 @@
 
 ;; "monospace" means use the system default. However, the default is usually two
 ;; points larger than I'd like, so I specify size 12 here.
-(setq doom-font (font-spec :family "Monaco" :size 16)
-      ;; doom-variable-pitch-font (font-spec :family "sans" :size 14)
-      )
+(setq doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'regular)
+      doom-variable-pitch-font (font-spec :family "Noto Serif" :size 17)
+      ivy-posframe-font (font-spec :family "JetBrainsMono" :size 16))
 
 ;; Prevents some cases of Emacs flickering
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
@@ -69,6 +70,7 @@
 
 ;;
 ;;; Keybinds
+
 
 (map! :n [tab] (cmds! (and (featurep! :editor fold)
                            (save-excursion (end-of-line) (invisible-p (point))))
@@ -81,7 +83,14 @@
                       #'yas-insert-snippet
                       (fboundp 'evil-jump-item)
                       #'evil-jump-item)
-
+      (:after evil-org
+       :map evil-org-mode-map
+       :n "gk" (cmd! (if (org-on-heading-p)
+                         (org-backward-element)
+                       (evil-previous-visual-line)))
+       :n "gj" (cmd! (if (org-on-heading-p)
+                         (org-forward-element)
+                       (evil-next-visual-line))))
       :leader
       "h L" #'global-keycast-mode
       "f t" #'find-in-dotfiles
