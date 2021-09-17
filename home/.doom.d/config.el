@@ -495,15 +495,6 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 (after! orderless
  (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
 
-;; 当当前buffer 禁用了 flycheck-mode 时， lsp 还会尝试调用它，会导致报错
-;; 这里会先检查是否启用了 flycheck-mode
-(defadvice! +lsp-diagnostics--flycheck-buffer ()
-  :override #'lsp-diagnostics--flycheck-buffer
-  "Trigger flycheck on buffer."
-  (remove-hook 'lsp-on-idle-hook #'lsp-diagnostics--flycheck-buffer t)
-  (when (bound-and-true-p flycheck-mode)
-    (flycheck-buffer)))
-
 ;; https://emacs-lsp.github.io/lsp-mode/page/faq/#how-do-i-force-lsp-mode-to-forget-the-workspace-folders-for-multi-root
 ;; 默认 lsp 会记住所有之前打开的 vue 项目，并每次启动的时候都会在每个项目里面都启用一个 vls 服务，这里强制其遗忘
 (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
