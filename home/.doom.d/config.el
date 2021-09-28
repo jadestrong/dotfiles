@@ -26,6 +26,7 @@
       ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
       +lsp-prompt-to-install-server 'quiet
+      lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
 
       ;; disable deft auto save
       deft-auto-save-interval 0
