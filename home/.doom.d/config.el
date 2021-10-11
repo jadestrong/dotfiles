@@ -17,11 +17,13 @@
       ;; disable it by default.
       lsp-ui-sideline-enable nil
       lsp-enable-symbol-highlighting nil
+      lsp-ui-doc-enable nil
       lsp-auto-guess-root t
       read-process-output-max (* 1024 1024)
       lsp-eldoc-render-all nil
       lsp-clients-typescript-log-verbosity "off"
-      +lsp-company-backends '(company-capf :with company-tabnine :separate)
+      ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
+      +lsp-company-backends '(company-capf company-yasnippet company-tabnine :separate)
       lsp-eslint-enable nil
       ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
@@ -36,6 +38,7 @@
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
+      rustic-analyzer-command '("/Users/jadestrong/Library/Application\ Support/Code/User/globalStorage/matklad.rust-analyzer/rust-analyzer-x86_64-apple-darwin")
 
       ;; More common use-case
       evil-ex-substitute-global t
@@ -131,53 +134,68 @@
 
 
 ;;; :complete company
-(defun company//sort-by-tabnine (candidates)
-  (if (or (functionp company-backend)
-          (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
-      candidates
-    (let ((candidates-table (make-hash-table :test #'equal))
-          candidates-1
-          candidates-2)
-      (dolist (candidate candidates)
-        (if (eq (get-text-property 0 'company-backend candidate)
-                'company-tabnine)
-            (unless (gethash candidate candidates-table)
-              (push candidate candidates-2))
-          (push candidate candidates-1)
-          (puthash candidate t candidates-table)))
-      (setq candidates-1 (nreverse candidates-1))
-      (setq candidates-2 (nreverse candidates-2))
-      (nconc (seq-take candidates-1 2)
-             (seq-take candidates-2 2)
-             (seq-drop candidates-1 2)
-             (seq-drop candidates-2 2)))))
+(use-package! company-tabnine
+  :when (featurep! :completion company)
+  :config
+  (defun company//sort-by-tabnine (candidates)
+    (if (or (functionp company-backend)
+            (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
+        candidates
+      (let ((candidates-table (make-hash-table :test #'equal))
+            candidates-1
+            candidates-2)
+        (dolist (candidate candidates)
+          (if (eq (get-text-property 0 'company-backend candidate)
+                  'company-tabnine)
+              (unless (gethash candidate candidates-table)
+                (push candidate candidates-2))
+            (push candidate candidates-1)
+            (puthash candidate t candidates-table)))
+        (setq candidates-1 (nreverse candidates-1))
+        (setq candidates-2 (nreverse candidates-2))
+        (nconc (seq-take candidates-1 2)
+               (seq-take candidates-2 2)
+               (seq-drop candidates-1 2)
+               (seq-drop candidates-2 2)))))
+  (add-to-list 'company-transformers 'company//sort-by-tabnine t)
+  ;; The free version of TabNine is good enough,
+  ;; and below code is recommended that TabNine not always
+  ;; prompt me to purchase a paid version in a large project.
+  ;; 禁止tabnine提示升级付费版本
+  (defadvice company-echo-show (around disable-tabnine-upgrade-message activate)
+      (let ((company-message-func (ad-get-arg 0)))
+        (when (and company-message-func
+                   (stringp (funcall company-message-func)))
+          (unless (string-match "The free version of TabNine only indexes up to" (funcall company-message-func))
+            ad-do-it))))
+  ;;将tabnine添加到backends
+  (add-to-list 'company-backends 'company-tabnine))
 
-(defun company/remove-duplicate-cands (candidates)
-  ;; (dolist (candidate candidates)
-  ;;   (setq backend-property (get-text-property 0 'company-backend candidate))
-  ;;   (setq completion-item (get-text-property 0 'lsp-completion-item candidate))
-  ;;   (message "%s" backend-property)
-  ;;   (message "%s" completion-item))
-  ;; candidates
-  (let ((newseq))
-    (dolist (candidate candidates)
-      (setq backend-property (get-text-property 0 'company-backend candidate))
-      (setq completion-item (get-text-property 0 'lsp-completion-item candidate))
-      (if (not (member candidate newseq))
-          (push candidate newseq)
-        (if completion-item
-            (progn
-              (setq newseq (delq candidate candidates))
-              (push candidate candidates)
-              )
-          )
-        )
-      )
-    (nreverse newseq))
-  )
-(after! company
-  (add-to-list 'company-transformers 'company//sort-by-tabnine t))
 
+
+;; (defun company/remove-duplicate-cands (candidates)
+;;   ;; (dolist (candidate candidates)
+;;   ;;   (setq backend-property (get-text-property 0 'company-backend candidate))
+;;   ;;   (setq completion-item (get-text-property 0 'lsp-completion-item candidate))
+;;   ;;   (message "%s" backend-property)
+;;   ;;   (message "%s" completion-item))
+;;   ;; candidates
+;;   (let ((newseq))
+;;     (dolist (candidate candidates)
+;;       (setq backend-property (get-text-property 0 'company-backend candidate))
+;;       (setq completion-item (get-text-property 0 'lsp-completion-item candidate))
+;;       (if (not (member candidate newseq))
+;;           (push candidate newseq)
+;;         (if completion-item
+;;             (progn
+;;               (setq newseq (delq candidate candidates))
+;;               (push candidate candidates)
+;;               )
+;;           )
+;;         )
+;;       )
+;;     (nreverse newseq))
+;;   )
 
 ;;; :lang web
 ;; 让 web-mode 支持 mako 文件
@@ -200,18 +218,16 @@
 (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook)
 
 ;; (setq flycheck-checker-error-threshold 50)
-;;让web-mode支持javascript-eslint，默认不支持
-;; (after! 'flycheck
-;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-;; )
-;; (lsp-ui-flycheck-enable) 这个方法会默认设置flycheck-checker为lsp-ui，当设置了这个值
-;; 后，flycheck就只会使用这一个checker进行检查，否则才会遍历flycheck-checkers这个列表中的可用
-;; checker依次做检查。此处禁用enable这个函数，才能同时启用lsp-ui和javascript-eslint来检查web-mode下的vue文件,
-;; 缺点是不能同时起作用，只有修复了lsp-ui的warning之后，才会再使用eslint检查
-;; 补充：设置了 :none 就不使用 lsp-ui 做为 checker 了， :(
-;; (add-hook! lsp-ui-mode
-;;   (cond ((and (equal mode-name "Web") (equal web-mode-content-type "vue")) ;; 放在lsp-ui-mode-hook 里面是因为它比web-mode 执行晚，否则 lsp-prefer-flymake 会又被覆盖
-;;          (my/web-vue-setup))))
+
+;; 同时支持 lsp 和 javascript-eslint
+(defun creature/lsp-eslint-checker-init ()
+  (when (and flycheck-mode
+             (flycheck-valid-checker-p 'lsp)
+             (flycheck-valid-checker-p 'javascript-eslint))
+    (make-local-variable 'flycheck-checkers)
+    (flycheck-add-next-checker 'lsp 'javascript-eslint)))
+(with-eval-after-load 'lsp-diagnostics
+  (add-hook! lsp-diagnostics-mode #'creature/lsp-eslint-checker-init))
 
 ;;; leetcode
 (use-package! leetcode

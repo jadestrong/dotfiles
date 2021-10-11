@@ -21,6 +21,7 @@ set scrolloff=10
 set expandtab
 set shell=fish
 set backupskip=/tmp/*,/private/tmp/*
+set updatetime=300
 
 " incremental
 if has('nvim')
@@ -307,6 +308,10 @@ nvim_lsp.vuels.setup {
   on_attach = on_attach
 }
 
+nvim_lsp.rust_analyzer.setup {
+  on_attach = on_attach
+}
+
 nvim_lsp.diagnosticls.setup {
   on_attach = on_attach,
   filetypes = { 'javascript', 'javascriptreact', 'json', 'typescript', 'typescriptreact', 'css', 'less', 'scss', 'markdown', 'pandoc' },
@@ -369,6 +374,8 @@ nvim_lsp.diagnosticls.setup {
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
     underline = true,
+    virtual_text = false,
+    signs = true,
     -- This sets the spacing and the prefix, obviously.
     -- virtual_text = {
     --   spacing = 4,

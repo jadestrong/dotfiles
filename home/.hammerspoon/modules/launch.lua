@@ -18,7 +18,7 @@ local key2App = {
     x = 'XMind',
     n = 'PDF',
     c = 'Charles',
-    h = 'CocosCreator'
+    h = 'CocosCreator',
 }
 
 for key, app in pairs(key2App) do
