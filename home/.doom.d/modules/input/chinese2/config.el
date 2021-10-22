@@ -10,6 +10,7 @@
     ("C-`" . #'rime-send-keybinding))
   :custom
   (default-input-method "rime")
+  (rime-emacs-module-header-root "/nix/store/h6ahwbvap9a3pxhq5bdkhkxhpdj6x07f-emacsGccDarwin/include")
   (rime-librime-root "~/.doom.d/librime/dist")
   (rime-inline-ascii-trigger 'shift-l)
   :config
@@ -64,4 +65,7 @@ input scheme to convert to Chinese."
                   rime-predicate-prog-in-code-p
                   rime-predicate-in-code-string-p))
   (setq-default rime-inline-predicates
-                '(rime-predicate-space-after-cc-p)))
+                '(rime-predicate-space-after-cc-p))
+  (map! (:after evil-org
+         :map evil-org-mode-map
+         :i "M-j" #'+rime-convert-string-at-point)))

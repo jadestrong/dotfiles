@@ -42,17 +42,18 @@
 
       ;; More common use-case
       evil-ex-substitute-global t
-      evil-want-fine-undo nil
+      evil-want-fine-undo t
       ;; evil-want-minibuffer t
       ;; evil-collection-setup-minibuffer t
       auto-save-default nil
       ;; flycheck-checker-error-threshold nil
+      flycheck-highlighting-style `(conditional 10 level-face (delimiters "" ""))
       )
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none))
-;; (setq lsp-log-io t)
+(setq lsp-log-io nil)
 
 ;;
 ;;; UI
@@ -200,7 +201,8 @@
 ;;; :lang web
 ;; 让 web-mode 支持 mako 文件
 (add-to-list 'auto-mode-alist '("\\.mako\\'" . web-mode))
-(defun my-web-mode-hook ()
+(defun adjust-web-mode-padding ()
+  ;; (message "adjust-web-mode-padding")
   (setq web-mode-style-padding 0
         web-mode-script-padding 0
         web-mode-comment-style 2
@@ -208,9 +210,10 @@
         ;; web-mode-css-indent-offset 4
         ;; web-mode-markup-indent-offset 2
         )
-  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
   )
-(add-hook! 'web-mode-hook #'my-web-mode-hook)
+(add-hook! web-mode #'adjust-web-mode-padding)
+(add-hook 'editorconfig-after-apply-functions
+           (lambda (props) (adjust-web-mode-padding)))
 
 ;; disable org-mode company-mode
 (defun disable-company-hook ()
@@ -228,6 +231,32 @@
     (flycheck-add-next-checker 'lsp 'javascript-eslint)))
 (with-eval-after-load 'lsp-diagnostics
   (add-hook! lsp-diagnostics-mode #'creature/lsp-eslint-checker-init))
+
+;; Optional: ensure flycheck cycles, both when going backward and forward.
+;; Tries to handle arguments correctly.
+;; Since flycheck-previous-error is written in terms of flycheck-next-error,
+;; advising the latter is enough.
+(defun flycheck-next-error-loop-advice (orig-fun &optional n reset)
+  (message "flycheck-next-error called with args %S %S" n reset)
+  (condition-case err
+      (apply orig-fun (list n reset))
+    ((user-error)
+     (let ((error-count (length flycheck-current-errors)))
+       (if (and
+            (> error-count 0)                   ; There are errors so we can cycle.
+            (equal (error-message-string err) "No more Flycheck errors"))
+           ;; We need to cycle.
+           (let* ((req-n (if (numberp n) n 1)) ; Requested displacement.
+                  ; An universal argument is taken as reset, so shouldn't fail.
+                  (curr-pos (if (> req-n 0) (- error-count 1) 0)) ; 0-indexed.
+                  (next-pos (mod (+ curr-pos req-n) error-count))) ; next-pos must be 1-indexed
+             (message "error-count %S; req-n %S; curr-pos %S; next-pos %S" error-count req-n curr-pos next-pos)
+             ; orig-fun is flycheck-next-error (but without advise)
+             ; Argument to flycheck-next-error must be 1-based.
+             (apply orig-fun (list (+ 1 next-pos) 'reset)))
+         (signal (car err) (cdr err)))))))
+
+(advice-add 'flycheck-next-error :around #'flycheck-next-error-loop-advice)
 
 ;;; leetcode
 (use-package! leetcode
@@ -254,11 +283,11 @@
 
 (use-package! insert-translated-name)
 
-;; (use-package! prescient
-;;   :hook (company-mode . company-prescient-mode)
-;;   :hook (company-mode . prescient-persist-mode)
-;;   :config
-;;   (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
+(use-package! prescient
+  :hook (company-mode . company-prescient-mode)
+  :hook (company-mode . prescient-persist-mode)
+  :config
+  (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
 
 (use-package! citre
   :defer t
@@ -565,3 +594,16 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 ;; 检查一个 buffer 是否为空
 (defun buffer-empty-p (&optional buffer)
   (= (buffer-size buffer) 0))
+
+(defun rust-save-compile-and-run ()
+  (interactive)
+  (save-buffer)
+
+  (if (locate-dominating-file (buffer-file-name) "Cargo.toml")
+
+      (compile "cargo run")
+
+    (compile
+     (format "rustc %s && %s"
+         (buffer-file-name)
+         (file-name-sans-extension (buffer-file-name))))))

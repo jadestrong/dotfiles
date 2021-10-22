@@ -31,6 +31,7 @@
       nvim-treesitter
       # nvim-compe
       completion-nvim
+      rust-tools-nvim
       # yajs.vim # JS syntax
       # es.next.syntax.vim # ES7 syntax
 
