@@ -93,7 +93,8 @@
                        (evil-previous-visual-line)))
        :n "gj" (cmd! (if (org-on-heading-p)
                          (org-forward-element)
-                       (evil-next-visual-line))))
+                       (evil-next-visual-line)))
+       :i "M-j" #'+rime-convert-string-at-point)
       :leader
       "h L" #'global-keycast-mode
       "f t" #'find-in-dotfiles
