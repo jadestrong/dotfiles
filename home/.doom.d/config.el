@@ -15,15 +15,17 @@
       ;; lsp
       ;; lsp-ui-sideline is redundant with eldoc and much more invasive, so
       ;; disable it by default.
-      lsp-ui-sideline-enable nil
+      lsp-ui-sideline-enable t
       lsp-enable-symbol-highlighting nil
       lsp-ui-doc-enable nil
       lsp-auto-guess-root t
       read-process-output-max (* 1024 1024)
       lsp-eldoc-render-all nil
       lsp-clients-typescript-log-verbosity "off"
+      ;; +lsp-company-backends '(company-tabnine company-capf :with company-yasnippet)
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
-      +lsp-company-backends '(company-capf company-yasnippet company-tabnine :separate)
+      ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
+      +lsp-company-backends 'company-tabnine-capf
       lsp-eslint-enable nil
       ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
@@ -39,6 +41,14 @@
       ;; rust
       rustic-lsp-server 'rust-analyzer
       rustic-analyzer-command '("/Users/jadestrong/Library/Application\ Support/Code/User/globalStorage/matklad.rust-analyzer/rust-analyzer-x86_64-apple-darwin")
+      lsp-rust-analyzer-cargo-load-out-dirs-from-check t ;; support extern C suggest
+      lsp-rust-analyzer-proc-macro-enable t ;; same above
+
+      lsp-rust-analyzer-experimental-proc-attr-macros t ;; 内嵌变量提示
+      lsp-rust-analyzer-server-display-inlay-hints t
+      lsp-rust-analyzer-display-chaining-hints t
+      lsp-rust-analyzer-display-parameter-hints t
+      lsp-rust-analyzer-max-inlay-hint-length 25
 
       ;; More common use-case
       evil-ex-substitute-global t
@@ -48,6 +58,9 @@
       auto-save-default nil
       ;; flycheck-checker-error-threshold nil
       flycheck-highlighting-style `(conditional 10 level-face (delimiters "" ""))
+      +company-backend-alist '((text-mode (:separate company-dabbrev company-yasnippet company-ispell))
+                               (prog-mode company-tabnine-capf company-yasnippet)
+                               (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
 
 (when IS-MAC
@@ -86,6 +99,7 @@
                       #'yas-insert-snippet
                       (fboundp 'evil-jump-item)
                       #'evil-jump-item)
+      :n "M-." #'lsp-ui-sideline-apply-code-actions
       (:after evil-org
        :map evil-org-mode-map
        :n "gk" (cmd! (if (org-on-heading-p)
@@ -136,42 +150,42 @@
 
 
 ;;; :complete company
-(use-package! company-tabnine
-  :when (featurep! :completion company)
-  :config
-  (defun company//sort-by-tabnine (candidates)
-    (if (or (functionp company-backend)
-            (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
-        candidates
-      (let ((candidates-table (make-hash-table :test #'equal))
-            candidates-1
-            candidates-2)
-        (dolist (candidate candidates)
-          (if (eq (get-text-property 0 'company-backend candidate)
-                  'company-tabnine)
-              (unless (gethash candidate candidates-table)
-                (push candidate candidates-2))
-            (push candidate candidates-1)
-            (puthash candidate t candidates-table)))
-        (setq candidates-1 (nreverse candidates-1))
-        (setq candidates-2 (nreverse candidates-2))
-        (nconc (seq-take candidates-1 2)
-               (seq-take candidates-2 2)
-               (seq-drop candidates-1 2)
-               (seq-drop candidates-2 2)))))
-  (add-to-list 'company-transformers 'company//sort-by-tabnine t)
-  ;; The free version of TabNine is good enough,
-  ;; and below code is recommended that TabNine not always
-  ;; prompt me to purchase a paid version in a large project.
-  ;; 禁止tabnine提示升级付费版本
-  (defadvice company-echo-show (around disable-tabnine-upgrade-message activate)
-      (let ((company-message-func (ad-get-arg 0)))
-        (when (and company-message-func
-                   (stringp (funcall company-message-func)))
-          (unless (string-match "The free version of TabNine only indexes up to" (funcall company-message-func))
-            ad-do-it))))
-  ;;将tabnine添加到backends
-  (add-to-list 'company-backends 'company-tabnine))
+;; (use-package! company-tabnine
+;;   :when (featurep! :completion company)
+;;   :config
+;;   (defun company//sort-by-tabnine (candidates)
+;;     (if (or (functionp company-backend)
+;;             (not (and (listp company-backend) (memq 'company-tabnine company-backend))))
+;;         candidates
+;;       (let ((candidates-table (make-hash-table :test #'equal))
+;;             candidates-1
+;;             candidates-2)
+;;         (dolist (candidate candidates)
+;;           (if (eq (get-text-property 0 'company-backend candidate)
+;;                   'company-tabnine)
+;;               (unless (gethash candidate candidates-table)
+;;                 (push candidate candidates-2))
+;;             (push candidate candidates-1)
+;;             (puthash candidate t candidates-table)))
+;;         (setq candidates-1 (nreverse candidates-1))
+;;         (setq candidates-2 (nreverse candidates-2))
+;;         (nconc (seq-take candidates-1 2)
+;;                (seq-take candidates-2 2)
+;;                (seq-drop candidates-1 2)
+;;                (seq-drop candidates-2 2)))))
+;;   (add-to-list 'company-transformers 'company//sort-by-tabnine t)
+;;   ;; The free version of TabNine is good enough,
+;;   ;; and below code is recommended that TabNine not always
+;;   ;; prompt me to purchase a paid version in a large project.
+;;   ;; 禁止tabnine提示升级付费版本
+;;   (defadvice company-echo-show (around disable-tabnine-upgrade-message activate)
+;;       (let ((company-message-func (ad-get-arg 0)))
+;;         (when (and company-message-func
+;;                    (stringp (funcall company-message-func)))
+;;           (unless (string-match "The free version of TabNine only indexes up to" (funcall company-message-func))
+;;             ad-do-it))))
+;;   ;;将tabnine添加到backends
+;;   (add-to-list 'company-backends 'company-tabnine))
 
 
 
@@ -284,23 +298,31 @@
 
 (use-package! insert-translated-name)
 
-(use-package! prescient
-  :hook (company-mode . company-prescient-mode)
-  :hook (company-mode . prescient-persist-mode)
-  :config
-  (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
+;; (use-package! prescient
+;;   :hook (company-mode . company-prescient-mode)
+;;   :hook (company-mode . prescient-persist-mode)
+;;   :config
+;;   (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
 
-(use-package! citre
-  :defer t
-  :init
-  (require 'citre-config)
-  (global-set-key (kbd "C-x c j") 'citre-jump)
-  (global-set-key (kbd "C-x c J") 'citre-jump-back)
-  (global-set-key (kbd "C-x c p") 'citre-ace-peek)
-  :config
-  (setq
-   citre-project-root-function #'projectile-project-root))
-
+;; (use-package! citre
+;;   :defer t
+;;   :init
+;;   (require 'citre-config)
+;;   (global-set-key (kbd "C-x c j") 'citre-jump)
+;;   (global-set-key (kbd "C-x c J") 'citre-jump-back)
+;;   (global-set-key (kbd "C-x c p") 'citre-ace-peek)
+;;   :config
+;;   (setq citre-project-root-function #'projectile-project-root)
+;;   ;; See https://github.com/universal-ctags/citre/wiki/Use-Citre-together-with-lsp-mode
+;;   (define-advice xref--create-fetcher (:around (-fn &rest -args) fallback)
+;;     (let ((fetcher (apply -fn -args))
+;;           (citre-fetcher
+;;            (let ((xref-backend-functions '(citre-xref-backend t)))
+;;              (apply -fn -args))))
+;;       (lambda ()
+;;         (or (with-demoted-errors "%s, fallback to citre"
+;;               (funcall fetcher))
+;;             (funcall citre-fetcher))))))
 
 ;;; :lang org
 (setq org-directory "~/org/"

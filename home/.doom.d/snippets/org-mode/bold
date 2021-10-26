@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bold
+# uuid: bold
+# key: bd
+# condition: t
+# --
+*$0*
