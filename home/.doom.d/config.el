@@ -16,6 +16,7 @@
       ;; lsp-ui-sideline is redundant with eldoc and much more invasive, so
       ;; disable it by default.
       lsp-ui-sideline-enable t
+      lsp-ui-sideline-show-code-actions nil
       lsp-enable-symbol-highlighting nil
       lsp-ui-doc-enable nil
       lsp-auto-guess-root t
@@ -25,7 +26,7 @@
       ;; +lsp-company-backends '(company-tabnine company-capf :with company-yasnippet)
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
-      +lsp-company-backends 'company-tabnine-capf
+      +lsp-company-backends '(:separate company-tabnine-capf company-yasnippet)
       lsp-eslint-enable nil
       ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
@@ -99,7 +100,9 @@
                       #'yas-insert-snippet
                       (fboundp 'evil-jump-item)
                       #'evil-jump-item)
-      :n "M-." #'lsp-ui-sideline-apply-code-actions
+      :n "M-." #'lsp-execute-code-action
+      :n "[ e" #'flycheck-previous-error
+      :n "] e" #'flycheck-next-error
       (:after evil-org
        :map evil-org-mode-map
        :n "gk" (cmd! (if (org-on-heading-p)
@@ -112,7 +115,8 @@
       :leader
       "h L" #'global-keycast-mode
       "f t" #'find-in-dotfiles
-      "f T" #'browse-dotfiles)
+      "f T" #'browse-dotfiles
+      "p t" #'doom/ivy-tasks)
 
 (map!
  :g "M-g g" #'avy-goto-line
@@ -297,6 +301,9 @@
     flycheck-javascript-eslint-executable eslintd-fix-executable))
 
 (use-package! insert-translated-name)
+
+(use-package! doom-todo-ivy)
+(setq magit-todos-nice nil)
 
 ;; (use-package! prescient
 ;;   :hook (company-mode . company-prescient-mode)

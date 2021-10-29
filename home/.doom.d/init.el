@@ -88,6 +88,7 @@
 
        :tools
        tabnine
+       ;; project-notes
        ;; eaf
        ;;ansible
        ;;debugger          ; FIXME stepping through code, to help you add bugs
