@@ -1,5 +1,7 @@
 ;;; tools/project-notes/config.el -*- lexical-binding: t; -*-
 
+;; https://github.com/iensu/emacs-config/blob/909cbaddb5/init.el
+
 ;; Create a TODO list based on TODO items in a project's `.project-notes.org' file. The
 ;; `org-agenda-files' variable is temporarily set the only the project notes file and then reverted
 ;; back to its previous value upon closing the TODO list buffer.

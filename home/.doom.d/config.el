@@ -256,7 +256,6 @@
 ;; Since flycheck-previous-error is written in terms of flycheck-next-error,
 ;; advising the latter is enough.
 (defun flycheck-next-error-loop-advice (orig-fun &optional n reset)
-  (message "flycheck-next-error called with args %S %S" n reset)
   (condition-case err
       (apply orig-fun (list n reset))
     ((user-error)
@@ -303,7 +302,8 @@
 (use-package! insert-translated-name)
 
 (use-package! doom-todo-ivy)
-(setq magit-todos-nice nil)
+
+(use-package! lsp-volar)
 
 ;; (use-package! prescient
 ;;   :hook (company-mode . company-prescient-mode)
@@ -542,6 +542,41 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 
      (set-marker end nil))))
 
+;;; When file a temp buffer, such magit chunk buffer, flycheck will throw a error:
+;;; Suspicious state from syntax checker javascript-eslint: Flycheck checker javascript-eslint returned 2, but its output contained no errors:
+;;; Oops! Something went wrong! :(
+;;; NOTE Here disable it when file not exist
+(defadvice! +flycheck-buffer ()
+  :override #'flycheck-buffer
+  (interactive)
+  (flycheck-clean-deferred-check)
+  (if (buffer-file-name)
+      (if flycheck-mode
+          (unless (flycheck-running-p)
+            ;; Clear error list and mark all overlays for deletion.  We do not
+            ;; delete all overlays immediately to avoid excessive re-displays and
+            ;; flickering, if the same errors gets highlighted again after the check
+            ;; completed.
+            (run-hooks 'flycheck-before-syntax-check-hook)
+            (flycheck-clear-errors)
+            (flycheck-mark-all-overlays-for-deletion)
+            (condition-case err
+                (let* ((checker (flycheck-get-checker-for-buffer)))
+                  (if checker
+                      (flycheck-start-current-syntax-check checker)
+                    (flycheck-clear)
+                    (flycheck-report-status 'no-checker)))
+              (error
+               (flycheck-report-failed-syntax-check)
+               (signal (car err) (cdr err)))))
+        (user-error "Flycheck mode disabled"))
+    (message "[+flycheck-buffer] Temp buffer, flycheck mode disabled")))
+
+;;; Here can not identify +flycheck-buffer's situation
+(defun flycheck-disable-on-temp-buffers ()
+  (unless (and buffer-file-name (file-exists-p buffer-file-name)) (flycheck-mode -1)))
+(add-hook 'prog-mode-hook 'flycheck-disable-on-temp-buffers)
+
 ;; emacs-rime 在 web-mode 下判断是否在字符串内有问题，在 script 内的字符串后面输入字符时也会被识别为字符串
 ;; 这里通过 inside-string-p
 ;; https://emacs.stackexchange.com/questions/14269/how-to-detect-if-the-point-is-within-a-comment-area
@@ -601,10 +636,6 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 (defun goto-download-dir ()
   (interactive)
   (dired target-dir-path))
-
-(defun flycheck-disable-on-temp-buffers ()
-  (unless (and buffer-file-name (file-exists-p buffer-file-name)) (flycheck-mode -1)))
-(add-hook 'prog-mode-hook 'flycheck-disable-on-temp-buffers)
 
 (defun ediff-copy-both-to-C ()
   (interactive)

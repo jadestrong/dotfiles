@@ -13,6 +13,7 @@
   ;; (rime-emacs-module-header-root "/nix/store/h6ahwbvap9a3pxhq5bdkhkxhpdj6x07f-emacsGccDarwin/include")
   (rime-librime-root "~/.doom.d/librime/dist")
   (rime-inline-ascii-trigger 'shift-l)
+  (rime-show-candidate 'posframe)
   :config
   (defun +rime-force-enable ()
     "Forced into Chinese input state.
