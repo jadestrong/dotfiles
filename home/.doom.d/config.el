@@ -27,8 +27,8 @@
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
       +lsp-company-backends '(:separate company-tabnine-capf company-yasnippet)
-      lsp-eslint-enable nil
-      ;; lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.1.8/server/out/eslintServer.js" "--stdio")
+      lsp-eslint-enable t
+      lsp-eslint-server-command `("node" "~/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
       +lsp-prompt-to-install-server 'quiet
       lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
@@ -243,7 +243,8 @@
 
 ;; 同时支持 lsp 和 javascript-eslint
 (defun creature/lsp-eslint-checker-init ()
-  (when (and flycheck-mode
+  (when (and (not lsp-eslint-enable) ;; when not enable lsp-eslint then add javascript-eslint as next checker
+             flycheck-mode
              (flycheck-valid-checker-p 'lsp)
              (flycheck-valid-checker-p 'javascript-eslint))
     (make-local-variable 'flycheck-checkers)
