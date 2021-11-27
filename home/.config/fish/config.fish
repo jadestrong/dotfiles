@@ -25,6 +25,8 @@ set -gx PATH ~/bin $PATH # system
 set -gx PATH /usr/local/opt/make/libexec/gunbin $PATH
 fenv source '$HOME/.nix-profile/etc/profile.d/nix.sh'
 set -gx PATH /usr/local/Cellar/universal-ctags/HEAD-c436bca/bin $PATH # must below nix.sh, it need override ctags from nix emacs
+set -gx NIX_PATH darwin-config=$HOME/.nixpkgs/darwin-configuration.nix
+set -gx NIX_PATH $HOME/.nix-defexpr/channels $NIX_PATH
 
 set -g fish_user_paths "/usr/local/opt/luajit-openresty/bin" $fish_user_paths
 
