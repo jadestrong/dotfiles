@@ -551,7 +551,7 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
   :override #'flycheck-buffer
   (interactive)
   (flycheck-clean-deferred-check)
-  (if (buffer-file-name)
+  (when (buffer-file-name)
       (if flycheck-mode
           (unless (flycheck-running-p)
             ;; Clear error list and mark all overlays for deletion.  We do not
@@ -570,8 +570,7 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
               (error
                (flycheck-report-failed-syntax-check)
                (signal (car err) (cdr err)))))
-        (user-error "Flycheck mode disabled"))
-    (message "[+flycheck-buffer] Temp buffer, flycheck mode disabled")))
+        (user-error "Flycheck mode disabled"))))
 
 ;;; Here can not identify +flycheck-buffer's situation
 (defun flycheck-disable-on-temp-buffers ()
@@ -637,6 +636,13 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 (defun goto-download-dir ()
   (interactive)
   (dired target-dir-path))
+
+(defun open-with-vscode ()
+  "Open current file with vscode."
+  (interactive)
+  (let ((line (number-to-string (line-number-at-pos)))
+        (column (number-to-string (current-column))))
+    (apply 'call-process "code" nil nil nil (list (concat buffer-file-name ":" line ":" column) "--goto"))))
 
 (defun ediff-copy-both-to-C ()
   (interactive)
