@@ -28,7 +28,7 @@
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
       +lsp-company-backends '(:separate company-tabnine-capf company-yasnippet)
       lsp-eslint-enable t
-      lsp-eslint-server-command `("node" "~/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
+      lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
       +lsp-prompt-to-install-server 'quiet
       lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
@@ -68,6 +68,12 @@
   (setq mac-command-modifier 'meta
         mac-option-modifier 'none))
 (setq lsp-log-io nil)
+
+;; emacs-29
+(when (version= emacs-version "29.0.50")
+  (general-auto-unbind-keys :off)
+  (remove-hook 'doom-after-init-modules-hook #'general-auto-unbind-keys)
+  (set-face-attribute 'mode-line-active nil :inherit 'mode-line))
 
 ;;
 ;;; UI
@@ -312,25 +318,25 @@
 ;;   :config
 ;;   (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
 
-;; (use-package! citre
-;;   :defer t
-;;   :init
-;;   (require 'citre-config)
-;;   (global-set-key (kbd "C-x c j") 'citre-jump)
-;;   (global-set-key (kbd "C-x c J") 'citre-jump-back)
-;;   (global-set-key (kbd "C-x c p") 'citre-ace-peek)
-;;   :config
-;;   (setq citre-project-root-function #'projectile-project-root)
-;;   ;; See https://github.com/universal-ctags/citre/wiki/Use-Citre-together-with-lsp-mode
-;;   (define-advice xref--create-fetcher (:around (-fn &rest -args) fallback)
-;;     (let ((fetcher (apply -fn -args))
-;;           (citre-fetcher
-;;            (let ((xref-backend-functions '(citre-xref-backend t)))
-;;              (apply -fn -args))))
-;;       (lambda ()
-;;         (or (with-demoted-errors "%s, fallback to citre"
-;;               (funcall fetcher))
-;;             (funcall citre-fetcher))))))
+(use-package! citre
+  :defer t
+  :init
+  (require 'citre-config)
+  (global-set-key (kbd "C-x c j") 'citre-jump)
+  (global-set-key (kbd "C-x c J") 'citre-jump-back)
+  (global-set-key (kbd "C-x c p") 'citre-ace-peek)
+  :config
+  (setq citre-project-root-function #'projectile-project-root)
+  ;; See https://github.com/universal-ctags/citre/wiki/Use-Citre-together-with-lsp-mode
+  (define-advice xref--create-fetcher (:around (-fn &rest -args) fallback)
+    (let ((fetcher (apply -fn -args))
+          (citre-fetcher
+           (let ((xref-backend-functions '(citre-xref-backend t)))
+             (apply -fn -args))))
+      (lambda ()
+        (or (with-demoted-errors "%s, fallback to citre"
+              (funcall fetcher))
+            (funcall citre-fetcher))))))
 
 ;;; :lang org
 (setq org-directory "~/org/"
