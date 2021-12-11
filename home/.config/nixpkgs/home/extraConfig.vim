@@ -205,18 +205,62 @@ local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
 parser_config.tsx.used_by = { "javascript", "typescript.tsx" }
 EOF
 
+lua << EOF
+-- Add additional capabilities supported by nvim-cmp
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
-" nvim-completion
-set completeopt=menuone,noinsert,noselect
+-- Set completeopt to have a better completion experience
+vim.o.completeopt = 'menuone,noselect'
 
-" Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+-- luasnip setup
+local luasnip = require 'luasnip'
 
-let g:completion_confirm_key = ""
-imap <expr> <cr>  pumvisible() ? complete_info()["selected"] != "-1" ?
-                 \ "\<Plug>(completion_confirm_completion)"  : "\<c-e>\<CR>" :  "\<CR>"
+-- nvim-cmp setup
+local cmp = require 'cmp'
+cmp.setup {
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
+  mapping = {
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    },
+    ['<Tab>'] = function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        fallback()
+      end
+    end,
+    ['<S-Tab>'] = function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end,
+  },
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+  },
+}
 
+EOF
 
 " LSP
 "
@@ -267,7 +311,7 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_command [[augroup END]]
   end
 
-  require'completion'.on_attach(client, bufnr)
+--  require'completion'.on_attach(client, bufnr)
 
   --protocol.SymbolKind = { }
   protocol.CompletionItemKind = {
@@ -299,14 +343,134 @@ local on_attach = function(client, bufnr)
   }
 end
 
-nvim_lsp.tsserver.setup {
-  on_attach = on_attach,
-  filetypes = { "typescript", "typescriptreact", "typescript.tsx" }
+-- nvim_lsp.tsserver.setup {
+--  on_attach = on_attach,
+--  filetypes = { "typescript", "typescriptreact", "typescript.tsx" }
+-- }
+
+-- nvim_lsp.vuels.setup {
+--   on_attach = on_attach
+-- }
+
+local lspconfig_configs = require'lspconfig/configs'
+local lspconfig_util = require 'lspconfig/util'
+
+local function on_new_config(new_config, new_root_dir)
+  local function get_typescript_server_path(root_dir)
+    local project_root = lspconfig_util.find_node_modules_ancestor(root_dir)
+    return project_root and (lspconfig_util.path.join(project_root, 'node_modules', 'typescript', 'lib', 'tsserverlibrary.js'))
+      or ''
+  end
+
+  if
+    new_config.init_options
+    and new_config.init_options.typescript
+    and new_config.init_options.typescript.serverPath == ''
+  then
+    new_config.init_options.typescript.serverPath = get_typescript_server_path(new_root_dir)
+  end
+end
+
+local volar_cmd = {'volar-server', '--stdio'}
+local volar_root_dir = lspconfig_util.root_pattern 'package.json'
+
+lspconfig_configs.volar_api = {
+  default_config = {
+    cmd = volar_cmd,
+    root_dir = volar_root_dir,
+    on_new_config = on_new_config,
+--    filetypes = { 'vue'},
+    -- If you want to use Volar's Take Over Mode (if you know, you know)
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    init_options = {
+      typescript = {
+        serverPath = ''
+      },
+      languageFeatures = {
+        references = true,
+        definition = true,
+        typeDefinition = true,
+        callHierarchy = true,
+        hover = true,
+        rename = true,
+        renameFileRefactoring = true,
+        signatureHelp = true,
+        codeAction = true,
+        workspaceSymbol = true,
+        completion = {
+          defaultTagNameCase = 'both',
+          defaultAttrNameCase = 'kebabCase',
+          getDocumentNameCasesRequest = false,
+          getDocumentSelectionRequest = false,
+        },
+      }
+    },
+  }
+}
+nvim_lsp.volar_api.setup{
+  capabilities = capabilities,
 }
 
-nvim_lsp.vuels.setup {
-  on_attach = on_attach
+lspconfig_configs.volar_doc = {
+  default_config = {
+    cmd = volar_cmd,
+    root_dir = volar_root_dir,
+    on_new_config = on_new_config,
+
+    -- filetypes = { 'vue'},
+    -- If you want to use Volar's Take Over Mode (if you know, you know):
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    init_options = {
+      typescript = {
+        serverPath = ''
+      },
+      languageFeatures = {
+        documentHighlight = true,
+        documentLink = true,
+        codeLens = { showReferencesNotification = true},
+        -- not supported - https://github.com/neovim/neovim/pull/14122
+        semanticTokens = false,
+        diagnostics = true,
+        schemaRequestService = true,
+      }
+    },
+  }
 }
+nvim_lsp.volar_doc.setup{
+  capabilities = capabilities,
+}
+
+lspconfig_configs.volar_html = {
+  default_config = {
+    cmd = volar_cmd,
+    root_dir = volar_root_dir,
+    on_new_config = on_new_config,
+
+    -- filetypes = { 'vue'},
+    -- If you want to use Volar's Take Over Mode (if you know, you know), intentionally no 'json':
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+    init_options = {
+      typescript = {
+        serverPath = ''
+      },
+      documentFeatures = {
+        selectionRange = true,
+        foldingRange = true,
+        linkedEditingRange = true,
+        documentSymbol = true,
+        -- not supported - https://github.com/neovim/neovim/pull/13654
+        documentColor = false,
+        documentFormatting = {
+          defaultPrintWidth = 100,
+        },
+      }
+    },
+  }
+}
+nvim_lsp.volar_html.setup{
+  capabilities = capabilities,
+}
+
 
 nvim_lsp.rust_analyzer.setup {
   on_attach = on_attach

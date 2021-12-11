@@ -30,7 +30,12 @@
       nvim-lspconfig 
       nvim-treesitter
       # nvim-compe
-      completion-nvim
+      # completion-nvim
+      packer-nvim
+      nvim-cmp
+      cmp-nvim-lsp
+      cmp_luasnip
+      luasnip
       rust-tools-nvim
       # yajs.vim # JS syntax
       # es.next.syntax.vim # ES7 syntax
