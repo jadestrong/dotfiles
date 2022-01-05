@@ -343,17 +343,17 @@ local on_attach = function(client, bufnr)
   }
 end
 
--- nvim_lsp.tsserver.setup {
---  on_attach = on_attach,
---  filetypes = { "typescript", "typescriptreact", "typescript.tsx" }
--- }
+nvim_lsp.tsserver.setup {
+ on_attach = on_attach,
+ filetypes = { "typescript", "typescriptreact", "typescript.tsx", "javascript", "javascriptreact" }
+}
 
 -- nvim_lsp.vuels.setup {
 --   on_attach = on_attach
 -- }
 
-local lspconfig_configs = require'lspconfig/configs'
-local lspconfig_util = require 'lspconfig/util'
+local lspconfig_configs = require 'lspconfig.configs'
+local lspconfig_util = require'lspconfig.util'
 
 local function on_new_config(new_config, new_root_dir)
   local function get_typescript_server_path(root_dir)
@@ -376,12 +376,11 @@ local volar_root_dir = lspconfig_util.root_pattern 'package.json'
 
 lspconfig_configs.volar_api = {
   default_config = {
-    cmd = volar_cmd,
     root_dir = volar_root_dir,
     on_new_config = on_new_config,
---    filetypes = { 'vue'},
+    filetypes = { 'vue'},
     -- If you want to use Volar's Take Over Mode (if you know, you know)
-    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    -- filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
     init_options = {
       typescript = {
         serverPath = ''
@@ -409,6 +408,7 @@ lspconfig_configs.volar_api = {
 }
 nvim_lsp.volar_api.setup{
   capabilities = capabilities,
+  cmd = volar_cmd,
 }
 
 lspconfig_configs.volar_doc = {
@@ -417,9 +417,9 @@ lspconfig_configs.volar_doc = {
     root_dir = volar_root_dir,
     on_new_config = on_new_config,
 
-    -- filetypes = { 'vue'},
+    filetypes = { 'vue'},
     -- If you want to use Volar's Take Over Mode (if you know, you know):
-    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    -- filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
     init_options = {
       typescript = {
         serverPath = ''
@@ -438,6 +438,7 @@ lspconfig_configs.volar_doc = {
 }
 nvim_lsp.volar_doc.setup{
   capabilities = capabilities,
+  cmd = volar_cmd,
 }
 
 lspconfig_configs.volar_html = {
@@ -446,9 +447,9 @@ lspconfig_configs.volar_html = {
     root_dir = volar_root_dir,
     on_new_config = on_new_config,
 
-    -- filetypes = { 'vue'},
+    filetypes = { 'vue'},
     -- If you want to use Volar's Take Over Mode (if you know, you know), intentionally no 'json':
-    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+    -- filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
     init_options = {
       typescript = {
         serverPath = ''
@@ -469,6 +470,7 @@ lspconfig_configs.volar_html = {
 }
 nvim_lsp.volar_html.setup{
   capabilities = capabilities,
+  cmd = volar_cmd,
 }
 
 
