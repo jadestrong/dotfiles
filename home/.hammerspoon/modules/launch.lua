@@ -9,16 +9,16 @@ local key2App = {
     m = 'MailMaster',
     v = 'code',
     s = 'PxCook',
-    p = 'Preview',
+    p = 'PDF Expert',
     d = 'Kim',
     t = 'Terminal',
     e = 'Emacs',
-    k = 'Firefox',
+    k = '百度翻译',
     o = 'Outlook',
     x = 'XMind',
     n = 'PDF',
     c = 'Charles',
-    h = 'CocosCreator',
+    -- h = 'CocosCreator',
 }
 
 for key, app in pairs(key2App) do

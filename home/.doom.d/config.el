@@ -8,6 +8,9 @@
       doom-scratch-initial-major-mode 'lisp-interaction-mode
       doom-theme 'doom-one
 
+      word-wrap t
+      word-wrap-by-category t
+
       ;; Line numbers are pretty slow all around. The performance boost of
       ;; disabling them outweighs the utility of always keeping them on.
       ;; display-line-numbers-type nil
@@ -28,16 +31,19 @@
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
       +lsp-company-backends '(:separate company-tabnine-capf company-yasnippet)
       lsp-eslint-enable t
-      lsp-eslint-server-command `("node" "/Users/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
+      lsp-eslint-download-url "https://github.com/jadestrong/lsp-server-binaries/blob/master/dbaeumer.vscode-eslint-2.2.2.vsix?raw=true"
+      ;; lsp-eslint-server-command `("node" "/User/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
       +lsp-prompt-to-install-server 'quiet
       lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
+
+      lsp-typescript-suggest-auto-imports nil
 
       ;; disable deft auto save
       deft-auto-save-interval 0
 
       ;; company and company-lsp
-      company-minimum-prefix-length 1
+      ;; company-minimum-prefix-length 3
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
@@ -60,7 +66,7 @@
       ;; flycheck-checker-error-threshold nil
       flycheck-highlighting-style `(conditional 10 level-face (delimiters "" ""))
       +company-backend-alist '((text-mode (:separate company-dabbrev company-yasnippet company-ispell))
-                               (prog-mode company-tabnine-capf company-yasnippet)
+                               (prog-mode company-tabnine-capf company-yasnippet) ;; 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
 
@@ -132,7 +138,13 @@
 (map! "M-p" #'switch-to-prev-buffer
       "M-n" #'switch-to-next-buffer)
 
-
+(map! (:after rustic
+       :map rustic-mode-map
+       :localleader
+       (:prefix ("r" . "reload")
+        :desc "lsp workspace reload" "r" #'lsp-rust-analyzer-reload-workspace)
+       (:prefix ("e" . "edit")
+        (:desc "cargo add" "a" #'rustic-cargo-add))))
 ;;
 ;;; Modules
 

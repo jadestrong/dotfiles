@@ -1,5 +1,9 @@
 ;;; input/chinese/config.el -*- lexical-binding: t; -*-
 
+;; (file-truename (concat invocation-directory invocation-name))
+;; (file-truename invocation-directory)
+
+;; (shell-command-to-string "readlink ~/.nix-profile/bin/emacs")
 (use-package! rime
   :bind
   ("M-j" . #'+rime-convert-string-at-point)
