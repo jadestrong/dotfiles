@@ -49,6 +49,70 @@ tabnine's candidate have greater position then others."
         tabnine-meta
       (company-capf 'meta candidate))))
 
+(defun company-lsp--candidate-item (candidate)
+  "Retrieve the CompletionItem hashtable associated with CANDIDATE.
+CANDIDATE is a string returned by `company-lsp--make-candidate'."
+  (plist-get (text-properties-at 0 candidate) 'lsp-completion-item))
+
+(defun company-lsp--resolve-candidate (candidate &rest props)
+  "Resolve a completion candidate to fill some properties.
+CANDIDATE is a string returned by `company-lsp--make-candidate'.
+PROPS are strings of property names of CompletionItem hashtable
+to be resolved.
+The completionItem/resolve request will only be sent to the
+server if the candidate has not been resolved before, and at lest
+one of the PROPS of the CompletionItem is missing.
+Returns CANDIDATE with the resolved CompletionItem."
+  (unless (plist-get (text-properties-at 0 candidate) 'company-lsp-resolved)
+    (let ((item (company-lsp--candidate-item candidate)))
+      (when (seq-some (lambda (prop)
+                        (null (gethash prop item)))
+                      props)
+        (let ((resolved-item (lsp-completion--resolve item))
+              (len (length candidate)))
+          (put-text-property 0 len
+                             'lsp-completion-item resolved-item
+                             candidate)
+          (put-text-property 0 len
+                             'company-lsp-resolved t
+                             candidate)))))
+  candidate)
+
+(defvar company-lsp-document-language
+  '(("typescriptreact" . "tsx")
+    ("javascriptreact" . "jsx")
+    ("javascript" . "typescript"))
+  "Get the document's languageId from textDocument/resolve")
+
+(defun company-lsp--get-language (config language)
+  "get the config value for document language"
+  (if (listp config)
+      (if-let (language-config (assoc language config))
+          (cdr language-config)
+        (alist-get t config))
+    config))
+
+(defun company-lsp--documentation (candidate)
+  "Get the documentation from the item in the CANDIDATE.
+The documentation can be either string or MarkupContent. This method
+will return markdown string if it is MarkupContent, original string
+otherwise. If the documentation is not present, it will return nil
+which company can handle."
+  (let* ((resolved-candidate (company-lsp--resolve-candidate candidate "documentation"))
+         (item (company-lsp--candidate-item resolved-candidate))
+         (documentation (gethash "documentation" item))
+         (detail (make-hash-table :test 'equal)))
+    (puthash "language" (or (company-lsp--get-language company-lsp-document-language (lsp-buffer-language)) (lsp-buffer-language)) detail)
+    (puthash "value" (gethash "detail" item) detail)
+    (setq contents (list detail documentation))
+    (string-join
+     (seq-map
+      #'lsp--render-element
+      contents)
+     (if (bound-and-true-p page-break-lines-mode)
+         "\n\n"
+       "\n\n"))))
+
 ;;;###autoload
 (defun company-tabnine-capf (command &rest args)
   "a company backend for combine tabnine and capf"
@@ -64,7 +128,9 @@ tabnine's candidate have greater position then others."
     (no-cache t)
     (kind (apply 'company-capf `(,command ,@args)))
     (post-completion (company-tabnine-capf--post-completion (car args)))
-    (candidates (company-tabnine-capf--candidates (car args)))))
+    (candidates (company-tabnine-capf--candidates (car args)))
+    (doc-buffer (company-doc-buffer (company-lsp--documentation (car args))))
+    (quickhelp-string (company-lsp--documentation (car args)))))
 
 (defun toggle-company-tabnine-capf ()
   "toggle company-tabnine-capf backend"
