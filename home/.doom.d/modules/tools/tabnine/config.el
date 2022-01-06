@@ -129,8 +129,11 @@ which company can handle."
     (kind (apply 'company-capf `(,command ,@args)))
     (post-completion (company-tabnine-capf--post-completion (car args)))
     (candidates (company-tabnine-capf--candidates (car args)))
-    (doc-buffer (company-doc-buffer (company-lsp--documentation (car args))))
-    (quickhelp-string (company-lsp--documentation (car args)))))
+    (doc-buffer
+     (let ((f (plist-get (nthcdr 4 company-capf--current-completion-data)
+                         :company-doc-buffer)))
+       (when f (funcall f (car args)))))
+    (quickhelp-string (lsp-completion--get-documentation (car args)))))
 
 (defun toggle-company-tabnine-capf ()
   "toggle company-tabnine-capf backend"
