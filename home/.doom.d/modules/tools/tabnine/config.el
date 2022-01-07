@@ -132,8 +132,7 @@ which company can handle."
     (doc-buffer
      (let ((f (plist-get (nthcdr 4 company-capf--current-completion-data)
                          :company-doc-buffer)))
-       (when f (funcall f (car args)))))
-    (quickhelp-string (lsp-completion--get-documentation (car args)))))
+       (when f (funcall f (car args)))))))
 
 (defun toggle-company-tabnine-capf ()
   "toggle company-tabnine-capf backend"
