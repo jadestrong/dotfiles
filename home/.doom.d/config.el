@@ -37,7 +37,7 @@
       +lsp-prompt-to-install-server 'quiet
       lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
 
-      lsp-typescript-suggest-auto-imports nil
+      lsp-typescript-suggest-auto-imports t
 
       ;; disable deft auto save
       deft-auto-save-interval 0
@@ -298,7 +298,7 @@
 ;;; leetcode
 (use-package! leetcode
   :init
-  (setq leetcode-prefer-language "javascript")
+  (setq leetcode-prefer-language "typescript")
   (setq leetcode-prefer-sql "mysql")
   (setq leetcode-save-solutions t)
   (setq leetcode-directory "~/.leetcode")
