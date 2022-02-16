@@ -20,6 +20,7 @@ set -gx LANG en_US.UTF-8
 
 set -gx PATH ~/.emacs.d/bin $PATH # doom command
 set -gx PATH ~/.cargo/bin $PATH # rust
+set -gx PATH /Applications/Firefox.app/Contents/MacOS $PATH
 set -gx PATH /run/current-system/sw/bin $PATH # All nix commond
 set -gx PATH ~/bin $PATH # system
 set -gx PATH /usr/local/opt/make/libexec/gunbin $PATH
