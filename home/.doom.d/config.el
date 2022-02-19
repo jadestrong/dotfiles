@@ -398,6 +398,18 @@
            (and (f-file-p file-name)
                 (lsp-clients-flow-tag-file-present-p file-name)))))
 
+;;; trigger textDocument/codeAction only when there had an error on current pointer.
+(defadvice! +lsp-modeline--check-mode-actions (&rest _)
+  :override #'lsp-modeline--check-code-actions
+  (when (and (lsp-feature? "textDocument/codeAction")
+         (flycheck-overlay-errors-at (point)))
+    (lsp-request-async
+     "textDocument/codeAction"
+     (lsp--text-document-code-action-params)
+     #'lsp--modeline-update-code-actions
+     :mode 'unchanged
+     :cancel-token :lsp-modeline-code-actions)))
+
 ;; 修正 web-mode 的 stylus 不能自动缩进的问题，方案不完美，未涵盖所有情况，或许需要参考 sass-mode 或者 pug-mode 的方式，允许 tab 可以随意缩进 TODO
 (defadvice! +web-mode-stylus-indentation (pos initial-column language-offset language &optional limit)
   :override #'web-mode-stylus-indentation
