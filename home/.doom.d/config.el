@@ -72,7 +72,7 @@
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
-        mac-option-modifier 'none))
+        mac-option-modifier 'super))
 (setq lsp-log-io nil)
 
 ;; emacs-29
