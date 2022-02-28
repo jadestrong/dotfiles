@@ -118,7 +118,7 @@
       :n "M-n" #'evil-scroll-page-down
       :n "M-p" #'evil-scroll-page-up
       :n "M-i" #'switch-to-prev-buffer
-      :n "m-o" #'switch-to-next-buffer
+      :n "M-o" #'switch-to-next-buffer
       (:after evil-org
        :map evil-org-mode-map
        :n "gk" (cmd! (if (org-on-heading-p)
