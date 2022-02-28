@@ -18,7 +18,7 @@
       ;; lsp
       ;; lsp-ui-sideline is redundant with eldoc and much more invasive, so
       ;; disable it by default.
-      lsp-ui-sideline-enable t
+      lsp-ui-sideline-enable nil
       lsp-ui-sideline-show-code-actions nil
       lsp-enable-symbol-highlighting nil
       lsp-ui-doc-enable nil
@@ -29,7 +29,7 @@
       ;; +lsp-company-backends '(company-tabnine company-capf :with company-yasnippet)
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
-      +lsp-company-backends '(:separate company-tabnine-capf company-yasnippet)
+      +lsp-company-backends '(:separate company-tabnine-capf)
       lsp-eslint-enable t
       lsp-eslint-download-url "https://github.com/jadestrong/lsp-server-binaries/blob/master/dbaeumer.vscode-eslint-2.2.2.vsix?raw=true"
       ;; lsp-eslint-server-command `("node" "/User/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
@@ -115,6 +115,10 @@
       :n "M-." #'lsp-execute-code-action
       :n "[ e" #'flycheck-previous-error
       :n "] e" #'flycheck-next-error
+      :n "M-n" #'evil-scroll-page-down
+      :n "M-p" #'evil-scroll-page-up
+      :n "M-i" #'switch-to-prev-buffer
+      :n "m-o" #'switch-to-next-buffer
       (:after evil-org
        :map evil-org-mode-map
        :n "gk" (cmd! (if (org-on-heading-p)
@@ -124,19 +128,30 @@
                          (org-forward-element)
                        (evil-next-visual-line)))
        :i "M-j" #'+rime-convert-string-at-point)
+      (:after ivy
+       :map ivy-minibuffer-map
+       "RET" #'ivy-alt-done
+       "M-n" #'ivy-next-line
+       "M-p" #'ivy-previous-line
+       :map swiper-isearch-map
+        "M-n" #'ivy-next-line)
+      :map minibuffer-mode
+      "M-n" #'ivy-next-line
+      "M-p" #'ivy-previous-line
       :leader
       "h L" #'global-keycast-mode
       "f t" #'find-in-dotfiles
       "f T" #'browse-dotfiles
-      "p t" #'doom/ivy-tasks)
+      "p t" #'doom/ivy-tasks
+      "l l" #'avy-goto-line)
 
 (map!
  :g "M-g g" #'avy-goto-line
  :g  "M-g M-g" #'avy-goto-line)
 
 
-(map! "M-p" #'switch-to-prev-buffer
-      "M-n" #'switch-to-next-buffer)
+;; (map! "M-p" #'switch-to-prev-buffer
+;;       "M-n" #'switch-to-next-buffer)
 
 (map! (:after rustic
        :map rustic-mode-map
@@ -151,7 +166,10 @@
 (after! ivy
   ;; I prefer search matching to be ordered; it's more precise
   (add-to-list 'ivy-re-builders-alist '(counsel-projectile-find-file . ivy--regex-plus)))
-(map! (:after ivy (:map ivy-minibuffer-map "RET" #'ivy-alt-done)))
+;; (map! (:after ivy (:map ivy-minibuffer-map
+;;                    "RET" #'ivy-alt-done
+;;                    "M-n" #'ivy-next-line
+;;                    "M-p" #'ivy-previous-line)))
 
 ;; Switch to the new window after splitting
 (setq evil-split-window-below t
