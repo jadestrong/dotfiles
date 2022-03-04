@@ -119,40 +119,39 @@
       :n "M-p" #'evil-scroll-page-up
       :n "M-i" #'switch-to-prev-buffer
       :n "M-o" #'switch-to-next-buffer
-      (:after evil-org
-       :map evil-org-mode-map
-       :n "gk" (cmd! (if (org-on-heading-p)
-                         (org-backward-element)
-                       (evil-previous-visual-line)))
-       :n "gj" (cmd! (if (org-on-heading-p)
-                         (org-forward-element)
-                       (evil-next-visual-line)))
-       :i "M-j" #'+rime-convert-string-at-point)
-      (:after ivy
-       :map ivy-minibuffer-map
-       "RET" #'ivy-alt-done
-       "M-n" #'ivy-next-line
-       "M-p" #'ivy-previous-line
-       :map swiper-isearch-map
-        "M-n" #'ivy-next-line)
-      :map minibuffer-mode
-      "M-n" #'ivy-next-line
-      "M-p" #'ivy-previous-line
+      ;; avy
+      :g "M-g g" #'avy-goto-line
+      :g  "M-g M-g" #'avy-goto-line
       :leader
       "h L" #'global-keycast-mode
       "f t" #'find-in-dotfiles
       "f T" #'browse-dotfiles
       "p t" #'doom/ivy-tasks
-      "l l" #'avy-goto-line)
-
-(map!
- :g "M-g g" #'avy-goto-line
- :g  "M-g M-g" #'avy-goto-line)
+      "w w" #'ace-window)
 
 
-;; (map! "M-p" #'switch-to-prev-buffer
-;;       "M-n" #'switch-to-next-buffer)
+;; company
+(map! (:after company
+       :map company-active-map
+       "M-n" #'company-select-next-or-abort
+       "M-p" #'company-select-previous-or-abort
+       :map company-search-map
+       "M-n" #'company-select-next-or-abort
+       "M-p" #'company-select-previous-or-abort))
 
+;; ivy + minibuffer
+(map! :map minibuffer-mode-map
+      "M-n" #'ivy-next-line
+      "M-p" #'ivy-previous-line)
+(map! (:after ivy
+       :map ivy-minibuffer-map
+       "RET" #'ivy-alt-done
+       "M-n" #'ivy-next-line
+       "M-p" #'ivy-previous-line
+       :map swiper-isearch-map
+       "M-n" #'ivy-next-line))
+
+;; rust
 (map! (:after rustic
        :map rustic-mode-map
        :localleader
@@ -160,7 +159,18 @@
         :desc "lsp workspace reload" "r" #'lsp-rust-analyzer-reload-workspace)
        (:prefix ("e" . "edit")
         (:desc "cargo add" "a" #'rustic-cargo-add))))
-;;
+
+;; org
+(map! (:after evil-org
+       :map evil-org-mode-map
+       :n "gk" (cmd! (if (org-on-heading-p)
+                         (org-backward-element)
+                       (evil-previous-visual-line)))
+       :n "gj" (cmd! (if (org-on-heading-p)
+                         (org-forward-element)
+                       (evil-next-visual-line)))
+       :i "M-j" #'+rime-convert-string-at-point))
+
 ;;; Modules
 
 (after! ivy
