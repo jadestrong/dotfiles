@@ -72,8 +72,11 @@
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
-        mac-option-modifier 'super))
+        mac-option-modifier 'super)
+  (setq create-lockfiles t))
 (setq lsp-log-io nil)
+
+
 
 ;; emacs-29
 (when (version= emacs-version "29.0.50")
@@ -176,10 +179,8 @@
 (after! ivy
   ;; I prefer search matching to be ordered; it's more precise
   (add-to-list 'ivy-re-builders-alist '(counsel-projectile-find-file . ivy--regex-plus)))
-;; (map! (:after ivy (:map ivy-minibuffer-map
-;;                    "RET" #'ivy-alt-done
-;;                    "M-n" #'ivy-next-line
-;;                    "M-p" #'ivy-previous-line)))
+
+;; (evil-set-initial-state 'vterm-mode 'emacs)
 
 ;; Switch to the new window after splitting
 (setq evil-split-window-below t
@@ -346,10 +347,6 @@
   (setq-hook! 'eslintd-fix-mode-hook
     flycheck-javascript-eslint-executable eslintd-fix-executable))
 
-(use-package! insert-translated-name)
-
-(use-package! doom-todo-ivy)
-
 (use-package! lsp-volar)
 
 ;; (use-package! prescient
@@ -430,7 +427,7 @@
 (defadvice! +lsp-modeline--check-mode-actions (&rest _)
   :override #'lsp-modeline--check-code-actions
   (when (and (lsp-feature? "textDocument/codeAction")
-         (flycheck-overlay-errors-at (point)))
+         (flycheck-overlay-errors-at (point))) ;;; (> (length (lsp-cur-line-diagnostics)) 0)
     (lsp-request-async
      "textDocument/codeAction"
      (lsp--text-document-code-action-params)
@@ -658,11 +655,11 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
                 (nth 4 (syntax-ppss))))))
 
 ;; 支持拼音搜索中文文件
-(use-package! pinyinlib)
-(defun completion--regex-pinyin (str)
-  (orderless-regexp (pinyinlib-build-regexp-string str)))
-(after! orderless
- (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
+;; (use-package! pinyinlib)
+;; (defun completion--regex-pinyin (str)
+;;   (orderless-regexp (pinyinlib-build-regexp-string str)))
+;; (after! orderless
+;;  (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
 
 ;; https://emacs-lsp.github.io/lsp-mode/page/faq/#how-do-i-force-lsp-mode-to-forget-the-workspace-folders-for-multi-root
 ;; 默认 lsp 会记住所有之前打开的 vue 项目，并每次启动的时候都会在每个项目里面都启用一个 vls 服务，这里强制其遗忘
