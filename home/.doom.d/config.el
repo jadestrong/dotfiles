@@ -129,7 +129,9 @@
       "f t" #'find-in-dotfiles
       "f T" #'browse-dotfiles
       "p t" #'doom/ivy-tasks
-      "w w" #'ace-select-window)
+      "w w" #'ace-select-window
+      "w 1" #'delete-other-windows
+      "w 0" #'+workspace/close-window-or-workspace)
 
 
 ;; company
