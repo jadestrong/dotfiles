@@ -15,7 +15,7 @@ alias la "ls -A"
 alias ll "ls -l"
 alias lla "ll -A"
 
-set -gx EDITOR nvim
+set -gx EDITOR "emacsclient -c -a emacs"
 set -gx LANG en_US.UTF-8
 
 set -gx PATH ~/.emacs.d/bin $PATH # doom command
