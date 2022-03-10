@@ -15,3 +15,5 @@
   (package! citre :recipe (:host github :repo "universal-ctags/citre" :files ("*.el"))))
 (package! eslintd-fix)
 (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+
+(package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))

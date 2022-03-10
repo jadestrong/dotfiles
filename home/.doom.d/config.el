@@ -77,7 +77,6 @@
 (setq lsp-log-io nil)
 
 
-
 ;; emacs-29
 (when (version= emacs-version "29.0.50")
   (general-auto-unbind-keys :off)
@@ -130,7 +129,7 @@
       "f t" #'find-in-dotfiles
       "f T" #'browse-dotfiles
       "p t" #'doom/ivy-tasks
-      "w w" #'ace-window)
+      "w w" #'ace-select-window)
 
 
 ;; company
@@ -348,6 +347,14 @@
     flycheck-javascript-eslint-executable eslintd-fix-executable))
 
 (use-package! lsp-volar)
+
+(use-package! dirvish
+  :hook ((doom-first-buffer . dirvish-override-dired-mode)
+         (dirvish-mode . all-the-icons-dired-mode))
+  :config
+  (setq dirvish-depth 0)
+  (map! :map dirvish-mode-map
+        :n "M-f" #'dirvish-toggle-fullscreen))
 
 ;; (use-package! prescient
 ;;   :hook (company-mode . company-prescient-mode)
