@@ -351,16 +351,19 @@
 (use-package! lsp-volar)
 
 (use-package! dirvish
-  :hook (doom-first-buffer . dirvish-override-dired-mode)
   :config
+  (dirvish-override-dired-mode 1)
   (setq dirvish-depth 0)
   (setq dirvish-preview-dispatchers (remove 'directory-exa dirvish-preview-dispatchers))
   (setq! dirvish-attributes '(all-the-icons file-size))
-  (setq! dirvish-face-remap-alist
-         '((header-line :height 1.04 :box (:line-width 4 :color "#303030"))
-           (highlight :inherit (diredfl-flag-mark) :extend t)))
+  ;; (setq! dirvish-face-remap-alist
+  ;;        '((header-line :height 1.04 :box (:line-width 4 :color "#303030"))))
   (map! :map dirvish-mode-map
         :n "M-f" #'dirvish-toggle-fullscreen))
+(after! diredfl
+  (set-face-attribute 'dirvish-hl-line nil
+                      :foreground (face-attribute 'diredfl-flag-mark :foreground)
+                      :background (face-attribute 'diredfl-flag-mark :background)))
 
 ;; (use-package! prescient
 ;;   :hook (company-mode . company-prescient-mode)
