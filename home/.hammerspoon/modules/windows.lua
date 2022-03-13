@@ -64,3 +64,7 @@ function focusScreen(screen)
    local pt = geometry.rectMidPoint(screen:fullFrame())
    hs.mouse.setAbsolutePosition(pt)
 end
+
+hotkey.bind(hyper, 'h', function ()
+   window.switcher.nextWindow()
+end)
