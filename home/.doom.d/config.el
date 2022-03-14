@@ -794,6 +794,7 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
          (file-name-sans-extension (buffer-file-name))))))
 
 (after! org-roam
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
   (defun my/org-roam-filter-by-tag (tag-name)
     (lambda (node)
       (member tag-name (org-roam-node-tags node))))
