@@ -173,12 +173,10 @@
                          (org-forward-element)
                        (evil-next-visual-line)))
        :i "M-j" #'+rime-convert-string-at-point))
-(map! (:map org-capture-mode-map
-      :leader "c c" #'org-capture-finalize)
-      (:map with-editor-mode-map
-      :leader "c c" #'with-editor-finish)
-      (:map wdired-mode-map
-      :leader "c c" #'wdired-finish-edit))
+(map! (:map org-capture-mode-map :n "M-c M-c" #'org-capture-finalize)
+      (:map with-editor-mode-map :n "M-c M-c" #'with-editor-finish)
+      (:map wdired-mode-map :n "M-c M-c" #'wdired-finish-edit))
+
 ;;; Modules
 
 (after! ivy
@@ -838,8 +836,7 @@ capture was not aborted."
     (interactive)
     (org-roam-capture- :node (org-roam-node-create)
                        :templates '(("i" "inbox" plain "* %?"
-                                    :if-new (file+head "Inbox.org" "#+title:
-                                Inbox\n")))))
+                                    :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
 
   (defun my/org-roam-capture-task ()
     (interactive)
@@ -860,8 +857,8 @@ capture was not aborted."
     (interactive)
     (let ((org-refile-keep t) ;; Set this to nil to delete the original!
           (org-roam-dailies-capture-templates
-           '("t" "tasks" entry "%?"
-             :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n" ("Tasks"))))
+           '(("t" "tasks" entry "%?"
+             :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n" ("Tasks")))))
           (org-after-refile-insert-hook #'save-buffer)
           today-file
           pos)
