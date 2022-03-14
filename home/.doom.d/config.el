@@ -173,7 +173,12 @@
                          (org-forward-element)
                        (evil-next-visual-line)))
        :i "M-j" #'+rime-convert-string-at-point))
-
+(map! (:map org-capture-mode-map
+      :leader "c c" #'org-capture-finalize)
+      (:map with-editor-mode-map
+      :leader "c c" #'with-editor-finish)
+      (:map wdired-mode-map
+      :leader "c c" #'wdired-finish-edit))
 ;;; Modules
 
 (after! ivy
@@ -832,7 +837,7 @@ capture was not aborted."
   (defun my/org-roam-capture-inbox ()
     (interactive)
     (org-roam-capture- :node (org-roam-node-create)
-                       :template '(("i" "inbox" plain "* %?"
+                       :templates '(("i" "inbox" plain "* %?"
                                     :if-new (file+head "Inbox.org" "#+title:
                                 Inbox\n")))))
 
