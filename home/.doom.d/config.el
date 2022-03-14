@@ -151,6 +151,7 @@
        "RET" #'ivy-alt-done
        "M-n" #'ivy-next-line
        "M-p" #'ivy-previous-line
+       "M-j" #'+rime-convert-string-at-point
        :map swiper-isearch-map
        "M-n" #'ivy-next-line))
 
