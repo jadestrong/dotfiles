@@ -89,7 +89,7 @@
        :tools
        tabnine
        ;; project-notes
-       ;; eaf
+       (:if IS-LINUX eaf)
        ;;ansible
        ;;debugger          ; FIXME stepping through code, to help you add bugs
        ;;direnv

@@ -70,12 +70,33 @@
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
 
+;;; :lang org
+(setq org-directory "~/org/"
+      org-archive-location (concat org-directory ".archive/%s::")
+      org-roam-directory (concat org-directory "roam")
+      ;; org-roam-directory "~/.roam"
+      deft-directory (concat org-directory "deft/")
+      org-journal-encrypt-journal t
+      org-journal-file-format "%Y%m%d.org"
+      org-ellipsis " ▼ "
+      ;; org-superstar-headline-bullets-list '("#")
+      )
+
+
 (when IS-MAC
   (setq mac-command-modifier 'meta
         mac-option-modifier 'super)
+  (defconst target-dir-path "~/Downloads/" "My Download directory")
   (setq create-lockfiles t))
-(setq lsp-log-io nil)
 
+(when IS-LINUX
+  (setq x-super-keysym 'meta)
+  (setq x-meta-keysym 'super)
+  (defconst target-dir-path "/media/psf/Home/Downloads/" "My Download directory")
+  (setq org-directory "/media/psf/Home/org/")
+  (setq org-roam-directory (concat org-directory "roam")))
+
+(setq lsp-log-io nil)
 
 ;; emacs-29
 (when (version= emacs-version "29.0.50")
@@ -130,7 +151,9 @@
       "p t" #'doom/ivy-tasks
       "w w" #'ace-window
       "w 1" #'delete-other-windows
-      "w 0" #'+workspace/close-window-or-workspace)
+      "w 0" #'+workspace/close-window-or-workspace
+      ";" #'counsel-M-x
+      ":" #'pp-eval-expression)
 
 
 ;; company
@@ -360,24 +383,16 @@
 
 (use-package! dirvish
   :config
-  (dirvish-override-dired-mode 1)
+  ;; (dirvish-override-dired-mode 1)
   (setq dirvish-depth 0)
   (setq dirvish-preview-dispatchers (remove 'directory-exa dirvish-preview-dispatchers))
   (setq! dirvish-attributes '(all-the-icons file-size))
-  ;; (setq! dirvish-face-remap-alist
-  ;;        '((header-line :height 1.04 :box (:line-width 4 :color "#303030"))))
   (map! :map dirvish-mode-map
         :n "M-f" #'dirvish-toggle-fullscreen))
 (after! diredfl
-  (set-face-attribute 'dirvish-hl-line nil
-                      :foreground (face-attribute 'diredfl-flag-mark :foreground)
-                      :background (face-attribute 'diredfl-flag-mark :background)))
-
-;; (use-package! prescient
-;;   :hook (company-mode . company-prescient-mode)
-;;   :hook (company-mode . prescient-persist-mode)
-;;   :config
-;;   (setq prescient-save-file (concat doom-cache-dir "prescient-save.el")))
+  (custom-theme-set-faces
+   'user
+   '(dirvish-hl-line ((t (:inherit 'diredfl-flag-mark))))))
 
 (use-package! citre
   :defer t
@@ -398,17 +413,6 @@
         (or (with-demoted-errors "%s, fallback to citre"
               (funcall fetcher))
             (funcall citre-fetcher))))))
-
-;;; :lang org
-(setq org-directory "~/org/"
-      org-archive-location (concat org-directory ".archive/%s::")
-      ;; org-roam-directory (concat org-directory "notes/")
-      deft-directory (concat org-directory "deft/")
-      org-journal-encrypt-journal t
-      org-journal-file-format "%Y%m%d.org"
-      org-ellipsis " ▼ "
-      ;; org-superstar-headline-bullets-list '("#")
-      )
 
 ;;; Language customizations
 
@@ -750,7 +754,6 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 ;;; Customize function
 
-(defconst target-dir-path "~/Downloads/" "My Download directory")
 (defun goto-download-dir ()
   (interactive)
   (dired target-dir-path))
