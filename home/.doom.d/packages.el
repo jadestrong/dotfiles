@@ -17,3 +17,5 @@
 (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar") :pin "43a72c86b4a2abf7a21b802667c0910bf9f5d49f")
 (package! org-modern :recipe (:host github :repo "minad/org-modern"))
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
+
+(package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))

@@ -414,6 +414,13 @@
               (funcall fetcher))
             (funcall citre-fetcher))))))
 
+(use-package! gif-screencast
+  :config
+  (setq gif-screencast-args '("-x")) ;; To shut up the shutter sound of `screencapture' (see `gif-screencast-command').
+  (setq gif-screencast-cropping-program "mogrify") ;; Optional: Used to crop the capture to the Emacs frame.
+  (setq gif-screencast-capture-format "ppm") ;; Optional: Required to crop captured images.
+  )
+
 ;;; Language customizations
 
 ;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug

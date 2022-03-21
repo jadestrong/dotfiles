@@ -14,11 +14,11 @@ local key2App = {
     t = 'Terminal',
     e = 'Emacs',
     k = '百度翻译',
-    o = 'Outlook',
+    -- o = 'Outlook',
     x = 'XMind',
     n = 'PDF',
     c = 'Charles',
-    -- h = 'CocosCreator',
+    h = 'CocosCreator',
 }
 
 for key, app in pairs(key2App) do
