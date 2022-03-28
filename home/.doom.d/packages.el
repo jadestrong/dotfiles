@@ -14,7 +14,7 @@
 (when (featurep! :completion company)
   (package! citre :recipe (:host github :repo "universal-ctags/citre" :files ("*.el"))))
 (package! eslintd-fix)
-(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar") :pin "43a72c86b4a2abf7a21b802667c0910bf9f5d49f")
+(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 (package! org-modern :recipe (:host github :repo "minad/org-modern"))
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
 

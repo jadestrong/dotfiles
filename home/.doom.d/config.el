@@ -311,7 +311,9 @@
 ;; disable org-mode company-mode
 (defun disable-company-hook ()
   (company-mode -1))
-(add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook)
+(when (featurep! :completion company)
+  (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook))
+
 
 ;; (setq flycheck-checker-error-threshold 50)
 
@@ -395,6 +397,7 @@
    '(dirvish-hl-line ((t (:inherit 'diredfl-flag-mark))))))
 
 (use-package! citre
+  :when (featurep! :completion company)
   :defer t
   :init
   (require 'citre-config)
@@ -506,7 +509,6 @@
       (or (with-demoted-errors "%s, fallback to citre"
             (funcall fetcher))
           (funcall citre-fetcher)))))
-
 ;; 修复当安装了 git hooks 插件后， magit-process-mode 中输出的内容有颜色时导致的乱码问题
 (defun color-buffer (proc &rest args)
   (with-current-buffer (process-buffer proc)
@@ -817,6 +819,8 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
   (defun my/org-roam-refresh-agenda-list ()
     (interactive)
     (setq org-agenda-files (my/org-roam-list-nodes-by-tag "Project")))
+
+  (my/org-roam-refresh-agenda-list)
 
   (defun my/org-roam-project-finalize-hook ()
     "Add the captured project file to `org-agenda-files' if the
