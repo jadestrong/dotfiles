@@ -897,6 +897,21 @@ capture was not aborted."
         "n r b" #'my/org-roam-capture-inbox
         "n r t" #'my/org-roam-capture-task))
 
+(use-package! websocket
+    :after org-roam)
+
+(use-package! org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
+
 ;;; @see https://github.com/johnsoncodehk/volar/issues/1118
 (defadvice! +lsp--create-filter-function (workspace)
   :override #'lsp--create-filter-function
@@ -957,7 +972,6 @@ capture was not aborted."
                         (replace-match "" nil t))
                       (goto-char (point-min))
                       (push (lsp-json-read-buffer) messages))
-
                   (error
                    (lsp-warn "Failed to parse the following chunk:\n'''\n%s\n'''\nwith message %s"
                              (concat leftovers input)

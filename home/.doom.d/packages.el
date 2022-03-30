@@ -14,8 +14,13 @@
 (when (featurep! :completion company)
   (package! citre :recipe (:host github :repo "universal-ctags/citre" :files ("*.el"))))
 (package! eslintd-fix)
-(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 (package! org-modern :recipe (:host github :repo "minad/org-modern"))
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
+(unpin! lsp-mode)
+(package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode"))
+(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+
+(unpin! org-roam)
+(package! org-roam-ui)
