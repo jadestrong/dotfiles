@@ -47,7 +47,7 @@
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
-      rustic-analyzer-command '("/Users/jadestrong/Library/Application\ Support/Code/User/globalStorage/matklad.rust-analyzer/rust-analyzer-x86_64-apple-darwin")
+      rustic-analyzer-command '("~/.vscode/extensions/matklad.rust-analyzer-0.3.995/server/rust-analyzer")
       lsp-rust-analyzer-cargo-load-out-dirs-from-check t ;; support extern C suggest
       lsp-rust-analyzer-proc-macro-enable t ;; same above
 
