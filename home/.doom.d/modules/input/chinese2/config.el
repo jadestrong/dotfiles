@@ -7,7 +7,7 @@
 (use-package! rime
   :bind
   ("M-j" . #'+rime-convert-string-at-point)
-  ("C-SPC" . #'toggle-input-method)
+  ;; ("C-SPC" . #'toggle-input-method)
   (:map rime-active-mode-map
     ("M-j" . #'rime-inline-ascii))
   (:map rime-mode-map

@@ -5,6 +5,7 @@ local application = require 'hs.application'
 local key2App = {
     f = 'Finder',
     j = 'Google Chrome',
+    -- j = 'Min',
     i = 'iTerm',
     m = 'MailMaster',
     v = 'code',

@@ -145,15 +145,12 @@
       :g "M-g g" #'avy-goto-line
       :g  "M-g M-g" #'avy-goto-line
       :leader
-      "h L" #'global-keycast-mode
-      "f t" #'find-in-dotfiles
-      "f T" #'browse-dotfiles
-      "p t" #'doom/ivy-tasks
       "w w" #'ace-window
       "w 1" #'delete-other-windows
       "w 0" #'+workspace/close-window-or-workspace
       ";" #'counsel-M-x
-      ":" #'pp-eval-expression)
+      ":" #'pp-eval-expression
+      "e e" #'flycheck-explain-error-at-point)
 
 
 ;; company
@@ -309,10 +306,11 @@
            (lambda (props) (adjust-web-mode-padding)))
 
 ;; disable org-mode company-mode
-(defun disable-company-hook ()
-  (company-mode -1))
-(when (featurep! :completion company)
-  (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook))
+;; remove company-ispell so can disable this
+;; (defun disable-company-hook ()
+;;   (company-mode -1))
+;; (when (featurep! :completion company)
+;;   (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook))
 
 
 ;; (setq flycheck-checker-error-threshold 50)
