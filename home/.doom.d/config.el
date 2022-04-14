@@ -892,10 +892,18 @@ capture was not aborted."
                  (when (equal org-state "DONE")
                    (my/org-roam-copy-todo-to-today))))
 
+  (defun org-roam-node-insert-immediate (arg &rest args)
+    (interactive "P")
+    (let ((args (cons arg args))
+          (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                    '(:immediate-finish t)))))
+      (apply #'org-roam-node-insert args)))
+
   (map! :leader
         "n r p" #'my/org-roam-find-project
         "n r b" #'my/org-roam-capture-inbox
-        "n r t" #'my/org-roam-capture-task))
+        "n r t" #'my/org-roam-capture-task
+        "n r I" #'org-roam-node-insert-immediate))
 
 (use-package! websocket
     :after org-roam)
