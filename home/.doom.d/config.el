@@ -57,6 +57,14 @@
       lsp-rust-analyzer-display-parameter-hints t
       lsp-rust-analyzer-max-inlay-hint-length 25
 
+      lsp-javascript-display-inlay-hints t
+      lsp-javascript-display-enum-member-value-hints t
+      lsp-javascript-display-return-type-hints t
+      lsp-javascript-display-parameter-type-hints t
+      lsp-javascript-display-parameter-name-hints-when-argument-matches-name t
+      lsp-javascript-display-property-declaration-type-hints t
+      lsp-javascript-display-variable-type-hints t
+
       ;; More common use-case
       evil-ex-substitute-global t
       evil-want-fine-undo t
