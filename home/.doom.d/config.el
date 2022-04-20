@@ -34,7 +34,7 @@
       lsp-eslint-download-url "https://github.com/jadestrong/lsp-server-binaries/blob/master/dbaeumer.vscode-eslint-2.2.2.vsix?raw=true"
       ;; lsp-eslint-server-command `("node" "/User/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
-      +lsp-prompt-to-install-server 'quiet
+      lsp-enable-suggest-server-download nil
       lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
 
       lsp-typescript-suggest-auto-imports t
@@ -814,6 +814,13 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
 
 (after! org-roam
   (require 'org-roam-dailies) ;; Ensure the keymap is available
+
+  (setq org-roam-capture-templates
+    '(("d" "default" plain "%?"
+       :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                          "${title}\n")
+       :unnarrowed t)))
+
   (defun my/org-roam-filter-by-tag (tag-name)
     (lambda (node)
       (member tag-name (org-roam-node-tags node))))
@@ -851,14 +858,14 @@ capture was not aborted."
      (my/org-roam-filter-by-tag "Project")
      :templates
      '(("p" "project") plain "* Goals\n\n%?\n\n** TODO Add initial tasks\n\n* Dates\n\n"
-       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n#+filetags: Project")
+       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "${title}\n#+category: ${title}\n#+filetags: Project")
        :unnarrowed t)))
 
   (defun my/org-roam-capture-inbox ()
     (interactive)
     (org-roam-capture- :node (org-roam-node-create)
                        :templates '(("i" "inbox" plain "* %?"
-                                    :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
+                                     :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
 
   (defun my/org-roam-capture-task ()
     (interactive)
@@ -871,16 +878,16 @@ capture was not aborted."
             nil
             (my/org-roam-filter-by-tag "Project"))
      :templates '(("p" "project" plain "** TODO %?"
-       :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
-                              ("Tasks"))))))
+                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+                                          "${title}\n#+category: ${title}\n#+filetags: Project"
+                                          ("Tasks"))))))
 
   (defun my/org-roam-copy-todo-to-today ()
     (interactive)
     (let ((org-refile-keep t) ;; Set this to nil to delete the original!
           (org-roam-dailies-capture-templates
            '(("t" "tasks" entry "%?"
-             :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n" ("Tasks")))))
+              :if-new (file+head+olp "%<%Y-%m-%d>.org" "%<%Y-%m-%d>\n" ("Tasks")))))
           (org-after-refile-insert-hook #'save-buffer)
           today-file
           pos)
@@ -993,3 +1000,37 @@ capture was not aborted."
         (mapc (lambda (msg)
                 (lsp--parser-on-message msg workspace))
               (nreverse messages))))))
+
+(defadvice! +lsp-completion--company-match (candidate)
+  :override #'lsp-completion--company-match
+  (let* ((prefix (downcase
+                  (buffer-substring-no-properties
+                   (or (plist-get (text-properties-at 0 candidate) 'lsp-completion-start-point) (point))
+                   (point))))
+         (prefix-len (length prefix))
+         (prefix-pos 0)
+         (label (downcase candidate))
+         (label-len (length label))
+         (label-pos 0)
+         matches start)
+    (while (and (not matches)
+                (< prefix-pos prefix-len))
+      (while (and (< prefix-pos prefix-len)
+                  (< label-pos label-len))
+        (if (equal (aref prefix prefix-pos) (aref label label-pos))
+            (progn
+              (unless start (setq start label-pos))
+              (cl-incf prefix-pos))
+          (when start
+            (setq matches (nconc matches `((,start . ,label-pos))))
+            (setq start nil)))
+        (cl-incf label-pos))
+      (when start (setq matches (nconc matches `((,start . ,label-pos)))))
+      ;; Search again when the whole prefix is not matched
+      (when (< prefix-pos prefix-len)
+        (setq matches nil))
+      ;; Start search from next offset of prefix to find a match with label
+      (unless matches
+        (cl-incf prefix-pos)
+        (setq label-pos 0)))
+    matches))
