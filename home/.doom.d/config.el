@@ -1034,3 +1034,21 @@ capture was not aborted."
         (cl-incf prefix-pos)
         (setq label-pos 0)))
     matches))
+
+(when (display-graphic-p)
+  (setq resolution-factor (eval (/ (x-display-pixel-height) 1080.0))))
+(add-hook! 'doom-first-buffer-hook
+  (defun +my/change-cjk-font ()
+    "change the cjk font and its size to align the org/markdown tables when have
+cjk characters. Font should be twice the width of asci chars so that org tables align.
+This will break if run in terminal mode, so use conditional to only run for GUI."
+    (when (display-graphic-p)
+      (setq user-cjk-font
+            (cond
+             ((find-font (font-spec :name "Hiragino Sans GB")) "Hiragino Sans GB") ; for macos
+             ((find-font (font-spec :name "Noto Sans CJK SC")) "Noto Sans CJK SC") ; for linux
+             ))
+      (dolist (charset '(kana han cjk-misc bopomofo))
+        (set-fontset-font (frame-parameter nil 'font)
+                          charset (font-spec :family user-cjk-font
+                                             :size 16))))))
