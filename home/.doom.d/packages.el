@@ -24,9 +24,5 @@
 
 (unpin! org-roam)
 (package! org-roam-ui)
-;; (when (featurep! :checkers syntax +childframe)
-;;   (unpin! flycheck-posframe)
-;;   (package! flycheck-posframe :recipe (:host github :repo "jadestrong/flycheck-posframe")))
 
-(package! xwwp :recipe (:host github :repo "jadestrong/xwwp"))
-(package! emacs-baidupan :recipe (:host github :repo "lorniu/emacs-baidupan"))
+(package! xwwp :recipe (:host github :repo "canatella/xwwp"))
