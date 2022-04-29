@@ -26,3 +26,4 @@
 (package! org-roam-ui)
 
 (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
+(package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))

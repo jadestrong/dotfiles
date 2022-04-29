@@ -385,3 +385,8 @@
      (format "rustc %s && %s"
          (buffer-file-name)
          (file-name-sans-extension (buffer-file-name))))))
+
+(use-package! xwidget-webkit-vimium
+  :init
+  (map! :map xwidget-webkit-mode-map
+        :n "f" 'xwidget-webkit-vimium-get-candidates))
