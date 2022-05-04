@@ -161,6 +161,8 @@
       ;; avy
       :g "M-g g" #'avy-goto-line
       :g  "M-g M-g" #'avy-goto-line
+      :g "s-n" #'+workspace/switch-right
+      :g "s-p" #'+workspace/switch-left
       :leader
       "w w" #'ace-window
       "w 1" #'delete-other-windows
