@@ -5,7 +5,7 @@
 (load! "+roam")
 (load! "+hacks")
 (load! "+leetcode")
-(load! "+xwwp")
+;; (load! "+xwwp")
 
 (setq user-full-name "JadeStrong"
       user-mail-address "jadestrong@163.com"
@@ -90,15 +90,15 @@
 ;;; :lang org
 (setq org-directory "~/org/"
       org-archive-location (concat org-directory ".archive/%s::")
-      org-roam-directory (concat org-directory "roam")
+      org-roam-directory (concat org-directory "roam/")
       ;; org-roam-directory "~/.roam"
       deft-directory (concat org-directory "deft/")
       org-journal-encrypt-journal t
       org-journal-file-format "%Y%m%d.org"
       org-ellipsis " ▼ "
+      org-attach-id-dir (concat org-roam-directory ".attach/")
       ;; org-superstar-headline-bullets-list '("#")
       )
-
 
 (when IS-MAC
   (setq mac-command-modifier 'meta
@@ -115,11 +115,15 @@
 
 (setq lsp-log-io nil)
 
+(setq lsp-volar-completion-tag-casing "pascalCase")
+(setq lsp-volar-completion-attr-casing "camelCase")
+(setq lsp-volar-inlay-hints t)
+
 ;; emacs-29
-(when (version= emacs-version "29.0.50")
-  (general-auto-unbind-keys :off)
-  (remove-hook 'doom-after-init-modules-hook #'general-auto-unbind-keys)
-  (set-face-attribute 'mode-line-active nil :inherit 'mode-line))
+;;(when (version= emacs-version "29.0.50")
+;;  (general-auto-unbind-keys :off)
+;;  (remove-hook 'doom-after-init-modules-hook #'general-auto-unbind-keys)
+;;  (set-face-attribute 'mode-line-active nil :inherit 'mode-line))
 
 ;;
 ;;; UI
@@ -285,7 +289,7 @@
   ;; (dirvish-override-dired-mode 1)
   (setq dirvish-depth 0)
   (setq dirvish-preview-dispatchers (remove 'directory-exa dirvish-preview-dispatchers))
-  (setq! dirvish-attributes '(file-size))
+  (setq! dirvish-attributes '(file-size)) ;; all-the-icons
   (map! :map dirvish-mode-map
         :n "M-f" #'dirvish-toggle-fullscreen))
 (after! diredfl
@@ -321,6 +325,8 @@
   (setq gif-screencast-capture-format "ppm") ;; Optional: Required to crop captured images.
   )
 
+;; (use-package! emacs-baidupan)
+
 ;;; Language customizations
 
 ;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug
@@ -344,7 +350,6 @@
 
 
 ;;; Customize function
-
 (defun goto-download-dir ()
   (interactive)
   (dired target-dir-path))
@@ -389,6 +394,18 @@
          (file-name-sans-extension (buffer-file-name))))))
 
 (use-package! xwidget-webkit-vimium
-  :init
+  :config
   (map! :map xwidget-webkit-mode-map
         :n "f" 'xwidget-webkit-vimium-get-candidates))
+
+
+(use-package! lsp-bridge
+  :config
+  (set-company-backend! 'python-mode 'company-lsp-bridge)
+  (dolist (hook (list
+                 'python-mode-hook
+                 'ruby-mode-hook
+                 ))
+    (add-hook hook (lambda ()
+                     (lsp-bridge-enable)
+                     ))))

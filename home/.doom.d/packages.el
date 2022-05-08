@@ -19,11 +19,12 @@
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 (unpin! lsp-mode)
-(package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode"))
+(package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
 (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+(package! lsp-bridge :recipe (:host github :repo "jadestrong/lsp-bridge" :files ("*.el" "*.py" "core/*.py" "langserver/*.json")))
 
 (unpin! org-roam)
 (package! org-roam-ui)
 
-(package! xwwp :recipe (:host github :repo "canatella/xwwp"))
+;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
