@@ -399,13 +399,35 @@
         :n "f" 'xwidget-webkit-vimium-get-candidates))
 
 
-(use-package! lsp-bridge
-  :config
-  (set-company-backend! 'python-mode 'company-lsp-bridge)
-  (dolist (hook (list
-                 'python-mode-hook
-                 'ruby-mode-hook
-                 ))
-    (add-hook hook (lambda ()
-                     (lsp-bridge-enable)
-                     ))))
+;; (use-package! corfu
+;;   :init
+;;   (require 'corfu-info)
+;;   :config
+;;   (setq corfu-auto nil)
+;;   (setq corfu-auto-prefix 0))
+
+;; (use-package! lsp-bridge
+;;   :config
+;;   ;; (set-company-backend! 'python-mode 'company-lsp-bridge)
+;;   (setq lsp-bridge-enable-log t)
+;;   (dolist (hook (list
+;;                  'c-mode-hook
+;;                  'c++-mode-hook
+;;                  'python-mode-hook
+;;                  'ruby-mode-hook
+;;                  'rust-mode-hook
+;;                  'elixir-mode-hook
+;;                  'go-mode-hook
+;;                  'haskell-mode-hook
+;;                  'haskell-literate-mode-hook
+;;                  'dart-mode-hook
+;;                  'scala-mode-hook
+;;                  'typescript-mode-hook
+;;                  'js2-mode-hook
+;;                  'js-mode-hook
+;;                  'rjsx-mode-hook
+;;                  ))
+;;     (add-hook hook (lambda ()
+;;                      (lsp-bridge-enable)
+;;                      )))
+;;   )
