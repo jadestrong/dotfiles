@@ -393,10 +393,11 @@
          (buffer-file-name)
          (file-name-sans-extension (buffer-file-name))))))
 
-(use-package! xwidget-webkit-vimium
-  :config
-  (map! :map xwidget-webkit-mode-map
-        :n "f" 'xwidget-webkit-vimium-get-candidates))
+(use-package! xwidget-webkit-vimium)
+(map! :map xwidget-webkit-mode-map
+      :n "f" 'xwidget-webkit-vimium-get-candidates
+      :n "e" 'evil-collection-xwidget-webkit-scroll-half-page-down
+      :n "S" 'xwidget-webkit-back)
 
 
 ;; (use-package! corfu
@@ -431,3 +432,4 @@
 ;;                      (lsp-bridge-enable)
 ;;                      )))
 ;;   )
+(use-package! lsp-pyright)
