@@ -12,12 +12,6 @@
                    (assq 'global-mode-string mode-line-misc-info))
                   " ")))
 
-;; Set orderless filtering for LSP-mode completions
-(add-hook 'lsp-completion-mode-hook
-          (lambda ()
-            (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless))))))
-
-
 ;; Set bindings
 (add-hook 'doom-init-modules-hook
           (lambda ()
@@ -39,7 +33,7 @@
   (corfu-preview-current nil)    ;; Disable current candidate preview
   (corfu-auto t)
   :hook
-  (doom-first-buffer . corfu-global-mode)
+  (doom-first-buffer . global-corfu-mode)
   :bind (:map corfu-map
          ("SPC" . corfu-insert-separator)
          ("TAB" . corfu-next)
@@ -60,7 +54,11 @@
   :init
   (setq completion-styles '(orderless)
         completion-category-defaults nil
-        completion-category-overrides '((file (styles . (partial-completion))))))
+        completion-category-overrides '((file (styles . (partial-completion)))))
+  ;; Set orderless filtering for LSP-mode completions
+  (add-hook 'lsp-completion-mode-hook
+            (lambda ()
+              (setf (alist-get 'lsp-capf completion-category-defaults) '((styles . (orderless)))))))
 
 (use-package kind-icon
   :after corfu
@@ -72,9 +70,9 @@
 (use-package cape
   :defer t
   :init
-  (add-to-list 'completion-at-point-functions #'cape-file-capf)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev-capf)
-  (add-to-list 'completion-at-point-functions #'cape-keyword-capf))
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword))
 
 (setq completion-cycle-threshold 3)
 
