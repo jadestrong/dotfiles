@@ -3,23 +3,23 @@ local window = require 'hs.window'
 local application = require 'hs.application'
 
 local key2App = {
-    f = 'Finder',
-    j = 'Google Chrome',
+    s = 'Finder',
+    h = 'Google Chrome',
     -- j = 'Min',
-    i = 'iTerm',
+    l = 'iTerm',
     m = 'MailMaster',
-    v = 'code',
-    s = 'PxCook',
-    p = 'PDF Expert',
+    -- v = 'code',
+    -- s = 'PxCook',
+    -- p = 'PDF Expert',
     d = 'Kim',
     t = 'Terminal',
     e = 'Emacs',
     k = '百度翻译',
     -- o = 'Outlook',
-    x = 'XMind',
-    n = 'PDF',
-    c = 'Charles',
-    h = 'CocosCreator',
+    -- x = 'XMind',
+    -- n = 'PDF',
+    -- g = 'Charles',
+    u = 'CocosCreator',
 }
 
 for key, app in pairs(key2App) do

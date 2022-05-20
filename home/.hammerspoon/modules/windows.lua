@@ -14,7 +14,7 @@ hotkey.bind(hyper, '[', function() window.focusedWindow():moveToUnit(layout.left
 hotkey.bind(hyper, ']', function() window.focusedWindow():moveToUnit(layout.right50) end)
 
 -- hotkey.bind(hyper, 'Tab', function() window.focusedWindow():moveToUnit(layout.maximized) end)
-hotkey.bind(hyper, 'Tab', function()
+hotkey.bind(hyperShift, 'Tab', function()
                local win = window.focusedWindow()
                local f = win:frame()
                local screen = win:screen()
@@ -33,7 +33,7 @@ hotkey.bind(hyper, '/', function()
 end)
 
 -- Hotkeys to interact with the window grid
-hotkey.bind(hyper, ',', grid.show)
+-- hotkey.bind(hyper, ',', grid.show)
 hotkey.bind(hyper, 'Left', grid.pushWindowLeft)
 hotkey.bind(hyper, 'Right', grid.pushWindowRight)
 hotkey.bind(hyper, 'Up', grid.pushWindowUp)
@@ -41,7 +41,7 @@ hotkey.bind(hyper, 'Down', grid.pushWindowDown)
 
 -- switch focus to another display
 
-hotkey.bind(hyper, 'o', function ()
+hotkey.bind(hyperShift, 'o', function ()
     focusScreen(window.focusedWindow():screen():next())
 end)
 
@@ -65,6 +65,6 @@ function focusScreen(screen)
    hs.mouse.setAbsolutePosition(pt)
 end
 
-hotkey.bind(hyper, 'h', function ()
-   window.switcher.nextWindow()
-end)
+-- hotkey.bind(hyper, 'h', function ()
+--    window.switcher.nextWindow()
+-- end)

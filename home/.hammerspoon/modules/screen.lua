@@ -17,4 +17,4 @@ end
 -- screenWatcher:start()
 -- screenLayoutWatcher()
 
-hotkey.bind(hyper, 'l', screenLayoutWatcher)
+hotkey.bind(hyperShift, 'l', screenLayoutWatcher)

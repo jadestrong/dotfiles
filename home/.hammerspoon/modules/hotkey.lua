@@ -1,2 +1,2 @@
-hyper = {'ctrl', 'cmd'}
-hyperShift = {'ctrl', 'cmd', 'shift'}
+hyper = {'cmd'}
+hyperShift = {'ctrl', 'cmd'}
