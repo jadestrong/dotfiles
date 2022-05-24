@@ -28,6 +28,6 @@
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
 
-;; (package! lsp-bridge :recipe (:host github :repo "jadestrong/lsp-bridge" :files ("*.el" "*.py" "core/*.py" "langserver/*.json")))
-;; (package! corfu :recipe (:host github :repo "minad/corfu" :files ("*.el" "extensions/*.el")))
-(package! lsp-pyright :recipe (:host github :repo "emacs-lsp/lsp-pyright"))
+(package! lsp-bridge :recipe (:host github :repo "jadestrong/lsp-bridge" :files ("*.el" "*.py" "core/*.py" "langserver/*.json")))
+(package! corfu :recipe (:host github :repo "minad/corfu" :files ("*.el" "extensions/*.el")))
+(package! orderless)
