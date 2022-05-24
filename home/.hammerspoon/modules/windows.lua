@@ -14,7 +14,7 @@ hotkey.bind(hyper, '[', function() window.focusedWindow():moveToUnit(layout.left
 hotkey.bind(hyper, ']', function() window.focusedWindow():moveToUnit(layout.right50) end)
 
 -- hotkey.bind(hyper, 'Tab', function() window.focusedWindow():moveToUnit(layout.maximized) end)
-hotkey.bind(hyperShift, 'Tab', function()
+hotkey.bind(hyper, 'Up', function()
                local win = window.focusedWindow()
                local f = win:frame()
                local screen = win:screen()
@@ -36,8 +36,8 @@ end)
 -- hotkey.bind(hyper, ',', grid.show)
 hotkey.bind(hyper, 'Left', grid.pushWindowLeft)
 hotkey.bind(hyper, 'Right', grid.pushWindowRight)
-hotkey.bind(hyper, 'Up', grid.pushWindowUp)
-hotkey.bind(hyper, 'Down', grid.pushWindowDown)
+-- hotkey.bind(hyper, 'Up', grid.pushWindowUp)
+-- hotkey.bind(hyper, 'Down', grid.pushWindowDown)
 
 -- switch focus to another display
 
