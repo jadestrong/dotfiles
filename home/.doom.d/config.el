@@ -398,38 +398,3 @@
       :n "f" 'xwidget-webkit-vimium-get-candidates
       :n "e" 'evil-collection-xwidget-webkit-scroll-half-page-down
       :n "S" 'xwidget-webkit-back)
-
-
-(use-package! corfu
-  :init
-  (require 'corfu-info)
-  :config
-  (setq corfu-auto nil)
-  (setq corfu-auto-prefix 0)
-  (setq corfu-preview-current nil)
-  (global-corfu-mode))
-
-(use-package! lsp-bridge
-  :init
-  (require 'lsp-bridge-orderless)
-  (require 'lsp-bridge-icon)
-  :config
-  (setq lsp-bridge-enable-log nil)
-  (global-lsp-bridge-mode))
-
-(defun lsp-bridge--vue-project-p (project-path)
-  (if-let ((package-json (f-join project-path "package.json"))
-           (exist (f-file-p package-json))
-           (config (json-read-file package-json))
-           (dependencies (alist-get 'dependencies config)))
-      (alist-get 'vue dependencies)
-    nil))
-
-(defun lsp-bridge--get-lang-server-by-project (project-path file-path)
-  "Get lang server by PROJECT-PATH ANF FILE_PATH."
-  (if (or (equal project-path "/media/psf/Home/Documents/JadeStrong/olympic-game")
-          (lsp-bridge--vue-project-p project-path))
-      "/media/psf/Home/Documents/JadeStrong/volar-starter/.volar.json"
-    nil)
-  )
-(setq lsp-bridge-get-lang-server-by-project #'lsp-bridge--get-lang-server-by-project)
