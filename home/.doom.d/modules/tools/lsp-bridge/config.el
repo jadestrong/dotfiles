@@ -27,6 +27,10 @@
     :documentation #'lsp-bridge-lookup-documentation
     :implementations #'lsp-bridge-find-impl)
 
+  (defadvice! ++javascript-init-lsp-or-tide-maybe-h ()
+    :override #'+javascript-init-lsp-or-tide-maybe-h
+    nil)
+
   (global-lsp-bridge-mode))
 
 (use-package! lsp-bridge-diagnostics
