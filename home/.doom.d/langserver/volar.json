@@ -25,6 +25,9 @@
         "getDocumentNameCasesRequest": false,
         "getDocumentSelectionRequest": false
       },
+      "diagnostics": {
+        "getDocumentVersionRequest": false
+      },
       "schemaRequestService": {
         "getDocumentContentRequest": false
       }
