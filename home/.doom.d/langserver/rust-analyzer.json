@@ -2,7 +2,7 @@
   "name": "rust-analyzer",
   "languageId": "rust",
   "command": [
-    "/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1075-darwin-x64/server/rust-analyzer"
+    "/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1083-darwin-x64/server/rust-analyzer"
   ],
   "settings": {},
   "initializationOptions": {
