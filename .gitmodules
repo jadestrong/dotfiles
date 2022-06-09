@@ -1,0 +1,3 @@
+[submodule "lspce"]
+	path = home/.doom.d/extensions/lspce
+	url = https://github.com/zbelial/lspce.git

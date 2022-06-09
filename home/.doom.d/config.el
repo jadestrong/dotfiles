@@ -398,3 +398,13 @@
       :n "f" 'xwidget-webkit-vimium-get-candidates
       :n "e" 'evil-collection-xwidget-webkit-scroll-half-page-down
       :n "S" 'xwidget-webkit-back)
+
+
+(use-package! lspce
+  ;; :load-path (f-join doom-private-dir "extensions/lspce/")
+  :init
+  (add-to-list 'load-path (f-join doom-private-dir "extensions/lspce/target/debug"))
+  (require 'lspce-module)
+  :config
+  (setq lspce-send-changes-idle-time 1)
+  (add-hook 'rust-mode-hook 'lspce-mode))
