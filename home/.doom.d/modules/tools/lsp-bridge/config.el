@@ -14,7 +14,8 @@
 ;; (use-package! corfu-doc)
 
 (use-package! lsp-bridge
-  ;; :init
+  :init
+  (require 'acm) ;; Fix acm-silent is a void function error
   ;; (require 'lsp-bridge-orderless)
   ;; (require 'lsp-bridge-icon)
   :config
@@ -36,6 +37,18 @@
   (defadvice! ++javascript-init-lsp-or-tide-maybe-h ()
     :override #'+javascript-init-lsp-or-tide-maybe-h
     nil)
+
+  ;; fix Error running timer ‘acm-idle-completion’: (void-variable with)
+  (defadvice! +acm-backend-dabbrev-get-words (word)
+    :override #'acm-backend-dabbrev-get-words
+    (require 'dabbrev)
+    (acm-silent
+      (let ((dabbrev-check-other-buffers nil)
+            (dabbrev-check-all-buffers nil))
+        (dabbrev--reset-global-variables))
+      (let ((min-len (+ acm-backend-dabbrev-min-length (length word))))
+        (cl-loop for w in (dabbrev--find-all-expansions word (dabbrev--ignore-case-p word))
+                 if (>= (length w) min-len) collect w))))
 
   ;; (setq lsp-bridge-lang-server-mode-list
   ;;       '(

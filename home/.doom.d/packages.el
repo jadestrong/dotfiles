@@ -18,9 +18,9 @@
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
-(unpin! lsp-mode)
-(package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
-(package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+;; (unpin! lsp-mode)
+;; (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 
 (unpin! org-roam)
 (package! org-roam-ui)
@@ -28,4 +28,4 @@
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
 
-(package! lspce :recipe (:local-repo "extensions/lspce"))
+;; (package! lspce :recipe (:local-repo "extensions/lspce"))

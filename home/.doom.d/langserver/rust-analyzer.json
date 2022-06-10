@@ -133,7 +133,7 @@
               1
             ]
           },
-          "insertReplaceSupport": true,
+          "insertReplaceSupport": false,
           "resolveSupport": {
             "properties": [
               "documentation",

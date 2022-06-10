@@ -277,7 +277,7 @@
   (setq-hook! 'eslintd-fix-mode-hook
     flycheck-javascript-eslint-executable eslintd-fix-executable))
 
-(use-package! lsp-volar)
+;; (use-package! lsp-volar)
 
 (use-package! org-modern
   :after org
@@ -400,11 +400,11 @@
       :n "S" 'xwidget-webkit-back)
 
 
-(use-package! lspce
-  ;; :load-path (f-join doom-private-dir "extensions/lspce/")
-  :init
-  (add-to-list 'load-path (f-join doom-private-dir "extensions/lspce/target/debug"))
-  (require 'lspce-module)
-  :config
-  (setq lspce-send-changes-idle-time 1)
-  (add-hook 'rust-mode-hook 'lspce-mode))
+;; (use-package! lspce
+;;   ;; :load-path (f-join doom-private-dir "extensions/lspce/")
+;;   :init
+;;   (add-to-list 'load-path (f-join doom-private-dir "extensions/lspce/target/debug"))
+;;   (require 'lspce-module)
+;;   :config
+;;   (setq lspce-send-changes-idle-time 1)
+;;   (add-hook 'rust-mode-hook 'lspce-mode))
