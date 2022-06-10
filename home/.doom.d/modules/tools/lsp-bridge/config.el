@@ -28,6 +28,10 @@
     :references #'lsp-bridge-find-references
     :documentation #'lsp-bridge-lookup-documentation
     :implementations #'lsp-bridge-find-impl)
+  ;; Above setter will override elisp's definition handler
+  (set-lookup-handlers! '(emacs-lisp-mode lisp-interaction-mode helpful-mode)
+    :definition    #'+emacs-lisp-lookup-definition
+    :documentation #'+emacs-lisp-lookup-documentation)
 
   (defadvice! ++javascript-init-lsp-or-tide-maybe-h ()
     :override #'+javascript-init-lsp-or-tide-maybe-h
