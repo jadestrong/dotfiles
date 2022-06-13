@@ -24,8 +24,13 @@
 
 (unpin! org-roam)
 (package! org-roam-ui)
+(package! emacsql-sqlite-builtin)
 
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
 
 ;; (package! lspce :recipe (:local-repo "extensions/lspce"))
+;; (package! posframe-plus :recipe (:host github :repo "zbelial/posframe-plus"))
+
+(package! emacs-async)
+(package! greeting :recipe (:local-repo "extensions/greeting"))

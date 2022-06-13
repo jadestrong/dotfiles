@@ -48,7 +48,7 @@
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
-      rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.4.1079-darwin-x64/server/rust-analyzer")
+      rustic-analyzer-command '("/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1083-darwin-x64/server/rust-analyzer")
       lsp-rust-analyzer-cargo-load-out-dirs-from-check t ;; support extern C suggest
       lsp-rust-analyzer-proc-macro-enable t ;; same above
 
@@ -399,12 +399,31 @@
       :n "e" 'evil-collection-xwidget-webkit-scroll-half-page-down
       :n "S" 'xwidget-webkit-back)
 
+;; (use-package! emacs-async)
+(use-package! greeting
+  :init
+  (add-to-list 'load-path (f-join doom-private-dir "extensions/greeting/target/debug"))
+  (require 'greeting))
+
+(defmacro lsp-enable-async (&rest body)
+  "Enable async."
+  `(async-start (lambda ()
+                   (add-to-list 'load-path "/Users/jadestrong/.doom.d/extensions/greeting/target/debug")
+                   (require 'greeting)
+                   ,@body
+                   222)
+                (lambda (result)
+                  (message "Async process done %s." result))))
+(lsp-enable-async
+ (greeting-say-hello "emacs"))
 
 ;; (use-package! lspce
 ;;   ;; :load-path (f-join doom-private-dir "extensions/lspce/")
 ;;   :init
-;;   (add-to-list 'load-path (f-join doom-private-dir "extensions/lspce/target/debug"))
+;;   (add-to-list 'load-path (expand-file-name (concat doom-private-dir "extensions/lspce/target/debug")))
 ;;   (require 'lspce-module)
 ;;   :config
 ;;   (setq lspce-send-changes-idle-time 1)
-;;   (add-hook 'rust-mode-hook 'lspce-mode))
+;;   (add-hook 'rust-mode-hook 'lspce-mode)
+;;   (setq lspce-server-programs `(("rust-mode" "/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1083-darwin-x64/server/rust-analyzer" "" lspce-ra-initializationOptions)))
+;;   )

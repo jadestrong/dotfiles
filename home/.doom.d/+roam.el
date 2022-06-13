@@ -1,7 +1,7 @@
 ;;; ../dotfiles/home/.doom.d/+roam.el -*- lexical-binding: t; -*-
 
-
 (after! org-roam
+  (setq org-roam-database-connector 'sqlite-builtin)
   (require 'org-roam-dailies) ;; Ensure the keymap is available
 
   (defun my/org-roam-filter-by-tag (tag-name)
