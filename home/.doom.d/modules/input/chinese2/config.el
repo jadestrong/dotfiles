@@ -19,6 +19,8 @@
   (rime-inline-ascii-trigger 'shift-l)
   (rime-show-candidate 'posframe)
   :config
+  (when (and (display-graphic-p) (find-font (font-spec :name "Hiragino Sans GB")))
+    (setq rime-posframe-properties '(:internal-border-width 10 :font "Hiragino Sans GB")))
   (defun +rime-force-enable ()
     "Forced into Chinese input state.
 If current input method is not `rime', active it first. If it is

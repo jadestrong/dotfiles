@@ -14,11 +14,9 @@
 ;; (use-package! corfu-doc)
 
 (use-package! lsp-bridge
+  :hook (doom-first-buffer . global-lsp-bridge-mode)
   :init
   (require 'acm) ;; Fix acm-silent is a void function error
-  ;; (require 'lsp-bridge-orderless)
-  ;; (require 'lsp-bridge-icon)
-  ;; (require 'acm)
   :config
   (setq lsp-bridge-enable-log nil)
   (setq lsp-bridge-enable-diagnostics nil)
@@ -75,8 +73,18 @@
          ;; ((css-mode) . "vscode-css-language-server")
          ;; (elm-mode . "elm-language-server")
          ))
+  (when (featurep! :completion company)
+    (setq company-global-modes
+          '(not erc-mode
+                circe-mode
+                message-mode
+                help-mode
+                gud-mode
+                vterm-mode
+                emacs-lisp-mode)))
 
-  (global-lsp-bridge-mode))
+  ;; (global-lsp-bridge-mode)
+  )
 
 (use-package! lsp-bridge-diagnostics
   :after (lsp-bridge)
