@@ -458,6 +458,18 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
 
 (advice-add 'flycheck-next-error :around #'flycheck-next-error-loop-advice)
 
+(when (featurep! :checkers syntax +childframe)
+  (defun flycheck-posframe-monitor-post-command ()
+    (when (not (flycheck-posframe-check-position))
+      (posframe-hide flycheck-posframe-buffer)))
+
+  (defun fix-flycheck-posframe-not-hide-immediately ()
+    (cond (flycheck-posframe-mode
+           (add-hook 'post-command-hook 'flycheck-posframe-monitor-post-command nil t))
+          ((not flycheck-posframe-mode)
+           (remove-hook 'post-command-hook 'flycheck-posframe-monitor-post-command t))))
+  (add-hook! flycheck-posframe-mode #'fix-flycheck-posframe-not-hide-immediately))
+
 
 ;; 已通过移除 company-ispell 解决，这里其实就不需要了，记录一下
 ;; disable org-mode company-mode

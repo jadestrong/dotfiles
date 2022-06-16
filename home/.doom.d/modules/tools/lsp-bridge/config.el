@@ -21,6 +21,7 @@
   (setq lsp-bridge-enable-log nil)
   (setq lsp-bridge-enable-diagnostics nil)
   (setq acm-enable-dabbrev nil)
+  (setq lsp-bridge-disable-backup nil)
   ;; (setq lsp-bridge-enable-auto-import t)
   ;; (setq lsp-bridge-completion-stop-commands '(corfu-complete corfu-insert undo-tree-undo undo-tree-redo save-buffer evil-normal-state))
   (set-lookup-handlers! 'lsp-bridge-mode
@@ -89,7 +90,8 @@
 (use-package! lsp-bridge-diagnostics
   :after (lsp-bridge)
   :config
-  (setq lsp-bridge-diagnostics-provider :flycheck))
+  (setq lsp-bridge-diagnostics-provider :flycheck)
+  (setq lsp-bridge-diagnostics-disabled-modes '(rust-mode rustic-mode)))
 
 (defun lsp-bridge--vue-project-p (project-path)
   (if-let ((package-json (f-join project-path "package.json"))
