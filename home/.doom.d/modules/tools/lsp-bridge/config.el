@@ -14,7 +14,7 @@
 ;; (use-package! corfu-doc)
 
 (use-package! lsp-bridge
-  :hook (doom-first-buffer . global-lsp-bridge-mode)
+  ;; :hook (doom-first-buffer . global-lsp-bridge-mode)
   :init
   (require 'acm) ;; Fix acm-silent is a void function error
   :config
@@ -83,7 +83,16 @@
                 gud-mode
                 vterm-mode
                 emacs-lisp-mode)))
-
+  ;; 只对指定的 mode 开启 lsp-bridge
+  (dolist (hook (list
+                 'python-mode-hook
+                 'typescript-mode-hook
+                 'js2-mode-hook
+                 'js-mode-hook
+                 'rjsx-mode-hook
+                 'typescript-tsx-mode-hook
+                 'emacs-lisp-mode-hook))
+    (add-hook hook (lambda () (lsp-bridge-mode))))
   ;; (global-lsp-bridge-mode)
   )
 
@@ -121,7 +130,7 @@
         ((or (member project-path volar-project-list)
              (and (not (member project-path vls-project-list)) (lsp-bridge--vue-project-p project-path)))
          (my/get-private-langserver "volar.json"))
-        ((string-equal (file-name-extension file-path) "rs")
-         (my/get-private-langserver "rust-analyzer.json"))
+        ;; ((string-equal (file-name-extension file-path) "rs")
+        ;;  (my/get-private-langserver "rust-analyzer.json"))
         (t nil)))
 (setq lsp-bridge-get-lang-server-by-project #'lsp-bridge--get-lang-server-by-project)
