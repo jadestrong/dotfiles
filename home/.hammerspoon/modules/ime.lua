@@ -1,6 +1,5 @@
 local function Chinese()
-    hs.keycodes.currentSourceID("com.sogou.inputmethod.sogou.pinyin")
-    hs.keycodes.currentSourceID("im.rime.inputmethod.Squirrel.Rime")
+    hs.keycodes.currentSourceID("im.rime.inputmethod.Squirrel")
 end
 
 local function English()

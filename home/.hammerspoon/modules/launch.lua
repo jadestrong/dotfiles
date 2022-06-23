@@ -12,7 +12,6 @@ local key2App = {
     -- s = 'PxCook',
     -- p = 'PDF Expert',
     d = 'Lark',
-    t = 'Terminal',
     e = 'Emacs',
     k = '百度翻译',
     -- o = 'Outlook',
