@@ -427,3 +427,6 @@
 ;;   (add-hook 'rust-mode-hook 'lspce-mode)
 ;;   (setq lspce-server-programs `(("rust-mode" "/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1083-darwin-x64/server/rust-analyzer" "" lspce-ra-initializationOptions)))
 ;;   )
+(use-package! lsp-tailwindcss
+  :init
+  (setq lsp-tailwindcss-add-on-mode t))

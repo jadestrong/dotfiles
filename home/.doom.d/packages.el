@@ -32,5 +32,7 @@
 ;; (package! lspce :recipe (:local-repo "extensions/lspce"))
 ;; (package! posframe-plus :recipe (:host github :repo "zbelial/posframe-plus"))
 
-(package! emacs-async)
-(package! greeting :recipe (:local-repo "extensions/greeting"))
+;; (package! emacs-async)
+;; (package! greeting :recipe (:local-repo "extensions/greeting"))
+
+(package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
