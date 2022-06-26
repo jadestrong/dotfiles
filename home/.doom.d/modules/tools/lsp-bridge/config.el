@@ -14,7 +14,7 @@
 ;; (use-package! corfu-doc)
 
 (use-package! lsp-bridge
-  ;; :hook (doom-first-buffer . global-lsp-bridge-mode)
+  :hook (doom-first-buffer . enable-lsp-bridge-for-modes)
   :init
   (require 'acm) ;; Fix acm-silent is a void function error
   :config
@@ -83,16 +83,17 @@
                 gud-mode
                 vterm-mode
                 emacs-lisp-mode)))
-  ;; 只对指定的 mode 开启 lsp-bridge
-  (dolist (hook (list
-                 'python-mode-hook
-                 'typescript-mode-hook
-                 'js2-mode-hook
-                 'js-mode-hook
-                 'rjsx-mode-hook
-                 'typescript-tsx-mode-hook
-                 'emacs-lisp-mode-hook))
-    (add-hook hook (lambda () (lsp-bridge-mode))))
+  (defun enable-lsp-bridge-for-modes ()
+    ;; 只对指定的 mode 开启 lsp-bridge
+    (dolist (hook (list
+                   'python-mode-hook
+                   'typescript-mode-hook
+                   'js2-mode-hook
+                   'js-mode-hook
+                   'rjsx-mode-hook
+                   'typescript-tsx-mode-hook
+                   'emacs-lisp-mode-hook))
+      (add-hook hook (lambda () (lsp-bridge-mode)))))
   ;; (global-lsp-bridge-mode)
   )
 
