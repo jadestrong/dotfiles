@@ -11,7 +11,7 @@ local key2App = {
     -- v = 'code',
     -- s = 'PxCook',
     -- p = 'PDF Expert',
-    d = 'Lark',
+    d = '飞书',
     e = 'Emacs',
     k = '百度翻译',
     -- o = 'Outlook',
@@ -47,7 +47,7 @@ function toggle_application(_app)
         application.launchOrFocus(_app)
         return
     end
-
+    -- hs.alert.show(app)
     -- application running, toggle hide/unhide
     local mainwin = app:mainWindow()
     if mainwin then
