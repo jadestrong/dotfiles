@@ -7,3 +7,6 @@ home/.config/fish/completions
 home/.config/fish/conf.d
 home/.config/fish/functions
 home/.doom.d/custom.el
+home/.doom.d/librime/dist/bin/
+home/.doom.d/librime/dist/lib/
+home/.doom.d/librime/thirdparty/bin/
