@@ -87,6 +87,8 @@
 (setq rust-analyzer-command-path (expand-file-name "~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1099-darwin-x64/server/rust-analyzer"))
 (push rust-analyzer-command-path rustic-analyzer-command)
 
+(setq +format-with-lsp nil)
+
 (setq inhibit-message nil)
 (setq gif-screencast-scale-factor 2)
 
