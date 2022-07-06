@@ -88,6 +88,12 @@
 (push rust-analyzer-command-path rustic-analyzer-command)
 
 (setq +format-with-lsp nil)
+;; when enable format with lsp, then disable typescript-language-server format
+;; only enable eslint-server otherwise use prettier
+(when +format-with-lsp
+  (setq lsp-javascript-format-enable nil)
+  (setq lsp-typescript-format-enable nil)
+  (setq lsp-eslint-format t))
 
 (setq inhibit-message nil)
 (setq gif-screencast-scale-factor 2)
@@ -405,22 +411,22 @@
       :n "S" 'xwidget-webkit-back)
 
 ;; (use-package! emacs-async)
-(use-package! greeting
-  :init
-  (add-to-list 'load-path (f-join doom-private-dir "extensions/greeting/target/debug"))
-  (require 'greeting))
+;; (use-package! greeting
+;;   :init
+;;   (add-to-list 'load-path (f-join doom-private-dir "extensions/greeting/target/debug"))
+;;   (require 'greeting))
 
-(defmacro lsp-enable-async (&rest body)
-  "Enable async."
-  `(async-start (lambda ()
-                   (add-to-list 'load-path "/Users/jadestrong/.doom.d/extensions/greeting/target/debug")
-                   (require 'greeting)
-                   ,@body
-                   222)
-                (lambda (result)
-                  (message "Async process done %s." result))))
-(lsp-enable-async
- (greeting-say-hello "emacs"))
+;; (defmacro lsp-enable-async (&rest body)
+;;   "Enable async."
+;;   `(async-start (lambda ()
+;;                    (add-to-list 'load-path "/Users/jadestrong/.doom.d/extensions/greeting/target/debug")
+;;                    (require 'greeting)
+;;                    ,@body
+;;                    222)
+;;                 (lambda (result)
+;;                   (message "Async process done %s." result))))
+;; (lsp-enable-async
+;;  (greeting-say-hello "emacs"))
 
 ;; (use-package! lspce
 ;;   ;; :load-path (f-join doom-private-dir "extensions/lspce/")
