@@ -18,7 +18,7 @@
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
-;; (unpin! lsp-mode)
+(unpin! lsp-mode)
 ;; (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
 ;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 
@@ -36,3 +36,8 @@
 ;; (package! greeting :recipe (:local-repo "extensions/greeting"))
 
 (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
+
+(package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
+
+;; (package! tsi :recipe (:host github :repo "orzechowskid/tsi.el"))
+;; (package! tsx-mode :recipe (:host github :repo "orzechowskid/tsx-mode.el"))

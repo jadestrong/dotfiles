@@ -204,22 +204,15 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 ;; 当打开压缩后的 js 文件时， dtrt-indent-mode 会因为单行内容太长，生成的正则太长而报错，这里忽略其抛出的错误
 (defadvice! +doom-detect-indentation-h nil
   :override #'doom-detect-indentation-h
-  (if
-      (or
-       (not after-init-time)
-       doom-inhibit-indent-detection doom-large-file-p
-       (memq major-mode doom-detect-indentation-excluded-modes)
-       (member
-        (substring
-         (buffer-name)
-         0 1)
-        '(" " "*")))
-      nil
-    (let
-        ((inhibit-message
-          (not doom-debug-p)))
-      (ignore-errors
-        (dtrt-indent-mode 1)))))
+  (unless (or (not after-init-time)
+                doom-inhibit-indent-detection
+                doom-large-file-p
+                (memq major-mode doom-detect-indentation-excluded-modes)
+                (member (substring (buffer-name) 0 1) '(" " "*")))
+      ;; Don't display messages in the echo area, but still log them
+      (let ((inhibit-message (not init-file-debug)))
+        (ignore-error
+            (dtrt-indent-mode +1)))))
 
 ;; delete-char will trigger a change event, whick cause lsp-on-change execute a lot.
 (defadvice! +popup-delete (popup)

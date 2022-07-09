@@ -31,8 +31,8 @@
       read-process-output-max (* 1024 1024)
       lsp-eldoc-render-all nil
       lsp-clients-typescript-log-verbosity "off"
-      lsp-eslint-enable nil
-      lsp-eslint-download-url "https://github.com/jadestrong/lsp-server-binaries/blob/master/dbaeumer.vscode-eslint-2.2.2.vsix?raw=true"
+      lsp-eslint-enable t
+      lsp-eslint-download-url "https://github.com/jadestrong/lsp-server-binaries/blob/master/dbaeumer.vscode-eslint-2.2.6.vsix?raw=true"
       ;; lsp-eslint-server-command `("node" "/User/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
       lsp-enable-suggest-server-download nil
@@ -84,16 +84,35 @@
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
 
-(setq rust-analyzer-command-path (expand-file-name "~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1099-darwin-x64/server/rust-analyzer"))
+(setq rust-analyzer-command-path (expand-file-name "~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1115-darwin-x64/server/rust-analyzer"))
 (push rust-analyzer-command-path rustic-analyzer-command)
 
-(setq +format-with-lsp nil)
+(setq +format-with-lsp t)
 ;; when enable format with lsp, then disable typescript-language-server format
 ;; only enable eslint-server otherwise use prettier
-(when +format-with-lsp
+(when (and +format-with-lsp lsp-eslint-enable)
   (setq lsp-javascript-format-enable nil)
   (setq lsp-typescript-format-enable nil)
   (setq lsp-eslint-format t))
+
+(after! editorconfig
+  (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode
+                                                 (web-mode-indent-style lambda (size) 2)
+                                                 web-mode-attr-indent-offset
+                                                 web-mode-attr-value-indent-offset
+                                                 web-mode-code-indent-offset
+                                                 web-mode-css-indent-offset
+                                                 web-mode-markup-indent-offset
+                                                 web-mode-sql-indent-offset
+                                                 web-mode-block-padding
+                                                 web-mode-script-padding
+                                                 web-mode-style-padding
+                                                 typescript-indent-level)))
+
+
+(defun toggle-lsp-format ()
+  (interactive)
+  (setq +format-with-lsp (not +format-with-lsp)))
 
 (setq inhibit-message nil)
 (setq gif-screencast-scale-factor 2)
