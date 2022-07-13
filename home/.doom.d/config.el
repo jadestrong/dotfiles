@@ -95,6 +95,9 @@
   (setq lsp-typescript-format-enable nil)
   (setq lsp-eslint-format t))
 
+(setq lsp-clients-typescript-preferences '((includePackageJsonAutoImports . "auto")))
+(setq lsp-clients-typescript-max-ts-server-memory 3072)
+
 (after! editorconfig
   (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode
                                                  (web-mode-indent-style lambda (size) 2)
