@@ -491,3 +491,20 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
 ;;   (company-mode -1))
 ;; (when (featurep! :completion company)
 ;;   (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook))
+
+;; (after! lsp
+;;   (setq tsserverPath (lsp-package-path 'typescript))
+;;   (defadvice! +lsp-package-path (dependency)
+;;     :override #'lsp-package-path
+;;     (if (eq 'typescript dependency)
+;;         tsserverPath
+;;       (let (path)
+;;         (-first (-lambda ((provider . rest))
+;;                   (message "provider %s" provider)
+;;                   (setq path (-some-> lsp-deps-providers
+;;                                (plist-get provider)
+;;                                (plist-get :path)
+;;                                (apply rest))))
+;;                 (gethash dependency lsp--dependencies))
+;;         path)))
+;;   )
