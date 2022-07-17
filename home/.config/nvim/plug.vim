@@ -21,6 +21,7 @@ if has("nvim")
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/nvim-cmp'
   Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
+  Plug 'JoosepAlviste/nvim-ts-context-commentstring'
   Plug 'kyazdani42/nvim-web-devicons'
   Plug 'onsails/lspkind-nvim'
   Plug 'nvim-lua/popup.nvim'
@@ -31,7 +32,7 @@ if has("nvim")
   Plug 'windwp/nvim-ts-autotag'
   Plug 'tpope/vim-commentary'
   Plug 't9md/vim-choosewin'
-  Plug 'preservim/nerdcommenter'
+  " Plug 'preservim/nerdcommenter'
   Plug 'thaerkh/vim-workspace'
 endif
 
