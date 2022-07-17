@@ -10,3 +10,5 @@ home/.doom.d/custom.el
 home/.doom.d/librime/dist/bin/
 home/.doom.d/librime/dist/lib/
 home/.doom.d/librime/thirdparty/bin/
+home/.config/nvim/.undodir/
+home/.config/nvim/Session.vim
