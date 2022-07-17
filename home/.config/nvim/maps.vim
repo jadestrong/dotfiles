@@ -42,10 +42,11 @@ nmap <Tab> :tabnext<Return>
 " Windows
 
 " Split window
-nmap ss :split<Return><C-w>w
-nmap sv :vsplit<Return><C-w>w
+nmap <Space>ws :split<Return><C-w>w
+nmap <Space>wv :vsplit<Return><C-w>w
+nmap <Space>ww <Plug>(choosewin)
 " Move window
-nmap <Space> <C-w>w
+" nmap <Space> <C-w>w
 map s<left> <C-w>h
 map s<up> <C-w>k
 map s<down> <C-w>j
@@ -60,3 +61,4 @@ nmap <C-w><right> <C-w>>
 nmap <C-w><up> <C-w>+
 nmap <C-w><down> <C-w>-
 
+nmap <Space>fs :w<Return>

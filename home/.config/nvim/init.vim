@@ -68,6 +68,7 @@ set formatoptions+=r
 " Highlights "{{{
 " ---------------------------------------------------------------------
 set cursorline
+set autoread
 "set cursorcolumn
 
 " Set cursor line color on visual mode
