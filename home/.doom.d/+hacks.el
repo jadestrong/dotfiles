@@ -383,22 +383,24 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 ;; https://github.com/typescript-language-server/typescript-language-server/blob/468e663f11b187203de022491df673c0a5846c2c/src/completion.ts#L70
 ;; https://github.com/microsoft/vscode/blob/78397428676e15782e253261358b0398c2a1149e/extensions/typescript-language-features/src/languageFeatures/completions.ts#L101
 ;; 这里强制判断了一下 textEdit 中的 ?. 开头的文本来拼接做为 filterText 兼容一下
-(defadvice! +lsp-completion--to-internal (items)
-  :override #'lsp-completion--to-internal
-  (--> items
-       (-map (-lambda ((item &as &CompletionItem
-                             :label
-                             :filter-text?
-                             :text-edit?
-                             :_emacsStartPoint start-point
-                             :score?))
-               `( :label ,(or (unless (lsp-falsy? filter-text?) filter-text?)
-                              (and (not (lsp-falsy? text-edit?)) (string-prefix-p "?." (lsp:text-edit-new-text text-edit?)) (concat "." (lsp:text-edit-new-text text-edit?)))
-                              label)
-                  :item ,item
-                  :start-point ,start-point
-                  :score ,score?))
-             it)))
+(after! lsp
+  (defadvice! +lsp-completion--to-internal (items)
+    :override #'lsp-completion--to-internal
+    (--> items
+         (-map (-lambda ((item &as &CompletionItem
+                               :label
+                               :filter-text?
+                               :text-edit?
+                               :_emacsStartPoint start-point
+                               :score?))
+                 `( :label ,(or (unless (lsp-falsy? filter-text?) filter-text?)
+                                (and (not (lsp-falsy? text-edit?)) (string-prefix-p "?." (lsp:text-edit-new-text text-edit?)) (concat "." (lsp:text-edit-new-text text-edit?)))
+                                label)
+                    :item ,item
+                    :start-point ,start-point
+                    :score ,score?))
+               it))))
+
 
 ;; emacs-rime 有时候中文候选词的字体会变，大部分时候这个方法是解决了，但偶尔还是遇到了，待观察
 (when (display-graphic-p)
