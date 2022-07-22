@@ -460,6 +460,13 @@
 ;;   (add-hook 'rust-mode-hook 'lspce-mode)
 ;;   (setq lspce-server-programs `(("rust-mode" "/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1083-darwin-x64/server/rust-analyzer" "" lspce-ra-initializationOptions)))
 ;;   )
+
+(after! lsp-mode
+  (setq lsp-clients-typescript-plugins
+        (vector
+         (list :name "typescript-styled-plugin"
+               :location (expand-file-name "~/.config/yarn/global/node_modules/typescript-styled-plugin/")))))
+
 (use-package! lsp-tailwindcss
   :init
   (setq lsp-tailwindcss-add-on-mode t))
