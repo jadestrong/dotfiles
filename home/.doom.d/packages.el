@@ -19,7 +19,7 @@
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 (unpin! lsp-mode)
-;; (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+(package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
 ;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
 
 (unpin! org-roam)
@@ -37,8 +37,10 @@
 
 (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
 
-(package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
+;; (package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
 
 ;; (package! tsi :recipe (:host github :repo "orzechowskid/tsi.el"))
 ;; (package! tsx-mode :recipe (:host github :repo "orzechowskid/tsx-mode.el"))
+
+(package! org-alert)
 (package! apheleia)

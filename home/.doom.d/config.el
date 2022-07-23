@@ -95,8 +95,12 @@
   (setq lsp-typescript-format-enable nil)
   (setq lsp-eslint-format t))
 
-(setq lsp-clients-typescript-preferences '((includePackageJsonAutoImports . "auto")))
+(setq lsp-clients-typescript-preferences '((includePackageJsonAutoImports . "auto")
+                                           (includeAutomaticOptionalChainCompletions . t)))
 (setq lsp-clients-typescript-max-ts-server-memory 3072)
+;; disalbe magit-diff to highlight the chunk of removed and added
+(after! magit
+  (setq magit-diff-refine-hunk nil))
 
 (after! editorconfig
   (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode
@@ -265,7 +269,7 @@
       evil-vsplit-window-right t)
 
 ;;; :lang javascript
-(map! :map (js2-mode-map typescript-mode-map)
+(map! :map (js2-mode-map typescript-mode-map typescript-tsx-mode-map)
       "C-c j" 'js-doc-insert-function-doc
       "@" 'js-doc-insert-tag)
 
@@ -316,6 +320,15 @@
   :after org
   :config
   (add-hook 'org-mode-hook #'org-modern-mode))
+
+(after! org
+  (setq org-log-refile 'note))
+
+(use-package! org-alert
+  :after org
+  :config
+  (setq alert-default-style 'osx-notifier)
+  (org-alert-enable))
 
 (use-package! dirvish
   :config
@@ -470,4 +483,9 @@
 (use-package! lsp-tailwindcss
   :init
   (setq lsp-tailwindcss-add-on-mode t))
+
+;; (use-package! jsdoc)
+
+;; (use-package! tsx-mode)
+
 (use-package! apheleia)
