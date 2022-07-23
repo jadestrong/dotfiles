@@ -33,7 +33,7 @@ if has("nvim")
   Plug 'tpope/vim-commentary'
   Plug 't9md/vim-choosewin'
   " Plug 'preservim/nerdcommenter'
-  Plug 'thaerkh/vim-workspace'
+  " Plug 'thaerkh/vim-workspace'
 endif
 
 Plug 'groenewege/vim-less', { 'for': 'less' }
