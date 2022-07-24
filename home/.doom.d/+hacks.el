@@ -401,6 +401,8 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
                     :score ,score?))
                it))))
 
+  ;; 优先使用系统按钮的 tsserver
+  (setq lsp-clients-typescript-server-args `("--tsserver-path" "/opt/homebrew/bin/tsserver" "--stdio")))
 
 ;; emacs-rime 有时候中文候选词的字体会变，大部分时候这个方法是解决了，但偶尔还是遇到了，待观察
 (when (display-graphic-p)
