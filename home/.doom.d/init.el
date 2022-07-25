@@ -102,7 +102,7 @@
        ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
-       lookup              ; navigate your code and its documentation
+       (lookup +docsets)              ; navigate your code and its documentation
        (lsp +peek)               ; M-x vscode
        ;; lsp-bridge
        (magit +forge)             ; a git porcelain for Emacs

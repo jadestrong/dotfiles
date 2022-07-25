@@ -512,3 +512,19 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
 ;;                 (gethash dependency lsp--dependencies))
 ;;         path)))
 ;;   )
+
+
+(set-docsets! 'typescript-tsx-mode "tailwindcss")
+(setq +lookup-open-url-fn #'+lookup-xwidget-webkit-open-url-fn)
+(after! dash-docs
+  (setq dash-docs-browser-func #'+lookup-xwidget-webkit-open-url-fn))
+(defadvice! +dash-docs--run-query (docset search-pattern)
+  :override #'dash-docs--run-query
+  (let* ((docset-name (car docset))
+         (docset-type (cond ((string-equal "tailwindcss" docset-name) "DASH")
+                            (t (cl-caddr docset)))))
+    (dash-docs-sql
+     (cadr docset)
+     (dash-docs-sql-query docset-type
+                          (dash-docs-sub-docset-name-in-pattern search-pattern
+                                                                (car docset))))))
