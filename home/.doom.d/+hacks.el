@@ -40,12 +40,25 @@
         (setq offset prev-indentation))))
     (cons (if (<= offset initial-column) initial-column offset) nil)))
 
+;; 走 server 使用原来的 base64 总是失败，更改为走 hex 编码 https://plantuml.com/zh/text-encoding
+;; (defun encode-string-hex (string)
+;;   (let ((res nil))
+;;     (dolist (num (string-to-list string) (apply #'concat (reverse res)))
+;;       (push (format "%x" num) res))))
+
+(defun my/hex-encode-string (ascii-string)
+  (let ((res nil))
+    (dotimes (i (length ascii-string) (apply #'concat (reverse res)))
+      (let ((ascii-char (substring ascii-string i  (+ i 1))))
+        (push (format "%.2x" (string-to-char ascii-char)) res)))))
+
+(setq plantuml-default-exec-mode 'server)
 (defadvice! +plantuml-server-encode-url (string)
   :override #'plantuml-server-encode-url
   (let* ((coding-system (or buffer-file-coding-system
                             "utf8"))
-         (encoded-string (base64-encode-string (encode-coding-string string 'utf-8) t)))
-    (concat plantuml-server-url "/" plantuml-output-type "/-base64-" encoded-string)))
+         (encoded-string (my/hex-encode-string (encode-coding-string string 'utf-8))))
+    (concat plantuml-server-url "/" plantuml-output-type "/~h" encoded-string)))
 
 
 ;; 修复 rjsx-mode 反注释会影响行内的 // 的 bug
@@ -379,28 +392,7 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
         (setq label-pos 0)))
     matches))
 
-;; ts-ls 针对 可选链的补全结果没有返回 filterText ，对于 tsserver 返回的 isMemberCompletion 的情况没有处理，所以补全不出来可选链的选项
-;; https://github.com/typescript-language-server/typescript-language-server/blob/468e663f11b187203de022491df673c0a5846c2c/src/completion.ts#L70
-;; https://github.com/microsoft/vscode/blob/78397428676e15782e253261358b0398c2a1149e/extensions/typescript-language-features/src/languageFeatures/completions.ts#L101
-;; 这里强制判断了一下 textEdit 中的 ?. 开头的文本来拼接做为 filterText 兼容一下
-(after! lsp
-  (defadvice! +lsp-completion--to-internal (items)
-    :override #'lsp-completion--to-internal
-    (--> items
-         (-map (-lambda ((item &as &CompletionItem
-                               :label
-                               :filter-text?
-                               :text-edit?
-                               :_emacsStartPoint start-point
-                               :score?))
-                 `( :label ,(or (unless (lsp-falsy? filter-text?) filter-text?)
-                                (and (not (lsp-falsy? text-edit?)) (string-prefix-p "?." (lsp:text-edit-new-text text-edit?)) (concat "." (lsp:text-edit-new-text text-edit?)))
-                                label)
-                    :item ,item
-                    :start-point ,start-point
-                    :score ,score?))
-               it))))
-
+(after! lsp-mode
   ;; 优先使用系统按钮的 tsserver
   (setq lsp-clients-typescript-server-args `("--tsserver-path" "/opt/homebrew/bin/tsserver" "--stdio")))
 
@@ -495,24 +487,6 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
 ;;   (company-mode -1))
 ;; (when (featurep! :completion company)
 ;;   (add-hook! (org-mode markdown-mode text-mode) 'disable-company-hook))
-
-;; (after! lsp
-;;   (setq tsserverPath (lsp-package-path 'typescript))
-;;   (defadvice! +lsp-package-path (dependency)
-;;     :override #'lsp-package-path
-;;     (if (eq 'typescript dependency)
-;;         tsserverPath
-;;       (let (path)
-;;         (-first (-lambda ((provider . rest))
-;;                   (message "provider %s" provider)
-;;                   (setq path (-some-> lsp-deps-providers
-;;                                (plist-get provider)
-;;                                (plist-get :path)
-;;                                (apply rest))))
-;;                 (gethash dependency lsp--dependencies))
-;;         path)))
-;;   )
-
 
 (set-docsets! 'typescript-tsx-mode "tailwindcss")
 (setq +lookup-open-url-fn #'+lookup-xwidget-webkit-open-url-fn)

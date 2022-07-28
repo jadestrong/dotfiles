@@ -33,7 +33,6 @@
       lsp-clients-typescript-log-verbosity "off"
       lsp-eslint-enable t
       lsp-eslint-download-url "https://github.com/jadestrong/lsp-server-binaries/blob/master/dbaeumer.vscode-eslint-2.2.6.vsix?raw=true"
-      ;; lsp-eslint-server-command `("node" "/User/jadestrong/.vscode/extensions/dbaeumer.vscode-eslint-2.2.2/server/out/eslintServer.js" "--stdio")
       lsp-vetur-experimental-template-interpolation-service nil
       lsp-enable-suggest-server-download nil
       lsp-enable-indentation nil ;; don't use lsp-format-region as indent-region-function
@@ -83,8 +82,7 @@
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-
-(setq rust-analyzer-command-path (expand-file-name "~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1115-darwin-x64/server/rust-analyzer"))
+(setq rust-analyzer-command-path (expand-file-name "~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1131-darwin-x64/server/rust-analyzer"))
 (push rust-analyzer-command-path rustic-analyzer-command)
 
 (setq +format-with-lsp t)
@@ -211,7 +209,8 @@
       "w 0" #'+workspace/close-window-or-workspace
       ";" #'counsel-M-x
       ":" #'pp-eval-expression
-      "e e" #'flycheck-explain-error-at-point)
+      "e e" #'flycheck-explain-error-at-point
+      "c F" #'apheleia-format-buffer)
 
 
 ;; company
@@ -439,6 +438,10 @@
      (format "rustc %s && %s"
          (buffer-file-name)
          (file-name-sans-extension (buffer-file-name))))))
+
+(defun xwidget-webkit-estimated-load-progress()
+  "To fix void-function warning."
+  t)
 
 (use-package! xwidget-webkit-vimium)
 (map! :map xwidget-webkit-mode-map
