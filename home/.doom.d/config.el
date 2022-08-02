@@ -47,7 +47,7 @@
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
-      rustic-analyzer-command '()
+      rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1148-darwin-x64/server/rust-analyzer")
       lsp-rust-analyzer-cargo-load-out-dirs-from-check t ;; support extern C suggest
       lsp-rust-analyzer-proc-macro-enable t ;; same above
 
@@ -82,8 +82,6 @@
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-(setq rust-analyzer-command-path (expand-file-name "~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1148-darwin-x64/server/rust-analyzer"))
-(push rust-analyzer-command-path rustic-analyzer-command)
 
 (setq +format-with-lsp t)
 ;; when enable format with lsp, then disable typescript-language-server format
