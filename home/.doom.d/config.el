@@ -94,8 +94,9 @@
 (setq lsp-clients-typescript-preferences '((includePackageJsonAutoImports . "on")
                                            (includeAutomaticOptionalChainCompletions . t)))
 (setq lsp-clients-typescript-max-ts-server-memory 3072)
-(setq lsp-clients-typescript-log-verbosity "info")
 (setq completion-ignore-case t)
+(setq lsp-completion-no-cache nil)
+
 ;; disalbe magit-diff to highlight the chunk of removed and added
 (after! magit
   (setq magit-diff-refine-hunk nil))
