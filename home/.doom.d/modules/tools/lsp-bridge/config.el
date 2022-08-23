@@ -97,11 +97,11 @@
   ;; (global-lsp-bridge-mode)
   )
 
-(use-package! lsp-bridge-diagnostics
-  :after (lsp-bridge)
-  :config
-  (setq lsp-bridge-diagnostics-provider :flycheck)
-  (setq lsp-bridge-diagnostics-disabled-modes '(rust-mode rustic-mode)))
+;; (use-package! lsp-bridge-diagnostics
+;;   :after (lsp-bridge)
+;;   :config
+;;   (setq lsp-bridge-diagnostics-provider :native)
+;;   (setq lsp-bridge-diagnostics-disabled-modes '(rust-mode rustic-mode)))
 
 (defun lsp-bridge--vue-project-p (project-path)
   (if-let ((package-json (f-join project-path "package.json"))

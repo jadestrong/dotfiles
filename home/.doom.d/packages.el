@@ -18,9 +18,11 @@
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
-(unpin! lsp-mode)
-(package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
-;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+(when (modulep! :tools lsp)
+  (unpin! lsp-mode)
+  (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+  ;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
+  )
 
 (unpin! org-roam)
 (package! org-roam-ui)
@@ -35,7 +37,7 @@
 ;; (package! emacs-async)
 ;; (package! greeting :recipe (:local-repo "extensions/greeting"))
 
-(package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
+;; (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
 
 ;; (package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
 
@@ -44,3 +46,7 @@
 
 (package! org-alert)
 (package! apheleia)
+(package! plantuml :recipe (:host github :repo "ginqi7/plantuml-emacs"))
+
+(package! epc)
+(package! vimrc-mode)

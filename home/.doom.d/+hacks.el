@@ -52,7 +52,6 @@
       (let ((ascii-char (substring ascii-string i  (+ i 1))))
         (push (format "%.2x" (string-to-char ascii-char)) res)))))
 
-(setq plantuml-default-exec-mode 'server)
 (defadvice! +plantuml-server-encode-url (string)
   :override #'plantuml-server-encode-url
   (let* ((coding-system (or buffer-file-coding-system

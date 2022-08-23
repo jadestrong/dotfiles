@@ -57,7 +57,7 @@
       lsp-rust-analyzer-display-parameter-hints t
       lsp-rust-analyzer-max-inlay-hint-length 25
 
-      lsp-javascript-display-inlay-hints t
+      lsp-javascript-display-inlay-hints nil
       lsp-javascript-display-enum-member-value-hints t
       lsp-javascript-display-return-type-hints t
       lsp-javascript-display-parameter-type-hints t
@@ -180,7 +180,7 @@
 ;;
 ;;; Keybinds
 
-(map! :n [tab] (cmds! (and (featurep! :editor fold)
+(map! :n [tab] (cmds! (and (modulep! :editor fold)
                            (save-excursion (end-of-line) (invisible-p (point))))
                       #'+fold/toggle
                       (fboundp 'evil-jump-item)
@@ -344,7 +344,7 @@
    '(dirvish-hl-line ((t (:inherit 'diredfl-flag-mark))))))
 
 (use-package! citre
-  :when (featurep! :completion company)
+  :when (modulep! :completion company)
   :defer t
   :init
   (require 'citre-config)
@@ -392,7 +392,6 @@
 ;;   (orderless-regexp (pinyinlib-build-regexp-string str)))
 ;; (after! orderless
 ;;  (add-to-list 'orderless-matching-styles 'completion--regex-pinyin))
-
 
 
 ;;; Customize function
@@ -485,6 +484,7 @@
                :location (expand-file-name "~/.config/yarn/global/node_modules/typescript-styled-plugin/")))))
 
 (use-package! lsp-tailwindcss
+  :when (modulep! :tools lsp)
   :init
   (setq lsp-tailwindcss-add-on-mode t))
 
@@ -493,3 +493,12 @@
 ;; (use-package! tsx-mode)
 
 (use-package! apheleia)
+
+(use-package! plantuml
+  :config
+  (setq plantuml-log-command nil))
+
+(use-package! epc)
+(use-package! vimrc-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
