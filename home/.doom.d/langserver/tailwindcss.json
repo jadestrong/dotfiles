@@ -1,0 +1,55 @@
+{
+  "name": "tailwindcss",
+  "languageId": "typescriptreact",
+  "command": ["node", "/Users/bytedance/.emacs.d/.local/etc/lsp/tailwindcss/extension/dist/tailwindServer.js", "--stdio"],
+  "initializationOptions": {
+    "configuration": {
+      "tailwindCSS": {
+        "emmetCompletions": false,
+        "showPixelEquivalents": true,
+        "rootFontSize": 16,
+        "validate": true,
+        "hovers": true,
+        "suggestions": true,
+        "codeActions": true,
+        "lint": {
+          "invalidScreen": "error",
+          "invalidVariant": "error",
+          "invalidTailwindDirective": "error",
+          "invalidApply": "error",
+          "invalidConfigPath": "error",
+          "cssConflict": "warning",
+          "recommendedVariantOrder": "warning"
+        },
+        "experimental": {
+          "classRegex": ""
+        },
+        "classAttributes": ["class", "className", "ngClass"]
+      }
+    }
+  },
+  "settings": {
+    "tailwindCSS": {
+      "emmetCompletions": false,
+      "showPixelEquivalents": true,
+      "rootFontSize": 16,
+      "validate": true,
+      "hovers": true,
+      "suggestions": true,
+      "codeActions": true,
+      "lint": {
+        "invalidScreen": "error",
+        "invalidVariant": "error",
+        "invalidTailwindDirective": "error",
+        "invalidApply": "error",
+        "invalidConfigPath": "error",
+        "cssConflict": "warning",
+        "recommendedVariantOrder": "warning"
+      },
+      "experimental": {
+        "classRegex": ""
+      },
+      "classAttributes": ["class", "className", "ngClass"]
+    }
+  }
+}

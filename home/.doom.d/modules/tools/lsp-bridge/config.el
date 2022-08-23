@@ -22,6 +22,7 @@
   (setq lsp-bridge-enable-diagnostics nil)
   (setq acm-enable-dabbrev nil)
   (setq lsp-bridge-disable-backup nil)
+  (setq acm-backend-lsp-candidates-max-number 100000)
   ;; (setq lsp-bridge-enable-auto-import t)
   ;; (setq lsp-bridge-completion-stop-commands '(corfu-complete corfu-insert undo-tree-undo undo-tree-redo save-buffer evil-normal-state))
   (set-lookup-handlers! 'lsp-bridge-mode
