@@ -44,7 +44,6 @@
 ;; (package! tsi :recipe (:host github :repo "orzechowskid/tsi.el"))
 ;; (package! tsx-mode :recipe (:host github :repo "orzechowskid/tsx-mode.el"))
 
-(package! org-alert)
 (package! apheleia)
 (package! plantuml :recipe (:host github :repo "ginqi7/plantuml-emacs"))
 

@@ -324,12 +324,6 @@
 (after! org
   (setq org-log-refile 'note))
 
-(use-package! org-alert
-  :after org
-  :config
-  (setq alert-default-style 'osx-notifier)
-  (org-alert-enable))
-
 (use-package! dirvish
   :config
   ;; (dirvish-override-dired-mode 1)
