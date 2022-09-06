@@ -12,7 +12,7 @@ local app2Ime = {
     { 'Emacs', 'English' },
     { 'Google Chrome', 'Chinese' },
     { '访达', 'English' },
-    { 'Kim', 'Chinese' },
+    { '飞书', 'Chinese' },
     { 'Code', 'English' },
     { '百度翻译', 'Chinese' }
 }
