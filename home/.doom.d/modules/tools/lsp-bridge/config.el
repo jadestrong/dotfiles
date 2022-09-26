@@ -75,7 +75,7 @@
          ;; ((css-mode) . "vscode-css-language-server")
          ;; (elm-mode . "elm-language-server")
          ))
-  (when (featurep! :completion company)
+  (when (modulep! :completion company)
     (setq company-global-modes
           '(not erc-mode
                 circe-mode

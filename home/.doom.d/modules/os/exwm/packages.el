@@ -2,7 +2,7 @@
 ;;; os/exwm/packages.el -*-
 
 (package! exwm)
-(when (featurep! :editor evil)
+(when (modulep! :editor evil)
   (package! exwm-evil
     :recipe (:host github :repo "LemonBreezes/exwm-evil"))
   (package! exwm-firefox-evil))

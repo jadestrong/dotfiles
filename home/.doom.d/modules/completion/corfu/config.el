@@ -50,7 +50,7 @@
          ("M-d" . corfu-doc-toggle)))
 
 (use-package orderless
-  :when (featurep! +orderless)
+  :when (modulep! +orderless)
   :init
   (setq completion-styles '(orderless)
         completion-category-defaults nil

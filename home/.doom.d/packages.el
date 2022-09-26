@@ -11,7 +11,7 @@
 (package! evil-matchit)
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
 ;; (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
-(when (featurep! :completion company)
+(when (modulep! :completion company)
   (package! citre :recipe (:host github :repo "universal-ctags/citre" :files ("*.el"))))
 (package! eslintd-fix)
 (package! org-modern :recipe (:host github :repo "minad/org-modern"))
@@ -20,7 +20,8 @@
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 (when (modulep! :tools lsp)
   (unpin! lsp-mode)
-  (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+  ;; (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+  (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
   ;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
   )
 
@@ -36,8 +37,6 @@
 
 ;; (package! emacs-async)
 ;; (package! greeting :recipe (:local-repo "extensions/greeting"))
-
-;; (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
 
 ;; (package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
 

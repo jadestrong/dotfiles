@@ -59,12 +59,12 @@
 (defun meow/setup-colemak ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-colemak)
   (meow/setup)
-  (when (featurep! :editor meow +override)
+  (when (modulep! :editor meow +override)
    (meow-motion-overwrite-define-key
     ;; Use e to move up, n to move down.
     ;; Since special modes usually use n to move down, we only overwrite e here.
     '("e" . meow-prev))
-   (when (featurep! :editor meow +leader)
+   (when (modulep! :editor meow +leader)
          (meow-motion-overwrite-define-key '("\\ e" "H-e")))
    (meow-leader-define-key '("e" . "H-e")))
   (map! :map meow-normal-state-keymap
@@ -115,7 +115,7 @@
 ;; Dvorak
 (defun meow/setup-dvorak ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
-  (when (featurep! :editor meow +override)
+  (when (modulep! :editor meow +override)
    (meow-motion-overwrite-define-key)) ; custom keybinding for motion state
   (meow/setup)
   (map! :map meow-normal-state-keymap
@@ -169,11 +169,11 @@
 (defun meow/setup-qwerty ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (meow/setup)
-  (when (featurep! :editor meow +override)
+  (when (modulep! :editor meow +override)
    (meow-motion-overwrite-define-key
     '("j" meow-next)
     '("k" meow-prev))
-   (when (featurep! :editor meow +leader)
+   (when (modulep! :editor meow +leader)
      (meow-motion-overwrite-define-key
       '("\\ j" "H-j")
       '("\\ k" "H-k")))
@@ -231,7 +231,7 @@
 ;; Programmer Dvorak
 (defun meow/setup-dvp ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvp)
-  (when (featurep! :editor meow +override)
+  (when (modulep! :editor meow +override)
     (meow-motion-overwrite-define-key)) ; custom keybinding for motion state
   (map! :map meow-normal-state-keymap
    "?" #'meow-cheatsheet
@@ -311,12 +311,12 @@
   :demand t
   :config
   (cond
-     ((featurep! :editor meow +colemak) (meow/setup-colemak))
-     ((featurep! :editor meow +dvorak) (meow/setup-dvorak))
-     ((featurep! :editor meow +qwerty) (meow/setup-qwerty))
-     ((featurep! :editor meow +dvp) (meow/setup-dvp)))
+     ((modulep! :editor meow +colemak) (meow/setup-colemak))
+     ((modulep! :editor meow +dvorak) (meow/setup-dvorak))
+     ((modulep! :editor meow +qwerty) (meow/setup-qwerty))
+     ((modulep! :editor meow +dvp) (meow/setup-dvp)))
   (cond
-   ((featurep! :editor meow +leader)
+   ((modulep! :editor meow +leader)
     (map! :map meow-normal-state-keymap
       doom-leader-key doom-leader-map)
     (map! :map meow-motion-state-keymap

@@ -39,7 +39,7 @@
 
   ;; Prevent EXWM buffers from changing their name while not focused.
   ;; This allows Persp to restore them as intended.
-  (when (featurep! :ui workspaces)
+  (when (modulep! :ui workspaces)
     (advice-add #'exwm--update-utf8-title :around
                 #'exwm--update-utf8-title-advice))
 
@@ -59,7 +59,7 @@
       :desc "Send C-c" "C-c" (cmd! (exwm-input--fake-key ?\C-c)))
 
 (use-package exwm-evil
-  :when (featurep! :editor evil)
+  :when (modulep! :editor evil)
   :after exwm
   :config
   (exwm-evil-enable-mouse-workaround)
@@ -71,7 +71,7 @@
         :desc "Send Escape" "C-i" (cmd! (exwm-input--fake-key 'escape))))
 
 (use-package! exwm-firefox-evil
-  :when (featurep! :editor evil)
+  :when (modulep! :editor evil)
   :after exwm
   :config
   (cl-pushnew 'escape exwm-input-prefix-keys)

@@ -1,7 +1,7 @@
 ;;; ../dotfiles/home/.doom.d/+company.el -*- lexical-binding: t; -*-
 
 ;; (use-package! company-tabnine
-;;   :when (featurep! :completion company)
+;;   :when (modulep! :completion company)
 ;;   :config
 ;;   (defun company//sort-by-tabnine (candidates)
 ;;     (if (or (functionp company-backend)

@@ -2,7 +2,7 @@
 ;;; completion/packages.el
 
 (package! corfu)
-(when (featurep! +orderless)
+(when (modulep! +orderless)
   (package! orderless))
 (package! kind-icon :pin)
 (package! cape :recipe (:host github :repo "minad/cape" :branch "main"))
