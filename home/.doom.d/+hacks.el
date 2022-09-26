@@ -296,7 +296,8 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
                       input
                     (concat leftovers input)))
 
-      (let (messages)
+      (let (messages
+            (empty-queue? (not lsp--parsed-messages)))
         (while (not (s-blank? chunk))
           (if (not body-length)
               ;; Read headers
@@ -346,13 +347,15 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
                         (replace-match "" nil t))
                       (goto-char (point-min))
                       (push (lsp-json-read-buffer) messages))
+
                   (error
                    (lsp-warn "Failed to parse the following chunk:\n'''\n%s\n'''\nwith message %s"
                              (concat leftovers input)
                              err)))))))
         (mapc (lambda (msg)
-                (lsp--parser-on-message msg workspace))
-              (nreverse messages))))))
+                (setq lsp--parsed-messages (nconc lsp--parsed-messages `((,msg ,workspace)))))
+              (nreverse messages))
+        (when (and empty-queue? lsp--parsed-messages) (lsp--dispatch-messages))))))
 
 
 ;; 联合 company-dabbrev 使用的时候， (plist-get (text-properties-at 0 candidate) 'lsp-completion-start-point) 有可能时 nil 会报错
