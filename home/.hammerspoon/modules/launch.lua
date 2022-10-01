@@ -4,10 +4,10 @@ local application = require 'hs.application'
 
 local key2App = {
     s = 'Finder',
-    h = 'Google Chrome',
+    h = 'Arc',
     -- j = 'Min',
     l = 'iTerm',
-    m = 'MailMaster',
+    -- m = 'MailMaster',
     -- v = 'code',
     -- s = 'PxCook',
     -- p = 'PDF Expert',
@@ -19,6 +19,7 @@ local key2App = {
     -- n = 'PDF',
     -- g = 'Charles',
     u = 'CocosCreator',
+    m = 'Arc'
 }
 
 for key, app in pairs(key2App) do
@@ -47,9 +48,9 @@ function toggle_application(_app)
         application.launchOrFocus(_app)
         return
     end
-    -- hs.alert.show(app)
     -- application running, toggle hide/unhide
     local mainwin = app:mainWindow()
+    -- hs.alert.show(mainwin)
     if mainwin then
         if true == app:isFrontmost() then
             mainwin:application():hide()
@@ -103,4 +104,24 @@ function get_table_length(tbl)
       getN = getN + 1 
     end
     return getN
+end
+
+-- Predicate that checks if a window belongs to screen
+function isInScreen(screen, win)
+   return win:screen() == screen
+end
+
+function focusScreen(screen)
+   -- Get windows within screen, ordered from front to back
+   -- If no window exist, bring focus to desktop. Otherwise, set focus on front-most application window.
+   local windows = hs.fnutils.filter(
+      window.orderedWindows(),
+      hs.fnutils.partial(isInScreen, screen)
+   )
+   local windowToFocus = #windows > 0 and windows[1] or window.desktop()
+   windowToFocus:focus()
+
+   -- Move mouse to center of screen
+   local pt = geometry.rectMidPoint(screen:fullFrame())
+   hs.mouse.setAbsolutePosition(pt)
 end
