@@ -359,7 +359,7 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
         (when (and empty-queue? lsp--parsed-messages) (lsp--dispatch-messages))))))
 
 
-;; 联合 company-dabbrev 使用的时候， (plist-get (text-properties-at 0 candidate) 'lsp-completion-start-point) 有可能时 nil 会报错
+;; 联合 company-dabbrev 使用的时候， (plist-get (text-properties-at 0 candidate) 'lsp-completion-start-point) 有可能是 nil 会报错
 ;; 临时这么修复一下，会导致在注释里面补全的内容的高亮有问题，不知道怎么解
 (defadvice! +lsp-completion--company-match (candidate)
   :override #'lsp-completion--company-match
@@ -394,6 +394,24 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
         (cl-incf prefix-pos)
         (setq label-pos 0)))
     matches))
+
+;; 在 document-frame 中显示 detail ，和 vscode 的表现一致
+(defadvice! +lsp-completion--get-documentation (item)
+  :override #'lsp-completion--get-documentation
+  (unless (get-text-property 0 'lsp-completion-resolved item)
+    (let ((resolved-item
+           (-some->> item
+             (get-text-property 0 'lsp-completion-item)
+             (lsp-completion--resolve)))
+          (len (length item)))
+      (put-text-property 0 len 'lsp-completion-item resolved-item item)
+      (put-text-property 0 len 'lsp-completion-resolved t item)))
+  (when-let* ((completion-item (get-text-property 0 'lsp-completion-item item)))
+    (cond ((lsp:completion-item-documentation? completion-item)
+           (lsp--render-element (lsp:completion-item-documentation? completion-item)))
+          ((lsp:completion-item-detail? completion-item)
+           (lsp--render-element (lsp:completion-item-detail? completion-item)))
+          (t nil))))
 
 (after! lsp-mode
   ;; 优先使用系统按钮的 tsserver

@@ -20,14 +20,14 @@
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 (when (modulep! :tools lsp)
   (unpin! lsp-mode)
-  ;; (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+  (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
   (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
   ;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
   )
 
 (unpin! org-roam)
 (package! org-roam-ui)
-(package! emacsql-sqlite-builtin)
+;; (package! emacsql-sqlite-builtin)
 
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))

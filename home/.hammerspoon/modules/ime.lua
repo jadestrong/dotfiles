@@ -11,6 +11,7 @@ local app2Ime = {
     { 'iTerm2', 'English' },
     { 'Emacs', 'English' },
     { 'Google Chrome', 'Chinese' },
+    { 'Arc', 'Chinese' },
     { '访达', 'English' },
     { '飞书', 'Chinese' },
     { 'Code', 'English' },
