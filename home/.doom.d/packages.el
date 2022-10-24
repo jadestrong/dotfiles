@@ -48,3 +48,10 @@
 
 (package! epc)
 (package! vimrc-mode)
+
+(package! coc :recipe (:local-repo "lisp/coc.emacs"
+                       :files ("*.el" "index.js" "dist/*")
+                       :pre-build (
+                                   ;; ("pnpm" "install")
+                                   ;; ("pnpm" "build")
+                                   (shell-command "pnpm install && pnpm build && pnpm run bundle"))))

@@ -1,3 +1,6 @@
 [submodule "lspce"]
 	path = home/.doom.d/extensions/lspce
 	url = https://github.com/zbelial/lspce.git
+[submodule "coc.emacs"]
+	path = home/.doom.d/lisp/coc.emacs
+	url = git@github.com:jadestrong/coc.emacs.git

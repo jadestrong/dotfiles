@@ -496,3 +496,20 @@
 (use-package! vimrc-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
+
+
+(defun company-box-icons--coc (candidate)
+  (if-let* ((coc-item (get-text-property 0 'coc-completion-item candidate))
+            (kind-num (plist-get coc-item :kind)))
+      (alist-get kind-num company-box-icons--lsp-alist)))
+
+(after! company-box
+  (setq company-box-icons-functions
+        (cons #'company-box-icons--coc company-box-icons-functions)))
+
+(use-package! coc
+  :init
+  (require 'company-coc)
+  :config
+  (setq +lsp-company-backends '(company-coc company-capf :separate company-dabbrev))
+  (global-coc-mode))
