@@ -11,8 +11,8 @@
 (package! evil-matchit)
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
 ;; (package! insert-translated-name :recipe (:host github :repo "manateelazycat/insert-translated-name"))
-(when (modulep! :completion company)
-  (package! citre :recipe (:host github :repo "universal-ctags/citre" :files ("*.el"))))
+;; (when (modulep! :completion company)
+;;   (package! citre :recipe (:host github :repo "universal-ctags/citre" :files ("*.el"))))
 (package! eslintd-fix)
 (package! org-modern :recipe (:host github :repo "minad/org-modern"))
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
@@ -32,7 +32,9 @@
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
 
-;; (package! lspce :recipe (:local-repo "extensions/lspce"))
+;; (package! lspce :recipe (:local-repo "extensions/lspce"
+;;                          :build (:not compile)
+;;                          :pre-build ((shell-command "cargo build --release && ln -s -f target/release/liblspce_module.dylib lspce-module.dylib"))))
 ;; (package! posframe-plus :recipe (:host github :repo "zbelial/posframe-plus"))
 
 ;; (package! emacs-async)
@@ -44,7 +46,7 @@
 ;; (package! tsx-mode :recipe (:host github :repo "orzechowskid/tsx-mode.el"))
 
 (package! apheleia)
-(package! plantuml :recipe (:host github :repo "ginqi7/plantuml-emacs"))
+;; (package! plantuml :recipe (:host github :repo "ginqi7/plantuml-emacs"))
 
 (package! epc)
 (package! vimrc-mode)
@@ -55,3 +57,4 @@
                                    ;; ("pnpm" "install")
                                    ;; ("pnpm" "build")
                                    (shell-command "pnpm install && pnpm build && pnpm run bundle"))))
+(package! tide :disable t)

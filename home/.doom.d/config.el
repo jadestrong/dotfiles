@@ -47,7 +47,6 @@
 
       ;; rust
       rustic-lsp-server 'rust-analyzer
-      rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1248-darwin-x64/server/rust-analyzer")
       lsp-rust-analyzer-cargo-load-out-dirs-from-check t ;; support extern C suggest
       lsp-rust-analyzer-proc-macro-enable t ;; same above
 
@@ -82,7 +81,7 @@
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-
+(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1277-darwin-x64/server/rust-analyzer"))
 (setq +format-with-lsp t)
 ;; when enable format with lsp, then disable typescript-language-server format
 ;; only enable eslint-server otherwise use prettier
@@ -337,33 +336,34 @@
    'user
    '(dirvish-hl-line ((t (:inherit 'diredfl-flag-mark))))))
 
-(use-package! citre
-  :when (modulep! :completion company)
-  :defer t
-  :init
-  (require 'citre-config)
-  (global-set-key (kbd "C-x c j") 'citre-jump)
-  (global-set-key (kbd "C-x c J") 'citre-jump-back)
-  (global-set-key (kbd "C-x c p") 'citre-ace-peek)
-  :config
-  (setq citre-project-root-function #'projectile-project-root)
-  ;; See https://github.com/universal-ctags/citre/wiki/Use-Citre-together-with-lsp-mode
-  (define-advice xref--create-fetcher (:around (-fn &rest -args) fallback)
-    (let ((fetcher (apply -fn -args))
-          (citre-fetcher
-           (let ((xref-backend-functions '(citre-xref-backend t)))
-             (apply -fn -args))))
-      (lambda ()
-        (or (with-demoted-errors "%s, fallback to citre"
-              (funcall fetcher))
-            (funcall citre-fetcher))))))
+;; (use-package! citre
+;;   :when (modulep! :completion company)
+;;   :defer t
+;;   :init
+;;   (require 'citre-config)
+;;   (global-set-key (kbd "C-x c j") 'citre-jump)
+;;   (global-set-key (kbd "C-x c J") 'citre-jump-back)
+;;   (global-set-key (kbd "C-x c p") 'citre-ace-peek)
+;;   :config
+;;   (setq citre-project-root-function #'projectile-project-root)
+;;   ;; See https://github.com/universal-ctags/citre/wiki/Use-Citre-together-with-lsp-mode
+;;   (define-advice xref--create-fetcher (:around (-fn &rest -args) fallback)
+;;     (let ((fetcher (apply -fn -args))
+;;           (citre-fetcher
+;;            (let ((xref-backend-functions '(citre-xref-backend t)))
+;;              (apply -fn -args))))
+;;       (lambda ()
+;;         (or (with-demoted-errors "%s, fallback to citre"
+;;               (funcall fetcher))
+;;             (funcall citre-fetcher))))))
 
-(use-package! gif-screencast
-  :config
-  (setq gif-screencast-args '("-x")) ;; To shut up the shutter sound of `screencapture' (see `gif-screencast-command').
-  (setq gif-screencast-cropping-program "mogrify") ;; Optional: Used to crop the capture to the Emacs frame.
-  (setq gif-screencast-capture-format "ppm") ;; Optional: Required to crop captured images.
-  )
+;; (use-package! gif-screencast
+;;   :defer
+;;   :config
+;;   (setq gif-screencast-args '("-x")) ;; To shut up the shutter sound of `screencapture' (see `gif-screencast-command').
+;;   (setq gif-screencast-cropping-program "mogrify") ;; Optional: Used to crop the capture to the Emacs frame.
+;;   (setq gif-screencast-capture-format "ppm") ;; Optional: Required to crop captured images.
+;;   )
 
 ;; (use-package! emacs-baidupan)
 
@@ -461,15 +461,12 @@
 ;;  (greeting-say-hello "emacs"))
 
 ;; (use-package! lspce
-;;   ;; :load-path (f-join doom-private-dir "extensions/lspce/")
+;;   :load-path "~/.doom.d/extensions/lspce/"
 ;;   :init
-;;   (add-to-list 'load-path (expand-file-name (concat doom-private-dir "extensions/lspce/target/debug")))
 ;;   (require 'lspce-module)
 ;;   :config
 ;;   (setq lspce-send-changes-idle-time 1)
-;;   (add-hook 'rust-mode-hook 'lspce-mode)
-;;   (setq lspce-server-programs `(("rust-mode" "/Users/jadestrong/.vscode/extensions/rust-lang.rust-analyzer-0.3.1083-darwin-x64/server/rust-analyzer" "" lspce-ra-initializationOptions)))
-;;   )
+;;   (lspce-set-log-file "/tmp/lspce.log"))
 
 (after! lsp-mode
   (setq lsp-clients-typescript-plugins
@@ -488,9 +485,9 @@
 
 (use-package! apheleia)
 
-(use-package! plantuml
-  :config
-  (setq plantuml-log-command nil))
+;; (use-package! plantuml
+;;   :config
+;;   (setq plantuml-log-command nil))
 
 (use-package! epc)
 (use-package! vimrc-mode
