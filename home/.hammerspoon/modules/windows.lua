@@ -42,7 +42,11 @@ hotkey.bind(hyper, 'Right', grid.pushWindowRight)
 -- switch focus to another display
 
 hotkey.bind(hyperShift, 'o', function ()
-    focusScreen(window.focusedWindow():screen():next())
+    local screen = hs.mouse.getCurrentScreen()
+    local nextScreen = screen:next()
+    local rect = nextScreen:fullFrame()
+    local center = hs.geometry.rectMidPoint(rect)
+    hs.mouse.setAbsolutePosition(center)
 end)
 
 -- Predicate that checks if a window belongs to screen
@@ -61,7 +65,7 @@ function focusScreen(screen)
    windowToFocus:focus()
 
    -- Move mouse to center of screen
-   local pt = geometry.rectMidPoint(screen:fullFrame())
+   local pt = hs.geometry.rectMidPoint(screen:fullFrame())
    hs.mouse.setAbsolutePosition(pt)
 end
 

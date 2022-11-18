@@ -42,7 +42,6 @@ hotkey.bind(hyper, 'escape', function() hs.reload() end )
 function toggle_application(_app)
     -- finds a running applications
     local app = application.find(_app)
-
     if not app then
         -- application not running, launch app
         application.launchOrFocus(_app)
@@ -68,9 +67,13 @@ function toggle_application(_app)
             -- nothing to do
         end
     end
+    -- focus app' screen
+    local currentScreen = window.focusedWindow():screen();
+    local pt = hs.geometry.rectMidPoint(currentScreen:fullFrame())
+    hs.mouse.setAbsolutePosition(pt)
 end
 
-function toggle_cocos_creator(_app) 
+function toggle_cocos_creator(_app)
     local focusedWindow = hs.window.focusedWindow()
     local apps = application.applicationsForBundleID('com.cocos.creator')
     local len = get_table_length(apps)
