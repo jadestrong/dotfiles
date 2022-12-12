@@ -13,7 +13,7 @@
 (defadvice! +lsp-modeline--check-mode-actions (&rest _)
   :override #'lsp-modeline--check-code-actions
   (when (and (lsp-feature? "textDocument/codeAction")
-         (flycheck-overlay-errors-at (point))) ;;; (> (length (lsp-cur-line-diagnostics)) 0)
+             (flycheck-overlay-errors-at (point))) ;;; (> (length (lsp-cur-line-diagnostics)) 0)
     (lsp-request-async
      "textDocument/codeAction"
      (lsp--text-document-code-action-params)
@@ -188,25 +188,25 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
   (interactive)
   (flycheck-clean-deferred-check)
   (when (buffer-file-name)
-      (if flycheck-mode
-          (unless (flycheck-running-p)
-            ;; Clear error list and mark all overlays for deletion.  We do not
-            ;; delete all overlays immediately to avoid excessive re-displays and
-            ;; flickering, if the same errors gets highlighted again after the check
-            ;; completed.
-            (run-hooks 'flycheck-before-syntax-check-hook)
-            (flycheck-clear-errors)
-            (flycheck-mark-all-overlays-for-deletion)
-            (condition-case err
-                (let* ((checker (flycheck-get-checker-for-buffer)))
-                  (if checker
-                      (flycheck-start-current-syntax-check checker)
-                    (flycheck-clear)
-                    (flycheck-report-status 'no-checker)))
-              (error
-               (flycheck-report-failed-syntax-check)
-               (signal (car err) (cdr err)))))
-        (user-error "Flycheck mode disabled"))))
+    (if flycheck-mode
+        (unless (flycheck-running-p)
+          ;; Clear error list and mark all overlays for deletion.  We do not
+          ;; delete all overlays immediately to avoid excessive re-displays and
+          ;; flickering, if the same errors gets highlighted again after the check
+          ;; completed.
+          (run-hooks 'flycheck-before-syntax-check-hook)
+          (flycheck-clear-errors)
+          (flycheck-mark-all-overlays-for-deletion)
+          (condition-case err
+              (let* ((checker (flycheck-get-checker-for-buffer)))
+                (if checker
+                    (flycheck-start-current-syntax-check checker)
+                  (flycheck-clear)
+                  (flycheck-report-status 'no-checker)))
+            (error
+             (flycheck-report-failed-syntax-check)
+             (signal (car err) (cdr err)))))
+      (user-error "Flycheck mode disabled"))))
 
 ;;; Here can not identify +flycheck-buffer's situation
 (defun flycheck-disable-on-temp-buffers ()
@@ -217,14 +217,14 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 (defadvice! +doom-detect-indentation-h nil
   :override #'doom-detect-indentation-h
   (unless (or (not after-init-time)
-                doom-inhibit-indent-detection
-                doom-large-file-p
-                (memq major-mode doom-detect-indentation-excluded-modes)
-                (member (substring (buffer-name) 0 1) '(" " "*")))
-      ;; Don't display messages in the echo area, but still log them
-      (let ((inhibit-message (not init-file-debug)))
-        (ignore-error
-            (dtrt-indent-mode +1)))))
+              doom-inhibit-indent-detection
+              doom-large-file-p
+              (memq major-mode doom-detect-indentation-excluded-modes)
+              (member (substring (buffer-name) 0 1) '(" " "*")))
+    ;; Don't display messages in the echo area, but still log them
+    (let ((inhibit-message (not init-file-debug)))
+      (ignore-error
+          (dtrt-indent-mode +1)))))
 
 ;; delete-char will trigger a change event, whick cause lsp-on-change execute a lot.
 (defadvice! +popup-delete (popup)
@@ -253,37 +253,37 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
               (lambda ()
                 (setq company-box-icons-all-the-icons
                       (let ((all-the-icons-scale-factor 0.8))
-          `((Unknown       . ,(all-the-icons-material "find_in_page"             :face 'all-the-icons-purple))
-            (Text          . ,(all-the-icons-material "text_fields"              :face 'all-the-icons-green))
-            (Method        . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Function      . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Constructor   . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Field         . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (Variable      . ,(all-the-icons-material "adjust"                   :face 'all-the-icons-blue))
-            (Class         . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
-            (Interface     . ,(all-the-icons-material "settings_input_component" :face 'all-the-icons-red))
-            (Module        . ,(all-the-icons-material "view_module"              :face 'all-the-icons-red))
-            (Property      . ,(all-the-icons-material "settings"                 :face 'all-the-icons-red))
-            (Unit          . ,(all-the-icons-material "straighten"               :face 'all-the-icons-red))
-            (Value         . ,(all-the-icons-material "filter_1"                 :face 'all-the-icons-red))
-            (Enum          . ,(all-the-icons-material "plus_one"                 :face 'all-the-icons-red))
-            (Keyword       . ,(all-the-icons-material "filter_center_focus"      :face 'all-the-icons-red))
-            (Snippet       . ,(all-the-icons-material "short_text"               :face 'all-the-icons-red))
-            (Color         . ,(all-the-icons-material "color_lens"               :face 'all-the-icons-red))
-            (File          . ,(all-the-icons-material "insert_drive_file"        :face 'all-the-icons-red))
-            (Reference     . ,(all-the-icons-material "collections_bookmark"     :face 'all-the-icons-red))
-            (Folder        . ,(all-the-icons-material "folder"                   :face 'all-the-icons-red))
-            (EnumMember    . ,(all-the-icons-material "people"                   :face 'all-the-icons-red))
-            (Constant      . ,(all-the-icons-material "pause_circle_filled"      :face 'all-the-icons-red))
-            (Struct        . ,(all-the-icons-material "streetview"               :face 'all-the-icons-red))
-            (Event         . ,(all-the-icons-material "event"                    :face 'all-the-icons-red))
-            (Operator      . ,(all-the-icons-material "control_point"            :face 'all-the-icons-red))
-            (TypeParameter . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
-            (Template      . ,(all-the-icons-material "short_text"               :face 'all-the-icons-green))
-            (ElispFunction . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
-            (ElispVariable . ,(all-the-icons-material "check_circle"             :face 'all-the-icons-blue))
-            (ElispFeature  . ,(all-the-icons-material "stars"                    :face 'all-the-icons-orange))
-            (ElispFace     . ,(all-the-icons-material "format_paint"             :face 'all-the-icons-pink))))))))
+                        `((Unknown       . ,(all-the-icons-material "find_in_page"             :face 'all-the-icons-purple))
+                          (Text          . ,(all-the-icons-material "text_fields"              :face 'all-the-icons-green))
+                          (Method        . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+                          (Function      . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+                          (Constructor   . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+                          (Field         . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+                          (Variable      . ,(all-the-icons-material "adjust"                   :face 'all-the-icons-blue))
+                          (Class         . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
+                          (Interface     . ,(all-the-icons-material "settings_input_component" :face 'all-the-icons-red))
+                          (Module        . ,(all-the-icons-material "view_module"              :face 'all-the-icons-red))
+                          (Property      . ,(all-the-icons-material "settings"                 :face 'all-the-icons-red))
+                          (Unit          . ,(all-the-icons-material "straighten"               :face 'all-the-icons-red))
+                          (Value         . ,(all-the-icons-material "filter_1"                 :face 'all-the-icons-red))
+                          (Enum          . ,(all-the-icons-material "plus_one"                 :face 'all-the-icons-red))
+                          (Keyword       . ,(all-the-icons-material "filter_center_focus"      :face 'all-the-icons-red))
+                          (Snippet       . ,(all-the-icons-material "short_text"               :face 'all-the-icons-red))
+                          (Color         . ,(all-the-icons-material "color_lens"               :face 'all-the-icons-red))
+                          (File          . ,(all-the-icons-material "insert_drive_file"        :face 'all-the-icons-red))
+                          (Reference     . ,(all-the-icons-material "collections_bookmark"     :face 'all-the-icons-red))
+                          (Folder        . ,(all-the-icons-material "folder"                   :face 'all-the-icons-red))
+                          (EnumMember    . ,(all-the-icons-material "people"                   :face 'all-the-icons-red))
+                          (Constant      . ,(all-the-icons-material "pause_circle_filled"      :face 'all-the-icons-red))
+                          (Struct        . ,(all-the-icons-material "streetview"               :face 'all-the-icons-red))
+                          (Event         . ,(all-the-icons-material "event"                    :face 'all-the-icons-red))
+                          (Operator      . ,(all-the-icons-material "control_point"            :face 'all-the-icons-red))
+                          (TypeParameter . ,(all-the-icons-material "class"                    :face 'all-the-icons-red))
+                          (Template      . ,(all-the-icons-material "short_text"               :face 'all-the-icons-green))
+                          (ElispFunction . ,(all-the-icons-material "functions"                :face 'all-the-icons-red))
+                          (ElispVariable . ,(all-the-icons-material "check_circle"             :face 'all-the-icons-blue))
+                          (ElispFeature  . ,(all-the-icons-material "stars"                    :face 'all-the-icons-orange))
+                          (ElispFace     . ,(all-the-icons-material "format_paint"             :face 'all-the-icons-pink))))))))
 
 
 ;;; @see https://github.com/johnsoncodehk/volar/issues/1118
@@ -520,3 +520,12 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
      (dash-docs-sql-query docset-type
                           (dash-docs-sub-docset-name-in-pattern search-pattern
                                                                 (car docset))))))
+;; debounce swiper
+(setq ivy-dynamic-exhibit-delay-ms 200)
+(defvar +ivy--queue-last-input nil)
+(defun +ivy-queue-exhibit-a(f &rest args)
+  (if (equal +ivy--queue-last-input (ivy--input))
+      (ivy--exhibit)
+    (apply f args))
+  (setq +ivy--queue-last-input (ivy--input)))
+(advice-add 'ivy--queue-exhibit :around #'+ivy-queue-exhibit-a)

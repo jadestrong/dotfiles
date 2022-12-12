@@ -22,9 +22,14 @@
   (unpin! lsp-mode)
   (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
   (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
+  ;; (unpin! eglot)
+  ;; (package! eglot :built-in t)
+  (package! project :built-in t)
   ;; (package! lsp-volar :recipe (:host github :repo "jadestrong/lsp-volar"))
   )
 
+(unpin! doom-modeline)
+(unpin! rustic)
 (unpin! org-roam)
 (package! org-roam-ui)
 ;; (package! emacsql-sqlite-builtin)
@@ -51,10 +56,15 @@
 (package! epc)
 (package! vimrc-mode)
 
-(package! coc :recipe (:local-repo "lisp/coc.emacs"
-                       :files ("*.el" "index.js" "dist/*")
-                       :pre-build (
-                                   ;; ("pnpm" "install")
-                                   ;; ("pnpm" "build")
-                                   (shell-command "pnpm install && pnpm build && pnpm run bundle"))))
+;; (package! coc :recipe (:local-repo "lisp/coc.emacs"
+;;                        :files ("*.el" "index.js" "dist/*")
+;;                        :pre-build ((shell-command "pnpm install && pnpm build && pnpm run bundle"))))
 (package! tide :disable t)
+
+(package! highlight-matching-tag :recipe (:host github :repo "manateelazycat/highlight-matching-tag"))
+(package! instant-rename-tag :recipe (:host github :repo "manateelazycat/instant-rename-tag"))
+
+(package! websocket-bridge :recipe (:host github :repo "ginqi7/websocket-bridge"))
+(package! dictionary-overlay :recipe (:host github :repo "ginqi7/dictionary-overlay" :files ("*")))
+
+(package! olivetti :recipe (:host github :repo "rnkn/olivetti"))

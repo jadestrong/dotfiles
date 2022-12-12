@@ -18,3 +18,9 @@ end
 -- screenLayoutWatcher()
 
 hotkey.bind(hyperShift, 'l', screenLayoutWatcher)
+
+function emacsEverywhere()
+  hs.execute('doom +everywhere', true)
+end
+
+hotkey.bind(hyperShift, 'e', emacsEverywhere)

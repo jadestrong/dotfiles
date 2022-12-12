@@ -5,6 +5,7 @@
 (load! "+roam")
 (load! "+hacks")
 (load! "+leetcode")
+(load! "+treesit")
 ;; (load! "+xwwp")
 
 (setq user-full-name "JadeStrong"
@@ -81,7 +82,8 @@
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1277-darwin-x64/server/rust-analyzer"))
+(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1309-darwin-x64/server/rust-analyzer"))
+(setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
 (setq +format-with-lsp t)
 ;; when enable format with lsp, then disable typescript-language-server format
 ;; only enable eslint-server otherwise use prettier
@@ -95,6 +97,9 @@
 (setq lsp-clients-typescript-max-ts-server-memory 3072)
 (setq completion-ignore-case t)
 (setq lsp-completion-no-cache nil)
+(setq lsp-bridge-enable-log nil)
+
+;; (setq lsp-clients-typescript-tsserver '((logVerbosity . "verbose")))
 
 ;; disalbe magit-diff to highlight the chunk of removed and added
 (after! magit
@@ -120,7 +125,7 @@
   (setq +format-with-lsp (not +format-with-lsp)))
 
 (setq inhibit-message nil)
-(setq gif-screencast-scale-factor 2)
+;; (setq gif-screencast-scale-factor 2)
 
 ;;; :lang org
 (setq org-directory "~/org/"
@@ -139,7 +144,7 @@
   (setq mac-command-modifier 'meta
         mac-option-modifier 'super)
   (defconst target-dir-path "~/Downloads/" "My Download directory")
-  (setq create-lockfiles t))
+  (setq create-lockfiles nil)) ;; backup file
 
 (when IS-LINUX
   (setq x-super-keysym 'meta)
@@ -484,6 +489,9 @@
 ;; (use-package! tsx-mode)
 
 (use-package! apheleia)
+(setq eww-retrieve-command '("readable"))
+(use-package! olivetti
+  :hook (eww-mode . olivetti-mode))
 
 ;; (use-package! plantuml
 ;;   :config
@@ -504,9 +512,40 @@
   (setq company-box-icons-functions
         (cons #'company-box-icons--coc company-box-icons-functions)))
 
-(use-package! coc
-  :init
-  (require 'company-coc)
+;; (use-package! coc
+;;   :init
+;;   (require 'company-coc)
+;;   :config
+;;   (setq +lsp-company-backends '(company-coc company-capf :separate company-dabbrev))
+;;   (set-company-backend! '(js2-mode typescript-mode typescript-tsx-mode) 'company-coc)
+;;   ;; (add-to-list company-backends 'company-coc)
+;;   (global-coc-mode)
+;;   (setq epc:debug-out t)
+;;   (setq coc-debug t))
+
+(use-package! highlight-matching-tag
   :config
-  (setq +lsp-company-backends '(company-coc company-capf :separate company-dabbrev))
-  (global-coc-mode))
+  (highlight-matching-tag 1))
+(use-package! instant-rename-tag)
+
+(use-package! websocket-bridge)
+(use-package! dictionary-overlay)
+
+(defun my-ansi-color (&optional beg end)
+  "Interpret ANSI color esacape sequence by colorifying cotent.
+Operate on selected region on whole buffer."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (point-min) (point-max))))
+  (ansi-color-apply-on-region beg end))
+
+(ignore-errors
+  (require 'ansi-color)
+  (defun my-colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
+
+(setq treesit--indent-verbose nil)
+;; (setq eldoc-echo-area-display-truncation-message t)

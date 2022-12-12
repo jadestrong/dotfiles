@@ -14,15 +14,15 @@
 ;; (use-package! corfu-doc)
 
 (use-package! lsp-bridge
-  :hook (doom-first-buffer . enable-lsp-bridge-for-modes)
+;;  :hook (doom-first-buffer . enable-lsp-bridge-for-modes)
   :init
   (require 'acm) ;; Fix acm-silent is a void function error
   :config
-  (setq lsp-bridge-enable-log nil)
+  ;; (setq lsp-bridge-enable-log nil)
   (setq lsp-bridge-enable-diagnostics nil)
-  (setq acm-enable-dabbrev nil)
-  (setq lsp-bridge-disable-backup nil)
-  (setq acm-backend-lsp-candidates-max-number 100000)
+  ;; (setq acm-enable-dabbrev nil)
+  ;; (setq lsp-bridge-disable-backup nil)
+  ;; (setq acm-backend-lsp-candidates-max-number 100000)
   ;; (setq lsp-bridge-enable-auto-import t)
   ;; (setq lsp-bridge-completion-stop-commands '(corfu-complete corfu-insert undo-tree-undo undo-tree-redo save-buffer evil-normal-state))
   (set-lookup-handlers! 'lsp-bridge-mode
@@ -35,68 +35,49 @@
     :definition    #'+emacs-lisp-lookup-definition
     :documentation #'+emacs-lisp-lookup-documentation)
 
-  (defadvice! ++javascript-init-lsp-or-tide-maybe-h ()
-    :override #'+javascript-init-lsp-or-tide-maybe-h
-    nil)
+  ;; (defadvice! ++javascript-init-lsp-or-tide-maybe-h ()
+  ;;   :override #'+javascript-init-lsp-or-tide-maybe-h
+  ;;   nil)
 
   ;; fix Error running timer ‘acm-idle-completion’: (void-variable with)
-  (defadvice! +acm-backend-dabbrev-get-words (word)
-    :override #'acm-backend-dabbrev-get-words
-    (require 'dabbrev)
-    (acm-silent
-      (let ((dabbrev-check-other-buffers nil)
-            (dabbrev-check-all-buffers nil))
-        (dabbrev--reset-global-variables))
-      (let ((min-len (+ acm-backend-dabbrev-min-length (length word))))
-        (cl-loop for w in (dabbrev--find-all-expansions word (dabbrev--ignore-case-p word))
-                 if (>= (length w) min-len) collect w))))
+  ;; (defadvice! +acm-backend-dabbrev-get-words (word)
+  ;;   :override #'acm-backend-dabbrev-get-words
+  ;;   (require 'dabbrev)
+  ;;   (acm-silent
+  ;;    (let ((dabbrev-check-other-buffers nil)
+  ;;          (dabbrev-check-all-buffers nil))
+  ;;      (dabbrev--reset-global-variables))
+  ;;    (let ((min-len (+ acm-backend-dabbrev-min-length (length word))))
+  ;;      (cl-loop for w in (dabbrev--find-all-expansions word (dabbrev--ignore-case-p word))
+  ;;               if (>= (length w) min-len) collect w))))
 
   (setq lsp-bridge-lang-server-mode-list
         '(
-         ;; ((c-mode c++-mode) . "clangd")
-         ;; (java-mode . "jdtls")
-         (python-mode . "pyright")
-         ;; (ruby-mode . "solargraph")
-         ;; ((rust-mode rustic-mode) . "rust-analyzer")
-         ;; (elixir-mode . "elixirLS")
-         ;; (go-mode . "gopls")
-         ;; (haskell-mode . "hls")
-         ;; (lua-mode . "sumneko")
-         ;; (dart-mode . "dart-analysis-server")
-         ;; (scala-mode . "metals")
-         ((js2-mode js-mode rjsx-mode) . "javascript")
-         (typescript-tsx-mode . "typescriptreact")
-         ((typescript-mode) . "typescript")
-         ;; (tuareg-mode . "ocamllsp")
-         ;; (erlang-mode . "erlang-ls")
-         ;; ((latex-mode Tex-latex-mode texmode context-mode texinfo-mode bibtex-mode) . "texlab")
-         ;; ((clojure-mode clojurec-mode clojurescript-mode clojurex-mode) . "clojure-lsp")
-         ;; ((sh-mode) . "bash-language-server")
-         ;; ((css-mode) . "vscode-css-language-server")
-         ;; (elm-mode . "elm-language-server")
-         ))
-  (when (modulep! :completion company)
-    (setq company-global-modes
-          '(not erc-mode
-                circe-mode
-                message-mode
-                help-mode
-                gud-mode
-                vterm-mode
-                emacs-lisp-mode)))
-  (defun enable-lsp-bridge-for-modes ()
-    ;; 只对指定的 mode 开启 lsp-bridge
-    (dolist (hook (list
-                   'python-mode-hook
-                   'typescript-mode-hook
-                   'js2-mode-hook
-                   'js-mode-hook
-                   'rjsx-mode-hook
-                   'typescript-tsx-mode-hook
-                   'emacs-lisp-mode-hook))
-      (add-hook hook (lambda () (lsp-bridge-mode)))))
-  ;; (global-lsp-bridge-mode)
-  )
+          ((js2-mode js-mode rjsx-mode) . "javascript")
+          (typescript-tsx-mode . "typescriptreact")
+          ((typescript-mode) . "typescript")
+          ))
+  ;; (when (modulep! :completion company)
+  ;;   (setq company-global-modes
+  ;;         '(not erc-mode
+  ;;           circe-mode
+  ;;           message-mode
+  ;;           help-mode
+  ;;           gud-mode
+  ;;           vterm-mode
+  ;;           emacs-lisp-mode)))
+  ;; (defun enable-lsp-bridge-for-modes ()
+  ;;   ;; 只对指定的 mode 开启 lsp-bridge
+  ;;   (dolist (hook (list
+  ;;                  'python-mode-hook
+  ;;                  'typescript-mode-hook
+  ;;                  'js2-mode-hook
+  ;;                  'js-mode-hook
+  ;;                  'rjsx-mode-hook
+  ;;                  'typescript-tsx-mode-hook
+  ;;                  'emacs-lisp-mode-hook))
+  ;;     (add-hook hook (lambda () (lsp-bridge-mode)))))
+  (global-lsp-bridge-mode))
 
 ;; (use-package! lsp-bridge-diagnostics
 ;;   :after (lsp-bridge)
@@ -116,10 +97,10 @@
   (f-join doom-private-dir "langserver" file-name))
 
 (setq volar-project-list '(
-                         "/media/psf/Home/Documents/JadeStrong/olympic-game"
-                         "/Users/jadestrong/Documents/JadeStrong/ugfe-activity"
-                         "/Users/jadestrong/Documents/JadeStrong/olympic-game"
-                         ))
+                           "/media/psf/Home/Documents/JadeStrong/olympic-game"
+                           "/Users/jadestrong/Documents/JadeStrong/ugfe-activity"
+                           "/Users/jadestrong/Documents/JadeStrong/olympic-game"
+                           ))
 (setq vls-project-list '(
                          "/Users/jadestrong/Documents/JadeStrong/ugfe-nebula"
                          "/Users/jadestrong/Documents/JadeStrong/ugfe-orchard"
@@ -135,4 +116,4 @@
         ;; ((string-equal (file-name-extension file-path) "rs")
         ;;  (my/get-private-langserver "rust-analyzer.json"))
         (t nil)))
-(setq lsp-bridge-get-lang-server-by-project #'lsp-bridge--get-lang-server-by-project)
+;; (setq lsp-bridge-get-lang-server-by-project #'lsp-bridge--get-lang-server-by-project)
