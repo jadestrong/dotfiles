@@ -5,9 +5,9 @@ local application = require 'hs.application'
 local key2App = {
     s = 'Finder',
     h = 'Arc',
-    -- j = 'Min',
+    -- j = 'UTM',
     l = 'iTerm',
-    -- m = 'MailMaster',
+    -- m = 'UTM',
     -- v = 'code',
     -- s = 'PxCook',
     -- p = 'PDF Expert',
@@ -18,12 +18,28 @@ local key2App = {
     -- x = 'XMind',
     -- n = 'PDF',
     -- g = 'Charles',
-    u = 'CocosCreator',
-    m = 'Arc'
+    -- u = 'CocosCreator',
+}
+
+local otherKey2App = {
+  h = 'Chrome',
+  v = 'code',
+  p = 'PDF Expert',
 }
 
 for key, app in pairs(key2App) do
     hotkey.bind(hyper, key, function()
+        --application.launchOrFocus(app)
+        if app == 'CocosCreator' then
+            toggle_cocos_creator(app)
+        else
+            toggle_application(app)
+        end
+    end)
+end
+
+for key, app in pairs(otherKey2App) do
+    hotkey.bind(hyperShift, key, function()
         --application.launchOrFocus(app)
         if app == 'CocosCreator' then
             toggle_cocos_creator(app)
@@ -47,9 +63,29 @@ function toggle_application(_app)
         application.launchOrFocus(_app)
         return
     end
+    local wins = app:allWindows()
+    table.sort(wins, function(a, b) return a:id() < b:id() end)
+
+    -- hs.alert.show(wins[1])
+    -- hs.alert.show(wins[2])
+    -- hs.alert.show(wins[3])
+    local len = get_table_length(wins)
     -- application running, toggle hide/unhide
+    local focusedWindow = hs.window.focusedWindow()
     local mainwin = app:mainWindow()
-    -- hs.alert.show(mainwin)
+    -- 如果当前的窗口和要打开的 app 的是一个且同时存在多个窗口时
+    if focusedWindow:application():bundleID() == app:bundleID() and len > 1 then
+      local idx = hs.fnutils.indexOf(wins, focusedWindow);
+      -- hs.alert.show(wins[1])
+      -- hs.alert.show(focusedWindow)
+      local next = idx + 1 > len and idx + 1 - len or idx + 1
+      -- hs.alert.show(next)
+      local win = wins[next]
+      -- win:becameMain()
+      win:focus()
+      -- hs.alert.show(wins[next] == hs.window.focusedWindow())
+    end
+
     if mainwin then
         if true == app:isFrontmost() then
             mainwin:application():hide()
