@@ -7,7 +7,7 @@ local key2App = {
     h = 'Arc',
     -- j = 'UTM',
     l = 'iTerm',
-    -- m = 'UTM',
+    m = 'MailMaster',
     -- v = 'code',
     -- s = 'PxCook',
     -- p = 'PDF Expert',
@@ -26,6 +26,8 @@ local otherKey2App = {
   v = 'code',
   p = 'PDF Expert',
 }
+
+local supportMultiApp = {'Arc', 'Finder', 'Emacs'}
 
 for key, app in pairs(key2App) do
     hotkey.bind(hyper, key, function()
@@ -53,11 +55,21 @@ end
 hotkey.bind(hyper, 'escape', function() hs.reload() end )
 
 ---------------------------------------------------------------
+local function has_value (tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
 
 -- Toggle an application between being the frontmost app, and being hidden
 function toggle_application(_app)
     -- finds a running applications
     local app = application.find(_app)
+    -- hs.alert.show(app)
     if not app then
         -- application not running, launch app
         application.launchOrFocus(_app)
@@ -74,7 +86,8 @@ function toggle_application(_app)
     local focusedWindow = hs.window.focusedWindow()
     local mainwin = app:mainWindow()
     -- 如果当前的窗口和要打开的 app 的是一个且同时存在多个窗口时
-    if focusedWindow:application():bundleID() == app:bundleID() and len > 1 then
+    -- hs.alert.show(len)
+    if focusedWindow:application():bundleID() == app:bundleID() and len > 1 and  has_value(supportMultiApp, _app) then
       local idx = hs.fnutils.indexOf(wins, focusedWindow);
       -- hs.alert.show(wins[1])
       -- hs.alert.show(focusedWindow)
@@ -84,16 +97,15 @@ function toggle_application(_app)
       -- win:becameMain()
       win:focus()
       -- hs.alert.show(wins[next] == hs.window.focusedWindow())
-    end
-
-    if mainwin then
-        if true == app:isFrontmost() then
-            mainwin:application():hide()
-        else
-            mainwin:application():activate(true)
-            mainwin:application():unhide()
-            mainwin:focus()
-        end
+    elseif mainwin then
+      -- hs.alert.show(app:isFrontmost())
+      if true == app:isFrontmost() then
+        mainwin:application():hide()
+      else
+        mainwin:application():activate(true)
+        mainwin:application():unhide()
+        mainwin:focus()
+      end
     else
         -- no windows, maybe hide
         if true == app:hide() then
