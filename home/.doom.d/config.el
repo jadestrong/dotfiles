@@ -141,8 +141,9 @@
       )
 
 (when IS-MAC
-  (setq mac-command-modifier 'meta
-        mac-option-modifier 'super)
+  (when (display-graphic-p)
+    (setq mac-command-modifier 'meta
+          mac-option-modifier 'super))
   (defconst target-dir-path "~/Downloads/" "My Download directory")
   (setq create-lockfiles nil)) ;; backup file
 
@@ -167,7 +168,6 @@
 
 ;;
 ;;; UI
-
 
 ;; "monospace" means use the system default. However, the default is usually two
 ;; points larger than I'd like, so I specify size 12 here.
@@ -479,10 +479,14 @@
          (list :name "typescript-styled-plugin"
                :location (expand-file-name "~/.config/yarn/global/node_modules/typescript-styled-plugin/")))))
 
+
+(setq magit-git-executable "/usr/bin/git")
 (use-package! lsp-tailwindcss
   :when (modulep! :tools lsp)
   :init
-  (setq lsp-tailwindcss-add-on-mode t))
+  (setq lsp-tailwindcss-add-on-mode t)
+  :config
+  (add-to-list 'lsp-tailwindcss-major-modes 'tsx-ts-mode))
 
 ;; (use-package! jsdoc)
 
@@ -523,11 +527,6 @@
 ;;   (setq epc:debug-out t)
 ;;   (setq coc-debug t))
 
-(use-package! highlight-matching-tag
-  :config
-  (highlight-matching-tag 1))
-(use-package! instant-rename-tag)
-
 (use-package! websocket-bridge)
 (use-package! dictionary-overlay)
 
@@ -549,3 +548,36 @@ Operate on selected region on whole buffer."
 
 (setq treesit--indent-verbose nil)
 ;; (setq eldoc-echo-area-display-truncation-message t)
+
+;; (use-package! lsp-rocks)
+
+(defun table-print (table)
+  (json-read-from-string (json-encode table)))
+
+(use-package! treesit)
+(use-package! treesit-auto
+  :config
+  ;; (defadvice! +treesit-auto--remap-language-source (language-source)
+  ;;   :override #'treesit-auto--remap-language-source
+  ;;   (let* ((name (car language-source))
+  ;;          (name-ts-mode (intern (concat (symbol-name name) "-ts-mode")))
+  ;;          (fallback-assoc (assq name-ts-mode treesit-auto-fallback-alist))
+  ;;          (fallback-name (cdr fallback-assoc))
+  ;;          (name-mode (or fallback-name
+  ;;                         (intern (concat (symbol-name name) "-mode"))))
+  ;;          (name-mode-bound-p (fboundp name-mode))
+  ;;          (skip-remap-p (and fallback-assoc
+  ;;                             (not (cdr fallback-assoc)))))
+  ;;     (message "%s: %s" name (treesit-ready-p name t))
+  ;;     (and (not skip-remap-p)
+  ;;          (fboundp name-ts-mode)
+  ;;          (if (treesit-ready-p name t)
+  ;;              (add-to-list 'major-mode-remap-alist `(,name-mode . ,name-ts-mode))
+  ;;            (when name-mode-bound-p
+  ;;              (add-to-list 'major-mode-remap-alist `(,name-ts-mode . ,name-mode)))))))
+  (setq treesit-auto-fallback-alist (assoc-delete-all 'tsx-ts-mode treesit-auto-fallback-alist))
+  (add-to-list 'treesit-auto-fallback-alist '(tsx-ts-mode . typescript-tsx-mode))
+  (add-to-list 'treesit-auto-fallback-alist '(js-ts-mode . rjsx-mode))
+  (treesit-auto-apply-remap)
+  (advice-add 'treesit-install-language-grammar
+              :after (lambda (&rest _r) (treesit-auto-apply-remap))))

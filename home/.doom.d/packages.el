@@ -30,8 +30,10 @@
 
 (unpin! doom-modeline)
 (unpin! rustic)
+(unpin! magit)
 (unpin! org-roam)
 (package! org-roam-ui)
+(unpin! editorconfig)
 ;; (package! emacsql-sqlite-builtin)
 
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
@@ -41,6 +43,11 @@
 ;;                          :build (:not compile)
 ;;                          :pre-build ((shell-command "cargo build --release && ln -s -f target/release/liblspce_module.dylib lspce-module.dylib"))))
 ;; (package! posframe-plus :recipe (:host github :repo "zbelial/posframe-plus"))
+
+;; (package! lsp-rocks :recipe (:local-repo "extensions/lsp-rocks"
+;;                              :files ("*.el" "lib")
+;;                              ;; :build (:not compile)
+;;                              :pre-build ((shell-command "pnpm run build"))))
 
 ;; (package! emacs-async)
 ;; (package! greeting :recipe (:local-repo "extensions/greeting"))
@@ -61,10 +68,9 @@
 ;;                        :pre-build ((shell-command "pnpm install && pnpm build && pnpm run bundle"))))
 (package! tide :disable t)
 
-(package! highlight-matching-tag :recipe (:host github :repo "manateelazycat/highlight-matching-tag"))
-(package! instant-rename-tag :recipe (:host github :repo "manateelazycat/instant-rename-tag"))
-
 (package! websocket-bridge :recipe (:host github :repo "ginqi7/websocket-bridge"))
 (package! dictionary-overlay :recipe (:host github :repo "ginqi7/dictionary-overlay" :files ("*")))
 
 (package! olivetti :recipe (:host github :repo "rnkn/olivetti"))
+
+(package! treesit-auto :recipe (:host github :repo "renzmann/treesit-auto"))

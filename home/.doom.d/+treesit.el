@@ -48,7 +48,7 @@ closing tag."
    (when-let* ((current-named-node (treesit-node-at-pos :named))
                (current-named-node-type (treesit-node-type current-named-node)))
      ;; self-closing tags can be turned into regular tag sets
-     (message "current-named %s" current-named-node-type)
+     ;; (message "current-named %s" current-named-node-type)
      (string= current-named-node-type "jsx_self_closing_element"))
    (save-excursion
      ;; a "</>" string inserted via `tsx-mode-auto-tags' can be turned into
@@ -83,24 +83,27 @@ closing tag."
         (backward-char (- (length str) 1)))
     (insert ">")))
 
-(after! tsx-ts-mode
-  (define-key typescript-ts-mode-map (kbd "<") 'ts-mode-jsx-maybe-insert-self-closing-tag)
-  (define-key typescript-ts-mode-map (kbd ">") 'ts-mode-jsx-maybe-close-tag))
+(after! typescript-ts-mode
+  (define-key tsx-ts-mode-map (kbd "<") 'ts-mode-jsx-maybe-insert-self-closing-tag)
+  (define-key tsx-ts-mode-map (kbd ">") 'ts-mode-jsx-maybe-close-tag))
 
 (use-package! typescript-ts-mode
-  :init
-  (add-to-list 'auto-mode-alist
-               (cons "\\.tsx\\'" #'tsx-ts-mode))
+  :mode "\\.mts\\'"
+  ;; :init
+  ;; (add-to-list 'auto-mode-alist
+  ;;              (cons "\\.tsx\\'" #'tsx-ts-mode))
   :config
-  (defvar treesit-simple-indent-rules
-    `((tsx
-       ((parent-is "program") parent-bol 0)
+  (defadvice! +typescript-ts-mode--indent-rules (language)
+    :override #'typescript-ts-mode--indent-rules
+    `((,language
+       ((parent-is "program") point-min 0)
        ((node-is "}") parent-bol 0)
        ((node-is ")") parent-bol 0)
        ((node-is "]") parent-bol 0)
        ((node-is ">") parent-bol 0)
-       ((and (parent-is "comment") comment-end) comment-start -1)
-       ((parent-is "comment") comment-start-skip 0)
+       ((and (parent-is "comment") c-ts-common-looking-at-star)
+        c-ts-common-comment-start-after-first-star -1)
+       ((parent-is "comment") prev-adaptive-prefix 0)
        ((parent-is "ternary_expression") parent-bol typescript-ts-mode-indent-offset)
        ((parent-is "member_expression") parent-bol typescript-ts-mode-indent-offset)
        ((parent-is "named_imports") parent-bol typescript-ts-mode-indent-offset)
@@ -115,20 +118,76 @@ closing tag."
        ((parent-is "object") parent-bol typescript-ts-mode-indent-offset)
        ((parent-is "object_type") parent-bol typescript-ts-mode-indent-offset)
        ((parent-is "enum_body") parent-bol typescript-ts-mode-indent-offset)
+       ((parent-is "class_body") parent-bol typescript-ts-mode-indent-offset)
        ((parent-is "arrow_function") parent-bol typescript-ts-mode-indent-offset)
        ((parent-is "parenthesized_expression") parent-bol typescript-ts-mode-indent-offset)
+       ((parent-is "binary_expression") parent-bol typescript-ts-mode-indent-offset)
 
-       ;; TSX
-       ((parent-is "jsx_opening_element") parent typescript-ts-mode-indent-offset)
-       ((node-is "jsx_closing_element") parent 0)
-       ((parent-is "jsx_element") parent typescript-ts-mode-indent-offset)
-       ((node-is "/") parent 0)
-       ((parent-is "jsx_self_closing_element") parent typescript-ts-mode-indent-offset)
-       ((parent-is "jsx_text") grand-parent typescript-ts-mode-indent-offset)
-       (no-node parent-bol 0)))
-    "Tree-sitter indent rules.")
+       ,@(when (eq language 'tsx)
+           `(((match "<" "jsx_fragment") parent 0)
+             ((parent-is "jsx_fragment") parent typescript-ts-mode-indent-offset)
+             ((node-is "jsx_closing_element") parent 0)
+             ((node-is "jsx_element") parent typescript-ts-mode-indent-offset)
+             ((parent-is "jsx_element") parent typescript-ts-mode-indent-offset)
+             ((parent-is "jsx_opening_element") parent typescript-ts-mode-indent-offset)
+             ((parent-is "jsx_expression") parent-bol typescript-ts-mode-indent-offset)
+             ((match "/" "jsx_self_closing_element") parent 0)
+             ((parent-is "jsx_self_closing_element") parent typescript-ts-mode-indent-offset)
+             ((parent-is "jsx_text") grand-parent typescript-ts-mode-indent-offset)))
+       (no-node parent-bol 0))))
+  ;; (setq-local treesit-simple-indent-rules
+  ;;   `((tsx
+  ;;      ((parent-is "program") parent-bol 0)
+  ;;      ((node-is "}") parent-bol 0)
+  ;;      ((node-is ")") parent-bol 0)
+  ;;      ((node-is "]") parent-bol 0)
+  ;;      ((node-is ">") parent-bol 0)
+  ;;      ((and (parent-is "comment") comment-end) comment-start -1)
+  ;;      ((parent-is "comment") comment-start-skip 0)
+  ;;      ((parent-is "ternary_expression") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "member_expression") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "named_imports") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "statement_block") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "type_arguments") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "variable_declarator") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "arguments") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "array") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "formal_parameters") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "template_substitution") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "object_pattern") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "object") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "object_type") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "enum_body") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "arrow_function") parent-bol typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "parenthesized_expression") parent-bol typescript-ts-mode-indent-offset)
+
+  ;;      ;; TSX
+  ;;      ((parent-is "jsx_opening_element") parent typescript-ts-mode-indent-offset)
+  ;;      ((node-is "jsx_closing_element") parent 0)
+  ;;      ((parent-is "jsx_element") parent typescript-ts-mode-indent-offset)
+  ;;      ((node-is "/") parent 0)
+  ;;      ((parent-is "jsx_self_closing_element") parent typescript-ts-mode-indent-offset)
+  ;;      ((parent-is "jsx_text") grand-parent typescript-ts-mode-indent-offset)
+  ;;      (no-node parent-bol 0)))
+  ;;   "Tree-sitter indent rules.")
   ;; (setq-local treesit-simple-indent-rules typescript-ts-mode--indent-rules)
   ;; (add-hook! '(typescript-ts-mode-l))
   )
+
+(add-hook! '(typescript-ts-base-mode-hook)
+  (defun +javascript-init-lsp-h ()
+    "Start `lsp' in the current buffer."
+    (let ((buffer-file-name (buffer-file-name (buffer-base-buffer))))
+      (when (derived-mode-p 'typescript-ts-base-mode)
+        (if (null buffer-file-name)
+            ;; necessary because `tide-setup' and `lsp' will error if not a
+            ;; file-visiting buffer
+            (add-hook 'after-save-hook #'+javascript-init-lsp-h
+                      nil 'local)
+          (if (modulep! :lang javascript +lsp) (lsp!)
+                (ignore
+                 (doom-log "Couldn't start lsp")))
+          (remove-hook 'after-save-hook #'+javascript-init-lsp-h
+                       'local))))))
 
 (setq treesit–indent-verbose nil)
