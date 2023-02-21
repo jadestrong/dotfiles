@@ -174,6 +174,18 @@ closing tag."
   ;; (add-hook! '(typescript-ts-mode-l))
   )
 
+(defun tsx-mode-comment-or-uncomment-region (beg end &optional arg)
+  (let ((node_type (treesit-node-type (treesit-node-on beg end))))
+    (cond ((string= node_type "jsx_element")
+           (message "here")
+           (setq-local comment-end "*/}")
+           (setq-local comment-start "{/*")
+           (funcall 'comment-region-default beg end arg))
+          (t (message "default %s" node_type)))))
+
+(add-hook! tsx-ts-mode-hook
+  (setq comment-region-function 'tsx-mode-comment-or-uncomment-region))
+
 (add-hook! '(typescript-ts-base-mode-hook)
   (defun +javascript-init-lsp-h ()
     "Start `lsp' in the current buffer."
@@ -185,8 +197,8 @@ closing tag."
             (add-hook 'after-save-hook #'+javascript-init-lsp-h
                       nil 'local)
           (if (modulep! :lang javascript +lsp) (lsp!)
-                (ignore
-                 (doom-log "Couldn't start lsp")))
+            (ignore
+             (doom-log "Couldn't start lsp")))
           (remove-hook 'after-save-hook #'+javascript-init-lsp-h
                        'local))))))
 

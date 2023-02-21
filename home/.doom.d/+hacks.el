@@ -59,7 +59,6 @@
          (encoded-string (my/hex-encode-string (encode-coding-string string 'utf-8))))
     (concat plantuml-server-url "/" plantuml-output-type "/~h" encoded-string)))
 
-
 ;; 修复 rjsx-mode 反注释会影响行内的 // 的 bug
 (setq rjsx-comment-start-skip "[[:space:]]*\\(?://+\\|{?/\\*+\\)")
 (defun +comment-search-forward (limit &optional noerror)

@@ -17,7 +17,7 @@
 (package! org-modern :recipe (:host github :repo "minad/org-modern"))
 (package! dirvish :recipe (:host github :repo "alexluigit/dirvish" :files ("*.el" "extensions/*.el")))
 
-(package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
+;; (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 (when (modulep! :tools lsp)
   (unpin! lsp-mode)
   (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
@@ -34,7 +34,7 @@
 (unpin! org-roam)
 (package! org-roam-ui)
 (unpin! editorconfig)
-;; (package! emacsql-sqlite-builtin)
+(package! emacsql-sqlite-builtin)
 
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
@@ -68,8 +68,8 @@
 ;;                        :pre-build ((shell-command "pnpm install && pnpm build && pnpm run bundle"))))
 (package! tide :disable t)
 
-(package! websocket-bridge :recipe (:host github :repo "ginqi7/websocket-bridge"))
-(package! dictionary-overlay :recipe (:host github :repo "ginqi7/dictionary-overlay" :files ("*")))
+; (package! websocket-bridge :recipe (:host github :repo "ginqi7/websocket-bridge"))
+; (package! dictionary-overlay :recipe (:host github :repo "ginqi7/dictionary-overlay" :files ("*")))
 
 (package! olivetti :recipe (:host github :repo "rnkn/olivetti"))
 
