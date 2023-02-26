@@ -4,3 +4,6 @@
 [submodule "coc.emacs"]
 	path = home/.doom.d/lisp/coc.emacs
 	url = git@github.com:jadestrong/coc.emacs.git
+[submodule "lsp-rocks"]
+	path = home/.doom.d/extensions/lsp-rocks
+	url = https://github.com/vritser/lsp-rocks.git

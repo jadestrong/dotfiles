@@ -89,7 +89,6 @@ function toggle_application(_app)
     -- hs.alert.show(len)
     if focusedWindow:application():bundleID() == app:bundleID() and len > 1 and  has_value(supportMultiApp, _app) then
       local idx = hs.fnutils.indexOf(wins, focusedWindow);
-      -- hs.alert.show(wins[1])
       -- hs.alert.show(focusedWindow)
       local next = idx + 1 > len and idx + 1 - len or idx + 1
       -- hs.alert.show(next)
@@ -107,13 +106,15 @@ function toggle_application(_app)
         mainwin:focus()
       end
     else
+      -- hs.alert.show(app:hide())
         -- no windows, maybe hide
-        if true == app:hide() then
-            -- focus app
-            application.launchOrFocus(_app)
-        else
-            -- nothing to do
-        end
+      if true == app:hide() then
+        -- focus app
+        application.launchOrFocus(_app)
+      else
+        -- nothing to do
+        application.launchOrFocus(_app)
+      end
     end
     -- focus app' screen
     local currentScreen = window.focusedWindow():screen();

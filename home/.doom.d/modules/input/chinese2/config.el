@@ -14,13 +14,15 @@
     ("C-`" . #'rime-send-keybinding))
   :custom
   (default-input-method "rime")
-  ;; (rime-emacs-module-header-root "/nix/store/h6ahwbvap9a3pxhq5bdkhkxhpdj6x07f-emacsGccDarwin/include")
+  (rime-emacs-module-header-root "/opt/homebrew/Cellar/emacs-plus@30/30.0.50/include")
   (rime-librime-root "~/.doom.d/librime/dist")
   (rime-inline-ascii-trigger 'shift-l)
   (rime-show-candidate 'posframe)
   :config
-  (when (and (display-graphic-p) (find-font (font-spec :name "Hiragino Sans GB")))
-    (setq rime-posframe-properties '(:internal-border-width 10 :font "Hiragino Sans GB")))
+  ;; (when (and (display-graphic-p) (find-font (font-spec :name "Hiragino Sans GB")))
+  ;;   (setq rime-posframe-properties '(:internal-border-width 10 :font "Hiragino Sans GB")))
+  ;; (font-spec :family "Noto Serif" :size 17)
+
   (defun +rime-force-enable ()
     "Forced into Chinese input state.
 If current input method is not `rime', active it first. If it is

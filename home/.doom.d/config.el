@@ -82,7 +82,7 @@
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1309-darwin-x64/server/rust-analyzer"))
+(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1348-darwin-x64/server/rust-analyzer"))
 (setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
 (setq +format-with-lsp t)
 ;; when enable format with lsp, then disable typescript-language-server format
@@ -124,7 +124,7 @@
   (interactive)
   (setq +format-with-lsp (not +format-with-lsp)))
 
-(setq inhibit-message nil)
+;; (setq inhibit-message nil)
 ;; (setq gif-screencast-scale-factor 2)
 
 ;;; :lang org
@@ -377,7 +377,7 @@
 ;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug
 ;; 使用它主要解决 doom-emacs 自带的 % 功能不支持 html 标签匹配跳转
 (use-package! evil-matchit-mode
-  :hook (web-mode html-mode)
+  :hook (web-mode html-mode tsx-ts-mode)
   :init
   (evilmi-load-plugin-rules '(web-mode) '(simple template html))
   (evilmi-load-plugin-rules '(html-mode) '(simple template html)))
@@ -575,9 +575,27 @@ Operate on selected region on whole buffer."
   ;;              (add-to-list 'major-mode-remap-alist `(,name-mode . ,name-ts-mode))
   ;;            (when name-mode-bound-p
   ;;              (add-to-list 'major-mode-remap-alist `(,name-ts-mode . ,name-mode)))))))
-  (setq treesit-auto-fallback-alist (assoc-delete-all 'tsx-ts-mode treesit-auto-fallback-alist))
-  (add-to-list 'treesit-auto-fallback-alist '(tsx-ts-mode . typescript-tsx-mode))
-  (add-to-list 'treesit-auto-fallback-alist '(js-ts-mode . rjsx-mode))
-  (treesit-auto-apply-remap)
+  ;; (setq treesit-auto-fallback-alist (assoc-delete-all 'tsx-ts-mode treesit-auto-fallback-alist))
+  ;; (add-to-list 'treesit-auto-fallback-alist '(tsx-ts-mode . typescript-tsx-mode))
+  ;; (add-to-list 'treesit-auto-fallback-alist '(js-ts-mode . rjsx-mode))
+  (setq my-js-tsauto-config
+        (make-treesit-auto-recipe
+         :lang 'javascript
+         :ts-mode 'js-ts-mode
+         :remap '(js2-mode rjsx-mode js-mode javascript-mode)
+         :url "https://github.com/tree-sitter/tree-sitter-javascript"
+         :revision "master"
+         :source-dir "src"))
+  (setq my-tsx-tsauto-config
+        (make-treesit-auto-recipe
+         :lang 'tsx
+         :ts-mode 'tsx-ts-mode
+         :remap 'typescript-tsx-mode
+         :url "https://github.com/tree-sitter/tree-sitter-typescript"
+         :revision "master"
+         :source-dir "tsx/src"))
+  (add-to-list 'treesit-auto-recipe-list my-js-tsauto-config)
+  (add-to-list 'treesit-auto-recipe-list my-tsx-tsauto-config)
+  (global-treesit-auto-mode)
   (advice-add 'treesit-install-language-grammar
               :after (lambda (&rest _r) (treesit-auto-apply-remap))))

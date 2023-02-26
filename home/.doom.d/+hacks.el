@@ -412,7 +412,7 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
 (after! lsp-mode
   ;; 优先使用系统按钮的 tsserver
   (setq lsp-clients-typescript-server-args `("--tsserver-path" "/Users/bytedance/.nvm/versions/node/v16.17.0/bin/tsserver" "--stdio"))
-  (setq lsp-clients-typescript-tsserver '((logVerbosity . "off") (path . "/Users/bytedance/.nvm/versions/node/v16.17.0/bin/tsserver")))
+  (setq lsp-clients-typescript-tsserver '((logVerbosity . "off") (path . "/opt/homebrew/bin/tsserver")))
   )
 
 (after! eglot
@@ -489,7 +489,7 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
 
 (advice-add 'flycheck-next-error :around #'flycheck-next-error-loop-advice)
 
-(when (featurep! :checkers syntax +childframe)
+(when (modulep! :checkers syntax +childframe)
   (defun flycheck-posframe-monitor-post-command ()
     (when (not (flycheck-posframe-check-position))
       (posframe-hide flycheck-posframe-buffer)))
