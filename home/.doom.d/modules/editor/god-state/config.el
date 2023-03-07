@@ -8,7 +8,7 @@
 (use-package! evil-god-state
   :after (god-mode evil)
   :config
-  (evil-define-key 'normal global-map "," 'evil-execute-in-god-state)
+  (evil-define-key 'normal global-map "," 'god-execute-with-current-bindings)
   (evil-define-key 'god global-map [escape] 'evil-god-state-bail)
   ;; god-mode support emacs-rime
   (defadvice! +rime-predicate-evil-mode-p ()

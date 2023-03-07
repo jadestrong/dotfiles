@@ -527,8 +527,8 @@
 ;;   (setq epc:debug-out t)
 ;;   (setq coc-debug t))
 
-(use-package! websocket-bridge)
-(use-package! dictionary-overlay)
+;; (use-package! websocket-bridge)
+;; (use-package! dictionary-overlay)
 
 (defun my-ansi-color (&optional beg end)
   "Interpret ANSI color esacape sequence by colorifying cotent.
