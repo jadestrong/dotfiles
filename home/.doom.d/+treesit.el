@@ -163,47 +163,60 @@ closing tag."
          ;;       (comment-region-default beg end arg)))
          )))
 
+;; copy from hack.el
 (defun tsx-mode-uncomment-region (beg end &optional _)
   (goto-char beg)
   (setq end (copy-marker end))
   (let (cs ts te ce matched-start)
-    ;; find comment start
-    (while (and (<= (point) end)
-                (setq matched-start
-                      (and (re-search-forward comment-start-skip end t 1)
-                           (match-string-no-properties 0))))
-      ;; delete comment-start
-      (setq cs (match-beginning 1))
-      (setq ts (match-end 1))
-      (goto-char cs)
-      (delete-region cs ts)
+       ;; find comment start
+       (while (and (<= (point) end)
+                   (setq ipt (point))
+                   (setq spt (+comment-search-forward end t)))
+         (let ((ept (progn
+                      (goto-char spt)
+                      (unless (or (+comment-forward)
+                                  (eobp))
+                        (error "Can't find the comment end"))
+                      (point))))
+           (save-restriction
+             (narrow-to-region spt ept)
+             ;; delete comment-start
+             (goto-char ipt)
+             (setq matched-start
+                   (and (re-search-forward comment-start-skip end t 1)
+                        (match-string-no-properties 0)))
+             (setq cs (match-beginning 1))
+             (setq ts (match-end 1))
+             (goto-char cs)
+             (delete-region cs ts)
 
-      ;; delete comment-padding start
-      (when (and comment-padding (looking-at (regexp-quote comment-padding)))
-        (delete-region (point) (+ (point) (length comment-padding))))
+             ;; delete comment-padding start
+             (when (and comment-padding (looking-at (regexp-quote comment-padding)))
+               (delete-region (point) (+ (point) (length comment-padding))))
 
-      ;; find comment end
-      (when (re-search-forward (if (string-match "//+" matched-start) "\n" "\\*/}?") end t 1)
-        (setq te (or (match-beginning 1) (match-beginning 0)))
-        (setq ce (or (match-end 1) (match-end 0)))
-        (goto-char te)
+             ;; find comment end
+             (when (re-search-forward (if (string-match "//+" matched-start) "\n" "\\*/}?") end t 1)
+               (setq te (or (match-beginning 1) (match-beginning 0)))
+               (setq ce (or (match-end 1) (match-end 0)))
+               (goto-char te)
 
-        ;; delete commend-end if it's not a newline
-        (unless (string= "\n" (match-string-no-properties 0))
-          (delete-region te ce)
+               ;; delete commend-end if it's not a newline
+               (unless (string= "\n" (match-string-no-properties 0))
+                 (delete-region te ce)
 
-          ;; delete comment-padding end
-          (when comment-padding
-            (backward-char (length comment-padding))
-            (when (looking-at (regexp-quote comment-padding))
-              (delete-region (point) (+ (point) (length comment-padding))))))
+                 ;; delete comment-padding end
+                 (when comment-padding
+                   (backward-char (length comment-padding))
+                   (when (looking-at (regexp-quote comment-padding))
+                     (delete-region (point) (+ (point) (length comment-padding))))))
 
-        ;; unescape inner comments if any
-        (save-restriction
-          (narrow-to-region cs (point))
-          (comment-quote-nested "{/*" "*/}" t)))))
+               ;; unescape inner comments if any
+               (save-restriction
+                 (narrow-to-region cs (point))
+                 (comment-quote-nested "{/*" "*/}" t)))
+             (goto-char (point-max))))
 
-  ;; (rjsx-maybe-unwrap-expr beg end)
+         ))
 
   (set-marker end nil))
 
