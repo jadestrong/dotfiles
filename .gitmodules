@@ -10,3 +10,6 @@
 [submodule "home/.doom.d/extensions/lsp-bridge"]
 	path = home/.doom.d/extensions/lsp-bridge
 	url = https://github.com/manateelazycat/lsp-bridge
+[submodule "home/.doom.d/extensions/mind-wave"]
+	path = home/.doom.d/extensions/mind-wave
+	url = https://github.com/manateelazycat/mind-wave.git
