@@ -8,10 +8,10 @@ local grid = require 'hs.grid'
 local geometry = require 'hs.geometry'
 
 ---- hyper [ for left one half window
-hotkey.bind(hyper, '[', function() window.focusedWindow():moveToUnit(layout.left50) end)
+hotkey.bind(hyperShift, '[', function() window.focusedWindow():moveToUnit(layout.left50) end)
 
 -- hyper ] for right one half window
-hotkey.bind(hyper, ']', function() window.focusedWindow():moveToUnit(layout.right50) end)
+hotkey.bind(hyperShift, ']', function() window.focusedWindow():moveToUnit(layout.right50) end)
 
 -- hotkey.bind(hyper, 'Tab', function() window.focusedWindow():moveToUnit(layout.maximized) end)
 hotkey.bind(hyper, 'Up', function()

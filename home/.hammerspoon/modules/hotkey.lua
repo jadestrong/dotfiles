@@ -1,2 +1,2 @@
-hyper = {'cmd'}
+hyper = {'alt'}
 hyperShift = {'ctrl', 'cmd'}
