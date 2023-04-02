@@ -1,7 +1,10 @@
 ;;; ../dotfiles/home/.doom.d/+roam.el -*- lexical-binding: t; -*-
 
 (after! org-roam
-  (setq org-roam-database-connector 'sqlite-builtin)
+  ;; (setq org-roam-database-connector 'sqlite-builtin)
+  ;; (setq org-roam-capture-templates '(("d" "default" plain "%?" :target
+  ;; (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+STARTUP: inlineimages\n")
+  ;; :unnarrowed t)))
   (require 'org-roam-dailies) ;; Ensure the keymap is available
 
   (defun my/org-roam-filter-by-tag (tag-name)
@@ -12,11 +15,13 @@
             (seq-filter
              (my/org-roam-filter-by-tag tag-name)
              (org-roam-node-list))))
+
   (defun my/org-roam-refresh-agenda-list ()
     (interactive)
     (setq org-agenda-files (my/org-roam-list-nodes-by-tag "Project")))
 
-  (my/org-roam-refresh-agenda-list)
+  ;; (my/org-roam-refresh-agenda-list)
+  (setq org-agenda-files '("/Users/bytedance/org/roam/20220314145634-ugfe_orchard.org"))
 
   (defun my/org-roam-project-finalize-hook ()
     "Add the captured project file to `org-agenda-files' if the

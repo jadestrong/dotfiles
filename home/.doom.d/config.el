@@ -82,7 +82,7 @@
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1348-darwin-x64/server/rust-analyzer"))
+(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1426-darwin-x64/server/rust-analyzer"))
 (setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
 (setq +format-with-lsp t)
 ;; when enable format with lsp, then disable typescript-language-server format
@@ -97,7 +97,6 @@
 (setq lsp-clients-typescript-max-ts-server-memory 3072)
 (setq completion-ignore-case t)
 (setq lsp-completion-no-cache nil)
-(setq lsp-bridge-enable-log nil)
 
 ;; (setq lsp-clients-typescript-tsserver '((logVerbosity . "verbose")))
 
@@ -143,7 +142,8 @@
 (when IS-MAC
   (when (display-graphic-p)
     (setq mac-command-modifier 'meta
-          mac-option-modifier 'super))
+          mac-option-modifier 'meta
+          mac-right-option-modifier 'meta))
   (defconst target-dir-path "~/Downloads/" "My Download directory")
   (setq create-lockfiles nil)) ;; backup file
 
@@ -204,9 +204,11 @@
       :n "M-o" #'switch-to-next-buffer
       ;; avy
       :g "M-g g" #'avy-goto-line
-      :g  "M-g M-g" #'avy-goto-line
-      :g "s-n" #'+workspace/switch-right
-      :g "s-p" #'+workspace/switch-left
+      :g "M-g M-g" #'avy-goto-line
+      :g "M-]" #'+workspace/switch-right
+      :g "M-[" #'+workspace/switch-left
+      :g "M-p" #'evil-scroll-page-up
+      :g "M-n" #'evil-scroll-page-down
       :leader
       "w w" #'ace-window
       "w 1" #'delete-other-windows
@@ -272,7 +274,7 @@
       evil-vsplit-window-right t)
 
 ;;; :lang javascript
-(map! :map (js2-mode-map typescript-mode-map typescript-tsx-mode-map)
+(map! :map (js2-mode-map typescript-mode-map typescript-tsx-mode-map tsx-ts-mode-map typescript-ts-mode-map)
       "C-c j" 'js-doc-insert-function-doc
       "@" 'js-doc-insert-tag)
 
@@ -472,39 +474,41 @@
 ;;   (setq lspce-send-changes-idle-time 1)
 ;;   (lspce-set-log-file "/tmp/lspce.log"))
 
-(use-package lsp-bridge
-  :load-path "~/.doom.d/extensions/lsp-bridge"
-  :config
-  (set-lookup-handlers! 'lsp-bridge-mode
-    :definition #'lsp-bridge-find-def
-    :references #'lsp-find-references
-    :implementations #'lsp-bridge-find-impl
-    :type-definition #'lsp-bridge-find-def
-    :documentation #'lsp-bridge-popup-documentation
-    :async t)
-  ;; Disable company backends when using lsp-bridge since it
-  ;; provides its own completion framework.
-  (when (modulep! :completion company)
-    (set-company-backend! 'lsp-bridge nil))
+;; (use-package lsp-bridge
+;;   :load-path "~/.doom.d/extensions/lsp-bridge"
+;;   :config
+;;   (setq lsp-bridge-enable-log nil)
+;;   (set-lookup-handlers! 'lsp-bridge-mode
+;;     :definition #'lsp-bridge-find-def
+;;     :references #'lsp-find-references
+;;     :implementations #'lsp-bridge-find-impl
+;;     :type-definition #'lsp-bridge-find-def
+;;     :documentation #'lsp-bridge-popup-documentation
+;;     :async t)
+;;   ;; Disable company backends when using lsp-bridge since it
+;;   ;; provides its own completion framework.
+;;   (when (modulep! :completion company)
+;;     (set-company-backend! 'lsp-bridge nil))
 
-  (defadvice! +lsp--defer-server-shutdown-a (fn)
-    "Defer server shutdown for a few seconds.
-This gives the user a chance to open other project files before the server is
-auto-killed (which is a potentially expensive process). It also prevents the
-server getting expensively restarted when reverting buffers."
-    :around #'lsp-bridge-kill-process
-    (letf! (defun lsp-bridge-shutdown ()
-             (if (or (null +lsp-defer-shutdown)
-                     (eq +lsp-defer-shutdown 0))
-                 (prog1 (funcall lsp-bridge-shutdown)
-                   (+lsp-optimization-mode -1))
-               (run-at-time
-                (if (numberp +lsp-defer-shutdown) +lsp-defer-shutdown 3)
-                nil (lambda ()
-                      (prog1 (funcall lsp-bridge-shutdown)
-                        (+lsp-optimization-mode -1))))))
-      (funcall fn)))
-  (global-lsp-bridge-mode))
+;;   (defadvice! +lsp--defer-server-shutdown-a (fn)
+;;     "Defer server shutdown for a few seconds.
+;; This gives the user a chance to open other project files before the server is
+;; auto-killed (which is a potentially expensive process). It also prevents the
+;; server getting expensively restarted when reverting buffers."
+;;     :around #'lsp-bridge-kill-process
+;;     (letf! (defun lsp-bridge-shutdown ()
+;;              (if (or (null +lsp-defer-shutdown)
+;;                      (eq +lsp-defer-shutdown 0))
+;;                  (prog1 (funcall lsp-bridge-shutdown)
+;;                    (+lsp-optimization-mode -1))
+;;                (run-at-time
+;;                 (if (numberp +lsp-defer-shutdown) +lsp-defer-shutdown 3)
+;;                 nil (lambda ()
+;;                       (prog1 (funcall lsp-bridge-shutdown)
+;;                         (+lsp-optimization-mode -1))))))
+;;       (funcall fn)))
+;;   ;; (defun lsp-bridge--get-lang-server-by-project)
+;;   (global-lsp-bridge-mode))
 
 (after! lsp-mode
   (setq lsp-clients-typescript-plugins
@@ -632,3 +636,24 @@ Operate on selected region on whole buffer."
   (global-treesit-auto-mode)
   (advice-add 'treesit-install-language-grammar
               :after (lambda (&rest _r) (treesit-auto-apply-remap))))
+
+(global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
+
+(use-package! mind-wave
+  :load-path "~/.doom.d/extensions/mind-wave")
+
+(defun z/mind-wave-find-chat (&optional arg)
+  "Creat new chat. with ARG, find previous chat."
+  (interactive "P")
+  (find-file
+   (if arg
+       (completing-read
+        "Choose chat: "
+        (cl-remove-if
+         (lambda (x) (member x '("." "..")))
+         (directory-files (locate-user-emacs-file "mind-wave") t "\\.chat\\'")))
+     (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
+  (mind-wave-chat-mode))
+
+(add-hook! '(js-ts-mode-local-vars-hook)
+           #'lsp!)
