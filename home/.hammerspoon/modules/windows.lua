@@ -28,9 +28,9 @@ hotkey.bind(hyper, 'Up', function()
                win:setFrame(f)
 end)
 -- Hyper / to show window hints
-hotkey.bind(hyper, '/', function()
-    hints.windowHints()
-end)
+-- hotkey.bind(hyper, '/', function()
+--     hints.windowHints()
+-- end)
 
 -- Hotkeys to interact with the window grid
 -- hotkey.bind(hyper, ',', grid.show)

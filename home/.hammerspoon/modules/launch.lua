@@ -76,7 +76,14 @@ function toggle_application(_app)
         application.launchOrFocus(_app)
         return
     end
-    local wins = app:allWindows()
+    local windows = app:allWindows()
+    -- 过滤掉所有不可 focus 的窗口
+    local wins = {}
+    for i, win in ipairs(windows) do
+      if win:isStandard() then
+        table.insert(wins, win)
+      end
+    end
     table.sort(wins, function(a, b) return a:id() < b:id() end)
 
     -- hs.alert.show(wins[1])
@@ -88,7 +95,8 @@ function toggle_application(_app)
     local mainwin = app:mainWindow()
     -- 如果当前的窗口和要打开的 app 的是一个且同时存在多个窗口时
     -- hs.alert.show(len)
-    if focusedWindow:application():bundleID() == app:bundleID() and len > 1 and  has_value(supportMultiApp, _app) then
+    --  and  has_value(supportMultiApp, _app)
+    if focusedWindow:application():bundleID() == app:bundleID() and len > 1 then
       local idx = hs.fnutils.indexOf(wins, focusedWindow);
       -- hs.alert.show(focusedWindow)
       local next = idx + 1 > len and idx + 1 - len or idx + 1
