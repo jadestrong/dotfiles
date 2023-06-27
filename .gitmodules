@@ -6,10 +6,13 @@
 	url = git@github.com:jadestrong/coc.emacs.git
 [submodule "lsp-rocks"]
 	path = home/.doom.d/extensions/lsp-rocks
-	url = https://github.com/vritser/lsp-rocks.git
+	url = https://github.com/jadestrong/lsp-rocks.git
 [submodule "home/.doom.d/extensions/lsp-bridge"]
 	path = home/.doom.d/extensions/lsp-bridge
 	url = https://github.com/manateelazycat/lsp-bridge
 [submodule "home/.doom.d/extensions/mind-wave"]
 	path = home/.doom.d/extensions/mind-wave
 	url = https://github.com/manateelazycat/mind-wave.git
+[submodule "md-preview"]
+	path = home/.doom.d/extensions/md-preview
+	url = https://github.com/jadestrong/md-preview.git

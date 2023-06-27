@@ -640,20 +640,31 @@ Operate on selected region on whole buffer."
 (global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
 
 (use-package! mind-wave
-  :load-path "~/.doom.d/extensions/mind-wave")
-
-(defun z/mind-wave-find-chat (&optional arg)
-  "Creat new chat. with ARG, find previous chat."
-  (interactive "P")
-  (find-file
-   (if arg
-       (completing-read
-        "Choose chat: "
-        (cl-remove-if
-         (lambda (x) (member x '("." "..")))
-         (directory-files (locate-user-emacs-file "mind-wave") t "\\.chat\\'")))
-     (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
-  (mind-wave-chat-mode))
+  :load-path "~/.doom.d/extensions/mind-wave"
+  :config
+  (defun z/mind-wave-find-chat (&optional arg)
+    "Creat new chat. with ARG, find previous chat."
+    (interactive "P")
+    (find-file
+     (if arg
+         (completing-read
+          "Choose chat: "
+          (cl-remove-if
+           (lambda (x) (member x '("." "..")))
+           (directory-files (locate-user-emacs-file "mind-wave") t "\\.chat\\'")))
+       (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
+    (mind-wave-chat-mode)))
 
 (add-hook! '(js-ts-mode-local-vars-hook)
            #'lsp!)
+(use-package! lsp-rocks
+  :load-path "~/.doom.d/extensions/lsp-rocks"
+  :config
+  (add-hook 'tsx-ts-mode-hook #'lsp-rocks-mode))
+
+(after! (and lsp-rocks company-box)
+  (defun company-box-icons--lsp-rocks (candidate)
+    (-when-let* ((lsp-item (get-text-property 0 'lsp-rocks--item candidate))
+                 (kind-num (plist-get lsp-item :kind)))
+      (alist-get kind-num company-box-icons--lsp-alist)))
+  (setq company-box-icons-functions (cons #'company-box-icons--lsp-rocks company-box-icons-functions)))
