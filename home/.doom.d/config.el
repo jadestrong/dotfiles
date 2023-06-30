@@ -77,7 +77,7 @@
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
       ;; +lsp-company-backends '(:separate company-tabnine-capf)
-      +lsp-company-backends '(company-capf :separate company-dabbrev)
+      +lsp-company-backends '(company-capf company-lsp-rocks :separate company-dabbrev)
       +company-backend-alist '((text-mode (:separate company-dabbrev company-yasnippet)) ;; company-ispell is annoying for `Start looking process...` in Chinese
                                (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
@@ -140,10 +140,9 @@
       )
 
 (when IS-MAC
-  (when (display-graphic-p)
-    (setq mac-command-modifier 'meta
-          mac-option-modifier 'meta
-          mac-right-option-modifier 'meta))
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'meta
+        mac-right-option-modifier 'meta)
   (defconst target-dir-path "~/Downloads/" "My Download directory")
   (setq create-lockfiles nil)) ;; backup file
 
@@ -448,68 +447,6 @@
       :n "e" 'evil-collection-xwidget-webkit-scroll-half-page-down
       :n "S" 'xwidget-webkit-back)
 
-;; (use-package! emacs-async)
-;; (use-package! greeting
-;;   :init
-;;   (add-to-list 'load-path (f-join doom-private-dir "extensions/greeting/target/debug"))
-;;   (require 'greeting))
-
-;; (defmacro lsp-enable-async (&rest body)
-;;   "Enable async."
-;;   `(async-start (lambda ()
-;;                    (add-to-list 'load-path "/Users/jadestrong/.doom.d/extensions/greeting/target/debug")
-;;                    (require 'greeting)
-;;                    ,@body
-;;                    222)
-;;                 (lambda (result)
-;;                   (message "Async process done %s." result))))
-;; (lsp-enable-async
-;;  (greeting-say-hello "emacs"))
-
-;; (use-package! lspce
-;;   :load-path "~/.doom.d/extensions/lspce/"
-;;   :init
-;;   (require 'lspce-module)
-;;   :config
-;;   (setq lspce-send-changes-idle-time 1)
-;;   (lspce-set-log-file "/tmp/lspce.log"))
-
-;; (use-package lsp-bridge
-;;   :load-path "~/.doom.d/extensions/lsp-bridge"
-;;   :config
-;;   (setq lsp-bridge-enable-log nil)
-;;   (set-lookup-handlers! 'lsp-bridge-mode
-;;     :definition #'lsp-bridge-find-def
-;;     :references #'lsp-find-references
-;;     :implementations #'lsp-bridge-find-impl
-;;     :type-definition #'lsp-bridge-find-def
-;;     :documentation #'lsp-bridge-popup-documentation
-;;     :async t)
-;;   ;; Disable company backends when using lsp-bridge since it
-;;   ;; provides its own completion framework.
-;;   (when (modulep! :completion company)
-;;     (set-company-backend! 'lsp-bridge nil))
-
-;;   (defadvice! +lsp--defer-server-shutdown-a (fn)
-;;     "Defer server shutdown for a few seconds.
-;; This gives the user a chance to open other project files before the server is
-;; auto-killed (which is a potentially expensive process). It also prevents the
-;; server getting expensively restarted when reverting buffers."
-;;     :around #'lsp-bridge-kill-process
-;;     (letf! (defun lsp-bridge-shutdown ()
-;;              (if (or (null +lsp-defer-shutdown)
-;;                      (eq +lsp-defer-shutdown 0))
-;;                  (prog1 (funcall lsp-bridge-shutdown)
-;;                    (+lsp-optimization-mode -1))
-;;                (run-at-time
-;;                 (if (numberp +lsp-defer-shutdown) +lsp-defer-shutdown 3)
-;;                 nil (lambda ()
-;;                       (prog1 (funcall lsp-bridge-shutdown)
-;;                         (+lsp-optimization-mode -1))))))
-;;       (funcall fn)))
-;;   ;; (defun lsp-bridge--get-lang-server-by-project)
-;;   (global-lsp-bridge-mode))
-
 (after! lsp-mode
   (setq lsp-clients-typescript-plugins
         (vector
@@ -518,54 +455,33 @@
 
 
 (setq magit-git-executable "/usr/bin/git")
-(use-package! lsp-tailwindcss
-  :when (modulep! :tools lsp)
-  :init
-  (setq lsp-tailwindcss-add-on-mode t)
-  :config
-  (add-to-list 'lsp-tailwindcss-major-modes 'tsx-ts-mode))
+;; (use-package! lsp-tailwindcss
+;;   :when (modulep! :tools lsp)
+;;   :init
+;;   (setq lsp-tailwindcss-add-on-mode t)
+;;   :config
+;;   (add-to-list 'lsp-tailwindcss-major-modes 'tsx-ts-mode))
 
 ;; (use-package! jsdoc)
-
-;; (use-package! tsx-mode)
 
 (use-package! apheleia)
 (setq eww-retrieve-command '("readable"))
 (use-package! olivetti
   :hook (eww-mode . olivetti-mode))
 
-;; (use-package! plantuml
-;;   :config
-;;   (setq plantuml-log-command nil))
-
 (use-package! epc)
 (use-package! vimrc-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
 
-
-(defun company-box-icons--coc (candidate)
-  (if-let* ((coc-item (get-text-property 0 'coc-completion-item candidate))
-            (kind-num (plist-get coc-item :kind)))
+(defun company-box-icons--lsp-rocks (candidate)
+    (-when-let* ((lsp-item (get-text-property 0 'lsp-rocks--item candidate))
+                 (kind-num (plist-get lsp-item :kind)))
       (alist-get kind-num company-box-icons--lsp-alist)))
 
 (after! company-box
   (setq company-box-icons-functions
-        (cons #'company-box-icons--coc company-box-icons-functions)))
-
-;; (use-package! coc
-;;   :init
-;;   (require 'company-coc)
-;;   :config
-;;   (setq +lsp-company-backends '(company-coc company-capf :separate company-dabbrev))
-;;   (set-company-backend! '(js2-mode typescript-mode typescript-tsx-mode) 'company-coc)
-;;   ;; (add-to-list company-backends 'company-coc)
-;;   (global-coc-mode)
-;;   (setq epc:debug-out t)
-;;   (setq coc-debug t))
-
-;; (use-package! websocket-bridge)
-;; (use-package! dictionary-overlay)
+        (cons #'company-box-icons--lsp-rocks company-box-icons-functions)))
 
 (defun my-ansi-color (&optional beg end)
   "Interpret ANSI color esacape sequence by colorifying cotent.
@@ -582,11 +498,6 @@ Operate on selected region on whole buffer."
     (when (eq major-mode 'compilation-mode)
       (ansi-color-apply-on-region compilation-filter-start (point-max))))
   (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
-
-(setq treesit--indent-verbose nil)
-;; (setq eldoc-echo-area-display-truncation-message t)
-
-;; (use-package! lsp-rocks)
 
 (defun table-print (table)
   (json-read-from-string (json-encode table)))
@@ -657,14 +568,13 @@ Operate on selected region on whole buffer."
 
 (add-hook! '(js-ts-mode-local-vars-hook)
            #'lsp!)
+
+(use-package! md-preview
+  :load-path "~/.doom.d/extensions/md-preview"
+  :config
+  (setq epc:debug-out nil))
+
 (use-package! lsp-rocks
   :load-path "~/.doom.d/extensions/lsp-rocks"
   :config
   (add-hook 'tsx-ts-mode-hook #'lsp-rocks-mode))
-
-(after! (and lsp-rocks company-box)
-  (defun company-box-icons--lsp-rocks (candidate)
-    (-when-let* ((lsp-item (get-text-property 0 'lsp-rocks--item candidate))
-                 (kind-num (plist-get lsp-item :kind)))
-      (alist-get kind-num company-box-icons--lsp-alist)))
-  (setq company-box-icons-functions (cons #'company-box-icons--lsp-rocks company-box-icons-functions)))

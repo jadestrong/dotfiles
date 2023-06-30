@@ -19,8 +19,10 @@
   (rime-inline-ascii-trigger 'shift-l)
   (rime-show-candidate 'posframe)
   :config
-  ;; (when (and (display-graphic-p) (find-font (font-spec :name "Hiragino Sans GB")))
-  ;;   (setq rime-posframe-properties '(:internal-border-width 10 :font "Hiragino Sans GB")))
+  ;; and (display-graphic-p)
+  (when (find-font (font-spec :name "Hiragino Sans GB"))
+    (setq rime-posframe-properties '(:internal-border-width 10 :font "Hiragino Sans GB-17")))
+  ;; (aref (font-info "Hiragino Sans GB-18") 3)
   ;; (font-spec :family "Noto Serif" :size 17)
 
   (defun +rime-force-enable ()

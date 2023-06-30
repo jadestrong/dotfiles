@@ -21,7 +21,7 @@
 (when (modulep! :tools lsp)
   (unpin! lsp-mode)
   (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
-  (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
+  ;; (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
   ;; (unpin! eglot)
   ;; (package! eglot :built-in t)
   (package! project :built-in t)
@@ -61,6 +61,7 @@
 ;; (package! plantuml :recipe (:host github :repo "ginqi7/plantuml-emacs"))
 
 (package! epc)
+(package! deferred)
 (package! vimrc-mode)
 
 ;; (package! coc :recipe (:local-repo "lisp/coc.emacs"
