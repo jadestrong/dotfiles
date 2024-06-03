@@ -119,6 +119,7 @@
 ;; (setq lsp-bridge-get-lang-server-by-project #'lsp-bridge--get-lang-server-by-project)
 
 (use-package! lsp-bridge
+  :load-path "~/.doom.d/extensions/lsp-bridge"
   :config
   (map! :map acm-mode-map
         [tab]           #'acm-select-next

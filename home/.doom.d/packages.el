@@ -6,7 +6,7 @@
 ;; (package! another-package :recipe (:host github :repo "username/repo"))
 ;; (package! builtin-package :disable t)
 
-(package! js-doc)
+;; (package! js-doc)
 (package! react-snippets)
 (package! evil-matchit)
 (package! leetcode :recipe (:host github :repo "jadestrong/leetcode.el"))
@@ -19,8 +19,8 @@
 
 ;; (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 (when (modulep! :tools lsp)
-  (unpin! lsp-mode)
-  (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
+  ;; (unpin! lsp-mode)
+  ;; (package! lsp-mode :recipe (:host github :repo "jadestrong/lsp-mode" :branch "master"))
   ;; (package! lsp-tailwindcss :recipe (:host github :repo "merrickluo/lsp-tailwindcss"))
   ;; (unpin! eglot)
   ;; (package! eglot :built-in t)
@@ -30,11 +30,14 @@
 
 (unpin! doom-modeline)
 (unpin! rustic)
-(unpin! magit)
 (unpin! org-roam)
 (package! org-roam-ui)
 (unpin! editorconfig)
 (package! emacsql-sqlite-builtin)
+(unpin! (:tools magit) (:completion company) (:checkers syntax) (:editor evil))
+
+;; (package! doom-modeline :pin "bf880ae56f3f6aab7bd334de9bd9b455c63a24c0")
+;;
 
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
 (package! xwidget-webkit-vimium :recipe (:host github :repo "jadestrong/xwidget-webkit-vimium"))
@@ -52,7 +55,7 @@
 ;; (package! emacs-async)
 ;; (package! greeting :recipe (:local-repo "extensions/greeting"))
 
-;; (package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
+(package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
 
 ;; (package! tsi :recipe (:host github :repo "orzechowskid/tsi.el"))
 ;; (package! tsx-mode :recipe (:host github :repo "orzechowskid/tsx-mode.el"))
@@ -60,8 +63,8 @@
 (package! apheleia)
 ;; (package! plantuml :recipe (:host github :repo "ginqi7/plantuml-emacs"))
 
-(package! epc)
-(package! deferred)
+;; (package! epc)
+;; (package! deferred)
 (package! vimrc-mode)
 
 ;; (package! coc :recipe (:local-repo "lisp/coc.emacs"

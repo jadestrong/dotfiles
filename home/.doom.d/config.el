@@ -77,14 +77,23 @@
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
       ;; +lsp-company-backends '(:separate company-tabnine-capf)
-      +lsp-company-backends '(company-capf company-lsp-rocks :separate company-dabbrev)
+      ;; company-lsp-copilot
+      +lsp-company-backends '(company-capf :separate company-dabbrev)
       +company-backend-alist '((text-mode (:separate company-dabbrev company-yasnippet)) ;; company-ispell is annoying for `Start looking process...` in Chinese
-                               (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
+                               ;; company-lsp-copilot company-lsp-rocks
+                               (prog-mode company-capf :separate company-dabbrev) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
+                               ;; (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
-(setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.1426-darwin-x64/server/rust-analyzer"))
+
+;; (setq company-idle-delay 0)
+(setq company-abort-on-unique-match nil)
+(setq company-idle-delay 0)
+(setq company-tooltip-idle-delay 0)
+(setq rustic-analyzer-command '("/Users/bytedance/.vscode/extensions/rust-lang.rust-analyzer-0.3.1940-darwin-arm64/server/rust-analyzer"))
 (setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
 (setq +format-with-lsp t)
+
 ;; when enable format with lsp, then disable typescript-language-server format
 ;; only enable eslint-server otherwise use prettier
 (when (and +format-with-lsp lsp-eslint-enable)
@@ -182,6 +191,21 @@
 
 ;;
 ;;; Keybinds
+(defun lsp--format-buffer ()
+  (interactive)
+  (if lsp-copilot-mode
+      (lsp-copilot-format-buffer)
+    (lsp-format-buffer))
+  ;; (if lsp-rocks-mode
+  ;;     (lsp-rocks-format-buffer)
+  ;;   )
+  )
+
+(defun my-lsp-execute-code-action ()
+  (interactive)
+  (if lsp-copilot-mode
+      (lsp-copilot-execute-code-action)
+    (lsp-execute-code-action)))
 
 (map! :n [tab] (cmds! (and (modulep! :editor fold)
                            (save-excursion (end-of-line) (invisible-p (point))))
@@ -194,7 +218,6 @@
                       #'yas-insert-snippet
                       (fboundp 'evil-jump-item)
                       #'evil-jump-item)
-      :n "M-." #'lsp-execute-code-action
       :n "[ e" #'flycheck-previous-error
       :n "] e" #'flycheck-next-error
       :n "M-n" #'evil-scroll-page-down
@@ -215,6 +238,8 @@
       ";" #'counsel-M-x
       ;; ":" #'pp-eval-expression
       ;; "e e" #'flycheck-explain-error-at-point
+      "c c" #'lsp-copilot-execute-code-action
+      "c f" #'lsp--format-buffer
       "c F" #'apheleia-format-buffer)
 
 ;; company
@@ -273,9 +298,9 @@
       evil-vsplit-window-right t)
 
 ;;; :lang javascript
-(map! :map (js2-mode-map typescript-mode-map typescript-tsx-mode-map tsx-ts-mode-map typescript-ts-mode-map)
-      "C-c j" 'js-doc-insert-function-doc
-      "@" 'js-doc-insert-tag)
+;; (map! :map (js2-mode-map typescript-mode-map typescript-tsx-mode-map tsx-ts-mode-map typescript-ts-mode-map)
+;;       "C-c j" 'js-doc-insert-function-doc
+;;       "@" 'js-doc-insert-tag)
 
 (add-hook 'js-mode-hook 'js2-minor-mode)
 (advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
@@ -376,11 +401,32 @@
 
 ;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug
 ;; 使用它主要解决 doom-emacs 自带的 % 功能不支持 html 标签匹配跳转
+(defun evilmi-jtsx-get-tag ()
+  "Find the jsx element tag at point's pair tag."
+  (let ((enclosing-element (jtsx-enclosing-jsx-element-at-point)))
+    (if enclosing-element
+        (let ((start (treesit-node-start enclosing-element))
+              (end (treesit-node-end enclosing-element)))
+          (if (> (point) (+ start (/ (- end start) 2)))
+              (list end 1) ; We are closer to the closing tag.
+            (list start 0))) ; We are closer to the opening tag.
+      nil)))
+(defun evilmi-jtsx-jump (info _num)
+  "Jump to the pair tag poision."
+  (let* ((tag-type (nth 1 info)))
+    (cond
+     ((eq 1 tag-type)
+      (jtsx-jump-jsx-opening-tag))
+     ((eq 0 tag-type)
+      (jtsx-jump-jsx-closing-tag)))
+    (point)))
 (use-package! evil-matchit-mode
   :hook (web-mode html-mode tsx-ts-mode)
   :init
   (evilmi-load-plugin-rules '(web-mode) '(simple template html))
-  (evilmi-load-plugin-rules '(html-mode) '(simple template html)))
+  (evilmi-load-plugin-rules '(html-mode) '(simple template html))
+  (evilmi-load-plugin-rules '(tsx-ts-mode) '(simple javascript jtsx html)))
+;; (setq evilmi-debug t)
 
 ;; Disable it only for rust buffers - doc not auto display in mini buffer
 (setq-hook! 'rustic-mode-hook lsp-signature-auto-activate nil)
@@ -450,8 +496,8 @@
 (after! lsp-mode
   (setq lsp-clients-typescript-plugins
         (vector
-         (list :name "typescript-styled-plugin"
-               :location (expand-file-name "~/.config/yarn/global/node_modules/typescript-styled-plugin/")))))
+         (list :name "@styled/typescript-styled-plugin"
+               :location (expand-file-name "~/.config/yarn/global/node_modules/@styled/typescript-styled-plugin/")))))
 
 
 (setq magit-git-executable "/usr/bin/git")
@@ -462,26 +508,32 @@
 ;;   :config
 ;;   (add-to-list 'lsp-tailwindcss-major-modes 'tsx-ts-mode))
 
-;; (use-package! jsdoc)
+(use-package! jsdoc)
 
 (use-package! apheleia)
 (setq eww-retrieve-command '("readable"))
 (use-package! olivetti
   :hook (eww-mode . olivetti-mode))
 
-(use-package! epc)
+;; (use-package! epc)
 (use-package! vimrc-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
 
 (defun company-box-icons--lsp-rocks (candidate)
-    (-when-let* ((lsp-item (get-text-property 0 'lsp-rocks--item candidate))
-                 (kind-num (plist-get lsp-item :kind)))
-      (alist-get kind-num company-box-icons--lsp-alist)))
+  (-when-let* ((lsp-item (get-text-property 0 'lsp-rocks--item candidate))
+               (kind-num (plist-get lsp-item :kind)))
+    (alist-get kind-num company-box-icons--lsp-alist)))
+
+(defun company-box-icons--lsp-copilot (candidate)
+  (-when-let* ((copilot-item (get-text-property 0 'lsp-copilot--item candidate))
+               (lsp-item (plist-get copilot-item :item))
+               (kind-num (plist-get lsp-item :kind)))
+    (alist-get kind-num company-box-icons--lsp-alist)))
 
 (after! company-box
   (setq company-box-icons-functions
-        (cons #'company-box-icons--lsp-rocks company-box-icons-functions)))
+        (cons #'company-box-icons--lsp-copilot (cons #'company-box-icons--lsp-rocks company-box-icons-functions))))
 
 (defun my-ansi-color (&optional beg end)
   "Interpret ANSI color esacape sequence by colorifying cotent.
@@ -503,6 +555,8 @@ Operate on selected region on whole buffer."
   (json-read-from-string (json-encode table)))
 
 (use-package! treesit)
+(setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
+(setq auto-mode-alist (delete '("\\.rs\\'" . rust-mode) auto-mode-alist))
 (use-package! treesit-auto
   :config
   ;; (defadvice! +treesit-auto--remap-language-source (language-source)
@@ -544,6 +598,7 @@ Operate on selected region on whole buffer."
          :source-dir "tsx/src"))
   (add-to-list 'treesit-auto-recipe-list my-js-tsauto-config)
   (add-to-list 'treesit-auto-recipe-list my-tsx-tsauto-config)
+  ;; (delete 'rust treesit-auto-langs)
   (global-treesit-auto-mode)
   (advice-add 'treesit-install-language-grammar
               :after (lambda (&rest _r) (treesit-auto-apply-remap))))
@@ -553,6 +608,7 @@ Operate on selected region on whole buffer."
 (use-package! mind-wave
   :load-path "~/.doom.d/extensions/mind-wave"
   :config
+  (setq mind-wave-api-base "https://oa.api2d.net/v1")
   (defun z/mind-wave-find-chat (&optional arg)
     "Creat new chat. with ARG, find previous chat."
     (interactive "P")
@@ -569,12 +625,59 @@ Operate on selected region on whole buffer."
 (add-hook! '(js-ts-mode-local-vars-hook)
            #'lsp!)
 
-(use-package! md-preview
-  :load-path "~/.doom.d/extensions/md-preview"
-  :config
-  (setq epc:debug-out nil))
+;; (use-package! md-preview
+;;   :load-path "~/.doom.d/extensions/md-preview"
+;;   :config
+;;   (setq epc:debug-out nil))
+;; (setq lsp-rocks-epc--debug-out nil)
 
-(use-package! lsp-rocks
-  :load-path "~/.doom.d/extensions/lsp-rocks"
+;; (use-package! lsp-rocks
+;;   :load-path "~/.doom.d/extensions/lsp-rocks"
+;;   :config
+;;   ;; (add-hook 'tsx-ts-mode-hook #'lsp-rocks-mode)
+;;   (add-hook! '(tsx-ts-mode-hook js-ts-mode-hook typescript-ts-mode-hook) #'lsp-rocks-mode)
+;;   (set-lookup-handlers! 'lsp-rocks-mode
+;;     :definition #'lsp-rocks-find-definition
+;;     :documentation '(lsp-rocks-describe-thing-at-point)))
+
+(set-popup-rule! "^\\*lsp-copilot-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
+(use-package! lsp-copilot
+  :load-path "~/.doom.d/extensions/lsp-copilot"
   :config
-  (add-hook 'tsx-ts-mode-hook #'lsp-rocks-mode))
+  (add-hook! '(tsx-ts-mode-hook js-ts-mode-hook typescript-ts-mode-hook less-css-mode-hook web-mode-hook) #'lsp-copilot-mode)
+  (set-lookup-handlers! 'lsp-copilot-mode
+    :definition '(lsp-copilot-find-definition :async t)
+    :documentation '(lsp-copilot-describe-thing-at-point :async t)))
+
+;; (use-package! lspce
+;;   :load-path "~/.doom.d/extensions/lspce"
+;;   :config
+;;   (setq lspce-send-changes-idle-time 1)
+;;   (lspce-set-log-file "/tmp/lspce.log")
+;;   (add-hook! '(tsx-ts-mode-hook typescript-ts-mode-hook rustic-mode-hook) #'lspce-mode)
+;;   (setq lspce-server-programs `(("rust"  "/Users/bytedance/.vscode/extensions/rust-lang.rust-analyzer-0.3.1657-darwin-arm64/server/rust-analyzer" "" lspce-ra-initializationOptions)
+;;                                 ("rustic"  "/Users/bytedance/.vscode/extensions/rust-lang.rust-analyzer-0.3.1657-darwin-arm64/server/rust-analyzer" "" lspce-ra-initializationOptions)
+;;                                 ("typescript" "typescript-language-server" "--stdio")
+;;                                 ("js" "typescript-language-server" "--stdio")
+;;                                 ("js" "vscode-eslint-language-server" "--stdio")
+;;                                 ("tsx" "typescript-language-server" "--stdio")
+;;                                 ("tsx" "vscode-eslint-language-server" "--stdio")
+;;                                 ;; ("python" "pylsp" "" )
+;;                                 ;; ("C" "clangd" "--all-scopes-completion --clang-tidy --enable-config --header-insertion-decorators=0")
+;;                                 ;; ("java" "java" lspce-jdtls-cmd-args lspce-jdtls-initializationOptions)
+;;                                 ))
+;; )
+
+
+;; (use-package! auto-save
+;;   :config
+;;   (auto-save-enable)
+;;   (setq auto-save-silent t)
+;;   (setq auto-save-delete-trailing-whitespace t))
+
+;; (add-variable-watcher 'post-command-hook (lambda (_ new_val) (message "val %s" new_val)))
+
+;; (setq plantuml-mode-debug-enabled t)
+
+(setq plantuml-exec-mode 'jar)
+(setq plantuml-output-type "png")

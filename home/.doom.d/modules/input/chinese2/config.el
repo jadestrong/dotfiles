@@ -70,6 +70,7 @@ input scheme to convert to Chinese."
                      (append (listify-key-sequence code)
                              unread-command-events))))
             (t (message "`+rime-convert-string-at-point' did nothing.")))))
+
   (setq-default rime-disable-predicates
                 '(rime-predicate-evil-mode-p
                   rime-predicate-after-alphabet-char-p
@@ -99,3 +100,22 @@ Can be used in `rime-disable-predicates' and `rime-inline-predicates'."
     (and (derived-mode-p 'prog-mode 'conf-mode)
          (not (or (and (nth 3 (syntax-ppss)) (inside-string-p))
                   (nth 4 (syntax-ppss)))))))
+
+;;; 修复在 swiper-isearch 中使用时 delete-region 会删除超出区域的内容，导致 args-out-of-range 错误
+(defadvice! +rime--minibuffer-message (string)
+  :override #'rime--minibuffer-message
+  "Concatenate STRING and minibuffer contents.
+
+Used to display in minibuffer when we are using input method in minibuffer."
+  (message nil)
+  (unless (string-blank-p string)
+    (let ((inhibit-quit t)
+          point-1)
+      (save-excursion
+        (insert (concat " |" string)) ;; 当配合 ivy 使用时，换行写入的内容会被搜索结果覆盖，因此改成行内提示
+        (setq point-1 (point)))
+      (sit-for 1000000)
+      (delete-region (point) (min point-1 (point-max)))
+      (when quit-flag
+        (setq quit-flag nil
+              unread-command-events '(7))))))
