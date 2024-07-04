@@ -93,6 +93,19 @@ input scheme to convert to Chinese."
       (or (member 'font-lock-string-face fontfaces)
           (member 'web-mode-javascript-string-face fontfaces))))
 
+  (defun treesit-in-string-or-comment-p ()
+    "Check if point is inside a string or comment using Tree-sitter for Python."
+    (interactive)
+    (let* ((node (treesit-node-at (point)))
+           (type (treesit-node-type node))
+           (in-string (or (string-equal type "string")
+                          (string-equal type "string_fragment")))
+           (in-comment (string-equal type "comment")))
+      (message "type %s" type)
+      (if (or in-string in-comment)
+          (message "Point is inside a %s" (if in-string "string" "comment"))
+        (message "Point is not inside a string or comment"))))
+
   (defadvice! +rime-predicate-prog-in-code-p ()
     :override #'rime-predicate-prog-in-code-p
     "If cursor is in code.

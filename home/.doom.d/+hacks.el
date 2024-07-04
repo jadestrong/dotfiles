@@ -409,11 +409,12 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
            (lsp--render-element (lsp:completion-item-detail? completion-item)))
           (t nil))))
 
-(after! lsp-mode
+;; (after! lsp-mode
   ;; 优先使用系统按钮的 tsserver
-  (setq lsp-clients-typescript-server-args `("--tsserver-path" "/Users/bytedance/.nvm/versions/node/v16.17.0/bin/tsserver" "--stdio"))
-  (setq lsp-clients-typescript-tsserver '((logVerbosity . "off") (path . "/opt/homebrew/bin/tsserver")))
-  )
+  ;; (setq lsp-clients-typescript-server-args `("--stdio"))
+  ;; (setq lsp-clients-typescript-tsserver '((path . "/opt/homebrew/bin/tsserver")))
+  ;; (setq lsp-clients-typescript-tsserver nil)
+  ;; )
 
 (after! eglot
   (add-to-list 'eglot-server-programs '(typescript-tsx-mode . ("typescript-language-server" "--tsserver-path" "/opt/homebrew/bin/tsserver" "--stdio"))))

@@ -89,6 +89,7 @@
 ;; (setq company-idle-delay 0)
 (setq company-abort-on-unique-match nil)
 (setq company-idle-delay 0)
+(setq company-minimum-prefix-length 2)
 (setq company-tooltip-idle-delay 0)
 (setq rustic-analyzer-command '("/Users/bytedance/.vscode/extensions/rust-lang.rust-analyzer-0.3.1940-darwin-arm64/server/rust-analyzer"))
 (setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
@@ -187,6 +188,7 @@
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 
 (set-popup-rule! "^\\* \\(Chez\\|Mit\\) REPL \\*" :side 'right :quit nil :size 0.5 :select nil :modeline t)
+(set-popup-rule! "^\\*projectile-files-errors\\*" :side 'bottom :quit t :size 0.3 :select nil)
 
 
 ;;
@@ -510,7 +512,6 @@
 
 (use-package! jsdoc)
 
-(use-package! apheleia)
 (setq eww-retrieve-command '("readable"))
 (use-package! olivetti
   :hook (eww-mode . olivetti-mode))
@@ -622,8 +623,8 @@ Operate on selected region on whole buffer."
        (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
     (mind-wave-chat-mode)))
 
-(add-hook! '(js-ts-mode-local-vars-hook)
-           #'lsp!)
+;; (add-hook! '(js-ts-mode-local-vars-hook)
+;;            #'lsp!)
 
 ;; (use-package! md-preview
 ;;   :load-path "~/.doom.d/extensions/md-preview"
@@ -673,11 +674,12 @@ Operate on selected region on whole buffer."
 ;;   :config
 ;;   (auto-save-enable)
 ;;   (setq auto-save-silent t)
-;;   (setq auto-save-delete-trailing-whitespace t))
 
-;; (add-variable-watcher 'post-command-hook (lambda (_ new_val) (message "val %s" new_val)))
-
-;; (setq plantuml-mode-debug-enabled t)
 
 (setq plantuml-exec-mode 'jar)
 (setq plantuml-output-type "png")
+
+(defun clear-doom-large-file-p ()
+  "Clear."
+  (interactive)
+  (setq-local doom-large-file-p nil))
