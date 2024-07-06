@@ -92,6 +92,7 @@
 (setq company-minimum-prefix-length 2)
 (setq company-tooltip-idle-delay 0)
 (setq rustic-analyzer-command '("/Users/bytedance/.vscode/extensions/rust-lang.rust-analyzer-0.3.1940-darwin-arm64/server/rust-analyzer"))
+(setq company-box-doc-delay 0.1)
 (setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
 (setq +format-with-lsp t)
 
