@@ -178,7 +178,6 @@
 
 ;;
 ;;; UI
-
 ;; "monospace" means use the system default. However, the default is usually two
 ;; points larger than I'd like, so I specify size 12 here.
 (setq doom-font (font-spec :family "JetBrains Mono" :size 16 :weight 'regular)
@@ -191,24 +190,23 @@
 (set-popup-rule! "^\\* \\(Chez\\|Mit\\) REPL \\*" :side 'right :quit nil :size 0.5 :select nil :modeline t)
 (set-popup-rule! "^\\*projectile-files-errors\\*" :side 'bottom :quit t :size 0.3 :select nil)
 
-
 ;;
 ;;; Keybinds
-(defun lsp--format-buffer ()
+(defun my/lsp-format-buffer ()
+  "Formats the current buffer based on the current mode.
+   If in `lsp-copilot-mode', uses `lsp-copilot-format-buffer'.
+   If in `lsp-mode', uses `lsp-format-buffer'.
+   Otherwise, uses `+format/buffer'."
   (interactive)
-  (if lsp-copilot-mode
-      (lsp-copilot-format-buffer)
-    (lsp-format-buffer))
-  ;; (if lsp-rocks-mode
-  ;;     (lsp-rocks-format-buffer)
-  ;;   )
-  )
+  (cond
+   (lsp-copilot-mode (lsp-copilot-format-buffer))
+   (lsp-mode (lsp-format-buffer))
+   (t (+format/buffer))))
 
-(defun my-lsp-execute-code-action ()
+(defun my/lsp-execute-code-action ()
   (interactive)
-  (if lsp-copilot-mode
-      (lsp-copilot-execute-code-action)
-    (lsp-execute-code-action)))
+  (cond (lsp-copilot-mode (lsp-copilot-execute-code-action))
+        (lsp-mode (lsp-execute-code-action))))
 
 (map! :n [tab] (cmds! (and (modulep! :editor fold)
                            (save-excursion (end-of-line) (invisible-p (point))))
@@ -234,6 +232,7 @@
       :g "M-[" #'+workspace/switch-left
       :g "M-p" #'evil-scroll-page-up
       :g "M-n" #'evil-scroll-page-down
+      :g "M-f" #'forward-char
       :leader
       "w w" #'ace-window
       "w 1" #'delete-other-windows
@@ -241,9 +240,10 @@
       ";" #'counsel-M-x
       ;; ":" #'pp-eval-expression
       ;; "e e" #'flycheck-explain-error-at-point
-      "c c" #'lsp-copilot-execute-code-action
-      "c f" #'lsp--format-buffer
-      "c F" #'apheleia-format-buffer)
+      ;; "c c" #'lsp-copilot-execute-code-action
+      "c c" #'my/lsp-execute-code-action
+      "c e" #'lsp-copilot-execute-command
+      "c f" #'my/lsp-format-buffer)
 
 ;; company
 (map! (:after company
@@ -557,8 +557,10 @@ Operate on selected region on whole buffer."
   (json-read-from-string (json-encode table)))
 
 (use-package! treesit)
-(setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
-(setq auto-mode-alist (delete '("\\.rs\\'" . rust-mode) auto-mode-alist))
+(after! rust-ts-mode
+  (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
+  (setq auto-mode-alist (delete '("\\.rs\\'" . rust-mode) auto-mode-alist)))
+
 (use-package! treesit-auto
   :config
   ;; (defadvice! +treesit-auto--remap-language-source (language-source)
@@ -680,7 +682,11 @@ Operate on selected region on whole buffer."
 (setq plantuml-exec-mode 'jar)
 (setq plantuml-output-type "png")
 
-(defun clear-doom-large-file-p ()
+(defun toggle-so-long-mode ()
   "Clear."
   (interactive)
-  (setq-local doom-large-file-p nil))
+  (setq-local doom-large-file-p nil)
+  (revert-buffer))
+
+(setq lsp-signature-function 'lsp-signature-posframe)
+;; (setq lsp-signature-auto-activate)

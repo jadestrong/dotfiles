@@ -624,5 +624,43 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
                y))
           )
     ;; (message "width %s height %s" width height)
-    (set-frame-position frame x (max y 10))
+    ;; (message "x %s y %s box-x %s box-y %s" x y (car box-position) (cdr box-position))
+    (set-frame-position frame x (if (< y 0) (+ y (cdr box-position)) (max y 10)))
     (set-frame-size frame (if (= x (car box-position)) (- box-width scrollbar-width) width) (if (< y (cdr box-position)) (min height (- (cdr box-position) 100)) height) t)))
+
+;; https://github.com/alexluigit/dirvish/pull/251
+(defadvice! +dirvish--mode-line-fmt-setter (left right &optional header)
+  :override #'dirvish--mode-line-fmt-setter
+  (cl-labels ((expand (segments)
+                (cl-loop for s in segments collect
+                         (if (stringp s) s
+                           `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr))))))
+              (get-font-scale ()
+                (let* ((face (if header 'header-line 'mode-line-inactive))
+                       (defualt (face-attribute 'default :height))
+                       (ml-height (face-attribute face :height)))
+                  (cond ((floatp ml-height) ml-height)
+                        ((integerp ml-height) (/ (float ml-height) defualt))
+                        (t 1)))))
+    `((:eval
+       (let* ((dv (dirvish-curr))
+              (buf (and (car (dv-layout dv)) (cdr (dv-index dv))))
+              (scale ,(get-font-scale))
+              (win-width (floor (/ (window-width) scale)))
+              (str-l (format-mode-line
+                      ',(or (expand left) mode-line-format) nil nil buf))
+              (str-r (format-mode-line ',(expand right) nil nil buf))
+              (len-r (string-width str-r)))
+         (concat
+          (dirvish--bar-image (car (dv-layout dv)) ,header)
+          (if (< (+ (string-width str-l) len-r) win-width)
+              str-l
+            (let ((trim (1- (- win-width len-r))))
+              (if (>= trim 0)
+                  (substring str-l 0 (min trim (1- (length str-l))))
+                "")))
+          (propertize
+           " " 'display
+           `((space :align-to (- (+ right right-fringe right-margin)
+                                 ,(ceiling (* scale (string-width str-r)))))))
+          str-r))))))
