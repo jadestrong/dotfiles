@@ -199,14 +199,14 @@
    Otherwise, uses `+format/buffer'."
   (interactive)
   (cond
-   (lsp-copilot-mode (lsp-copilot-format-buffer))
-   (lsp-mode (lsp-format-buffer))
-   (t (+format/buffer))))
+   (lsp-copilot-mode (call-interactively #'lsp-copilot-format-buffer))
+   (lsp-mode (call-interactively #'lsp-format-buffer))
+   (t (call-interactively #'+format/buffer))))
 
 (defun my/lsp-execute-code-action ()
   (interactive)
-  (cond (lsp-copilot-mode (lsp-copilot-execute-code-action))
-        (lsp-mode (lsp-execute-code-action))))
+  (cond (lsp-copilot-mode (call-interactively #'lsp-copilot-execute-code-action))
+        (lsp-mode (call-interactively 'lsp-execute-code-action))))
 
 (map! :n [tab] (cmds! (and (modulep! :editor fold)
                            (save-excursion (end-of-line) (invisible-p (point))))
@@ -651,6 +651,9 @@ Operate on selected region on whole buffer."
   (add-hook! '(tsx-ts-mode-hook js-ts-mode-hook typescript-ts-mode-hook less-css-mode-hook web-mode-hook) #'lsp-copilot-mode)
   (set-lookup-handlers! 'lsp-copilot-mode
     :definition '(lsp-copilot-find-definition :async t)
+    :references '(lsp-copilot-find-references :async t)
+    :implementations '(lsp-copilot-find-implementations :async t)
+    :type-definition '(lsp-copilot-find-type-definition :async t)
     :documentation '(lsp-copilot-describe-thing-at-point :async t)))
 
 ;; (use-package! lspce
