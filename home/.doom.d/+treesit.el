@@ -40,16 +40,32 @@ instead of a plain '<' character (where it makes sense to)."
         (backward-char 2))
     (insert "<")))
 
+(defun check-spaces-and-slashes-forward ()
+  "Check if the characters from the current point to the first '>' are only spaces and slashes."
+  ;; (save-excursion
+    (let ((start (point)))
+      (message "start %s" (point))
+      (if (re-search-forward ">" nil t)
+          (let ((end (point)))
+            (message "?? %s" (buffer-substring-no-properties start end))
+            ;; (goto-char start)
+            (looking-back "^[ ]*/>$" start))
+        nil)))
+;; )
+
 (defun ts-mode--jsx-tag-convert-at-point-p ()
   "Internal function.
 Return t if a self-closing tag at point can be turned into an opening tag and a
 closing tag."
   (or
-   (when-let* ((current-named-node (treesit-node-at-pos :named))
-               (current-named-node-type (treesit-node-type current-named-node)))
-     ;; self-closing tags can be turned into regular tag sets
-     ;; (message "current-named %s" current-named-node-type)
-     (string= current-named-node-type "jsx_self_closing_element"))
+   (and
+    (when-let* ((current-named-node (treesit-node-at-pos :named))
+                (current-named-node-type (treesit-node-type current-named-node)))
+      ;; self-closing tags can be turned into regular tag sets
+      (message "current-named %s" current-named-node-type)
+      (string= current-named-node-type "jsx_self_closing_element"))
+    (save-excursion
+      (re-search-forward "[ \t]*\/?>" nil t)))
    (save-excursion
      ;; a "</>" string inserted via `tsx-mode-auto-tags' can be turned into
      ;; a set of JSX fragment tags
@@ -198,24 +214,24 @@ inserts `</>' and places the cursor inside the new tag."
         (t
          (let ((origin-comment-start comment-start)
                (origin-comment-end comment-end)
-               (node (treesit-node-at (point)))
+               (node (treesit-node-at (if (region-active-p) (mark) (line-end-position))))
                (matched nil))
            (while (and node (not matched))
-             (setq node (treesit-node-parent node))
-             (when node
-               (let ((node-type (treesit-node-type node)))
-                 ;; (message "node-type %s" node-type)
-                 (cond ((equal node-type "jsx_attribute")
+             ;; (setq node (treesit-node-parent node))
+             (let ((node-type (treesit-node-type node)))
+               ;; (message "node-type %s" node-type)
+               (cond ((equal node-type "jsx_attribute")
+                      (comment-region-default beg end arg)
+                      (setq matched t))
+                     ((equal node-type "jsx_element")
+                      (let ((comment-start "{/* ")
+                            (comment-end " */}"))
                         (comment-region-default beg end arg)
-                        (setq matched t))
-                       ((equal node-type "jsx_element")
-                        (let ((comment-start "{/* ")
-                              (comment-end " */}"))
-                          (comment-region-default beg end arg)
-                          (setq comment-start origin-comment-start)
-                          (setq comment-end origin-comment-end))
-                        (setq matched t))
-                       (t ())))))
+                        (setq comment-start origin-comment-start)
+                        (setq comment-end origin-comment-end))
+                      (setq matched t))
+                     (t ())))
+             (setq node (treesit-node-parent node)))
            (unless matched
              (comment-region-default beg end arg)))
          ;; (let ((origin-comment-start comment-start)
