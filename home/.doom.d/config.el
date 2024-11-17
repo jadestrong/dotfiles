@@ -51,11 +51,21 @@
       ;; company-lsp-copilot
       +lsp-company-backends '(company-capf :separate company-dabbrev)
       +company-backend-alist '((text-mode (:separate company-dabbrev company-yasnippet)) ;; company-ispell is annoying for `Start looking process...` in Chinese
+                               (web-mode (company-capf :separate company-dabbrev))
                                ;; company-lsp-copilot company-lsp-rocks
                                (prog-mode (company-capf :separate company-dabbrev)) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                ;; (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
+
+;; Large file optimize
+(setq-default bidi-display-reordering nil)
+(setq
+ bidi-inhibit-bpa t
+ long-line-threshold 1000
+ large-hscroll-threshold 1000
+ syntax-wholeline-max 1000)
+
 (after! company
   (setq company-abort-on-unique-match nil)
   (setq company-idle-delay 0)
@@ -457,27 +467,61 @@
           :host "api.moonshot.cn")))
 
 (use-package! lsp-copilot
-  :load-path "~/.doom.d/extensions/lsp-copilot"
   :config
   (set-popup-rule! "^\\*lsp-copilot-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
   (add-hook! '(
                tsx-ts-mode-hook
                js-ts-mode-hook
+               typescript-mode-hook
                typescript-ts-mode-hook
+               rjsx-mode-hook
                less-css-mode-hook web-mode-hook
                python-ts-mode-hook
+               rust-mode-hook
                rustic-mode-hook
                rust-ts-mode-hook
                toml-ts-mode-hook
                conf-toml-mode-hook
+               bash-ts-mode-hook
                ) #'lsp-copilot-mode)
-  (setq lsp-copilot--send-changes-idle-time 0)
   (set-lookup-handlers! 'lsp-copilot-mode
     :definition '(lsp-copilot-find-definition :async t)
     :references '(lsp-copilot-find-references :async t)
     :implementations '(lsp-copilot-find-implementations :async t)
     :type-definition '(lsp-copilot-find-type-definition :async t)
     :documentation '(lsp-copilot-describe-thing-at-point :async t)))
+;; (use-package! lsp-copilot
+;;   :load-path "~/.doom.d/extensions/lsp-copilot"
+;;   :config
+;;   (setq lsp-copilot-log-level 3)
+;;   (set-popup-rule! "^\\*lsp-copilot-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
+;;   (add-hook! '(
+;;                tsx-ts-mode-hook
+;;                js-ts-mode-hook
+;;                typescript-mode-hook
+;;                typescript-ts-mode-hook
+;;                rjsx-mode-hook
+;;                less-css-mode-hook web-mode-hook
+;;                python-ts-mode-hook
+;;                rust-mode-hook
+;;                rustic-mode-hook
+;;                rust-ts-mode-hook
+;;                toml-ts-mode-hook
+;;                conf-toml-mode-hook
+;;                bash-ts-mode-hook
+;;                ) #'lsp-copilot-mode)
+;;   (setq lsp-copilot--send-changes-idle-time 0)
+;;   (set-lookup-handlers! 'lsp-copilot-mode
+;;     :definition '(lsp-copilot-find-definition :async t)
+;;     :references '(lsp-copilot-find-references :async t)
+;;     :implementations '(lsp-copilot-find-implementations :async t)
+;;     :type-definition '(lsp-copilot-find-type-definition :async t)
+;;     :documentation '(lsp-copilot-describe-thing-at-point :async t)))
+
+(use-package! aider
+  :config
+  (setq aider-args '("--deepseek"))
+  (setenv "DEEPSEEK_API_KEY" "sk-8fa07a35343f477f94a47294e616d398"))
 
 ;; utils
 
