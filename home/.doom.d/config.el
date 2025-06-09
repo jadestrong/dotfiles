@@ -48,15 +48,17 @@
       ;; +lsp-company-backends '(company-capf :with company-tabnine :separate)
       ;; +lsp-company-backends '(company-capf company-yasnippet :with company-tabnine :separate)
       ;; +lsp-company-backends '(:separate company-tabnine-capf)
-      ;; company-lsp-copilot
+      ;; company-lsp-proxy
       +lsp-company-backends '(company-capf :separate company-dabbrev)
       +company-backend-alist '((text-mode (:separate company-dabbrev company-yasnippet)) ;; company-ispell is annoying for `Start looking process...` in Chinese
                                (web-mode (company-capf :separate company-dabbrev))
-                               ;; company-lsp-copilot company-lsp-rocks
                                (prog-mode (company-capf :separate company-dabbrev)) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
-                               ;; (prog-mode company-capf) ;;  company-yasnippet 指定 prog-mode 使用 company-tabnine-capf ，使用 rust-analyzer 服务时这个通过 +lsp-company-backend 指定的后端 revert buffer 后总是会被这个配置的值覆盖
                                (conf-mode company-capf company-dabbrev-code company-yasnippet))
       )
+
+(setq shell-file-name (executable-find "bash"))
+(setq-default vterm-shell (executable-find "fish"))
+(setq-default explicit-shell-file-name (executable-find "fish"))
 
 ;; Large file optimize
 (setq-default bidi-display-reordering nil)
@@ -79,7 +81,9 @@
   (setq global-corfu-minibuffer nil)
   (setq corfu-auto-delay 0)
   (setq corfu-preselect 'first)
-  (setq corfu-preview-current nil))
+  (setq corfu-preview-current nil)
+  (advice-add #'lsp-proxy-completion-at-point :around #'cape-wrap-noninterruptible)
+  (advice-add #'lsp-proxy-completion-at-point :around #'cape-wrap-nonexclusive))
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay '(0.1 . 0.1)))
 
@@ -161,6 +165,10 @@
         ;; transient-values '((magit-rebase "--autosquash"))
         ))
 
+;; doomemacs/doomemacs#6261
+(after! web-mode
+  (set-company-backend! 'web-mode '(company-capf :separate company-dabbrev)))
+
 (after! editorconfig
   ;; Add support doomemacs's typescript-tsx-mode
   (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode
@@ -177,14 +185,14 @@
                                                  typescript-indent-level)))
 
 (after! company-box
-  (defun company-box-icons--lsp-copilot (candidate)
-    (-when-let* ((copilot-item (get-text-property 0 'lsp-copilot--item candidate))
+  (defun company-box-icons--lsp-proxy (candidate)
+    (-when-let* ((copilot-item (get-text-property 0 'lsp-proxy--item candidate))
                  (lsp-item (plist-get copilot-item :item))
                  (kind-num (plist-get lsp-item :kind)))
       (alist-get kind-num company-box-icons--lsp-alist)))
 
   (setq company-box-icons-functions
-        (cons #'company-box-icons--lsp-copilot company-box-icons-functions)))
+        (cons #'company-box-icons--lsp-proxy company-box-icons-functions)))
 
 
 ;;; :lang org
@@ -227,19 +235,20 @@
 ;;; Keybinds
 (defun my/lsp-format-buffer ()
   "Formats the current buffer based on the current mode.
-   If in `lsp-copilot-mode', uses `lsp-copilot-format-buffer'.
+   If in `lsp-proxy-mode', uses `lsp-proxy-format-buffer'.
    If in `lsp-mode', uses `lsp-format-buffer'.
    Otherwise, uses `+format/buffer'."
   (interactive)
   (cond
-   (lsp-copilot-mode (call-interactively #'lsp-copilot-format-buffer))
-   (lsp-mode (call-interactively #'lsp-format-buffer))
+   (lsp-proxy-mode (call-interactively #'lsp-proxy-format-buffer))
+   ;; (lsp-mode (call-interactively #'lsp-format-buffer))
    (t (call-interactively #'+format/buffer))))
 
 (defun my/lsp-execute-code-action ()
   (interactive)
-  (cond (lsp-copilot-mode (call-interactively #'lsp-copilot-execute-code-action))
-        (lsp-mode (call-interactively 'lsp-execute-code-action))))
+  (cond (lsp-proxy-mode (call-interactively #'lsp-proxy-execute-code-action))
+        ;; (lsp-mode (call-interactively 'lsp-execute-code-action))
+        ))
 
 (map! :n [tab] (cmds! (and (modulep! :editor fold)
                            (save-excursion (end-of-line) (invisible-p (point))))
@@ -258,6 +267,7 @@
       :n "M-p" #'evil-scroll-page-up
       :n "M-i" #'switch-to-prev-buffer
       :n "M-o" #'switch-to-next-buffer
+      :n "m m" #'better-jumper-set-jump
       ;; avy
       :g "M-g g" #'avy-goto-line
       :g "M-g M-g" #'avy-goto-line
@@ -266,6 +276,10 @@
       :g "M-p" #'evil-scroll-page-up
       :g "M-n" #'evil-scroll-page-down
       :g "M-f" #'forward-char
+      :g "M-=" #'er/expand-region
+      :g "M-," #'gptel-send
+      :g "M-;" #'gptel-menu
+      :g "M-l" #'my/gptel-find-chat
 
       :g "C-c C-a" #'mc/mark-all-like-this
       :leader
@@ -275,11 +289,16 @@
       ";" #'counsel-M-x
       ;; ":" #'pp-eval-expression
       ;; "e e" #'flycheck-explain-error-at-point
-      ;; "c c" #'lsp-copilot-execute-code-action
+      ;; "c c" #'lsp-proxy-execute-code-action
       "c c" #'my/lsp-execute-code-action
-      "c e" #'lsp-copilot-execute-command
+      "c e" #'lsp-proxy-execute-command
       "c f" #'my/lsp-format-buffer
-      "c F" #'+format/buffer)
+      "c F" #'+format/buffer
+      "c r" #'lsp-proxy-rename
+      "c b" #'aider-transient-menu
+      "a g" #'gptel
+      "a s" #'gptel-send
+      "a m" #'gptel-menu)
 
 ;; company
 (map! (:after company
@@ -456,45 +475,64 @@
 
 (use-package! gptel
   :config
-  (setq gptel-model "moonshot-v1-8k")
-  (setq gptel-default-mode 'org-mode)
-  (setq gptel-backend
-        (gptel-make-openai "Moonshot"
-          :key 'gptel-api-key
-          :models '("moonshot-v1-8k"
-                    "moonshot-v1-32k"
-                    "moonshot-v1-128k")
-          :host "api.moonshot.cn")))
+  (setq gptel-model 'deepseek-chat)
+  ;; (setq gptel-model "moonshot-v1-8k")
+  (setq gptel-default-mode 'markdown-mode)
+  (setq gptel-log-level nil)
+  (setq gptel-backend (gptel-make-openai "DeepSeek"
+    :key 'gptel-api-key
+    :host "api.deepseek.com"
+    :endpoint "/chat/completions"
+    :stream t
+    :models '(deepseek-chat deepseek-coder)))
+  (defun my/gptel-find-chat (&optional arg)
+    "Creat new chat. with ARG, find previous chat."
+    (interactive "P")
+    (find-file
+     (if arg
+         (completing-read
+          "Choose chat: "
+          (cl-remove-if
+           (lambda (x) (member x '("." "..")))
+           (directory-files (locate-user-emacs-file "mind-wave") t "\\.chat\\'")))
+       (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
+    (markdown-mode)
+    (gptel-mode))
 
-(use-package! lsp-copilot
+  ;; (setq gptel-backend
+  ;;       (gptel-make-openai "Doubao"
+  ;;         :key 'gptel-api-key
+  ;;         :models '("Doubao-pro-32k" "ep-20250115145004-k4jsr" "ep-20250115172533-ztbwr")
+  ;;         :host "ark-cn-beijing.bytedance.net"
+  ;;         :stream t
+  ;;         :endpoint "/api/v3/chat/completions")
+  ;;       ;; (gptel-make-openai "Moonshot"
+  ;;       ;;   :key 'gptel-api-key
+  ;;       ;;   :models '("moonshot-v1-8k"
+  ;;       ;;             "moonshot-v1-32k"
+  ;;       ;;             "moonshot-v1-128k")
+  ;;       ;;   :host "api.moonshot.cn")
+  ;;       )
+  )
+
+(use-package! magit-gptcommit
+  :demand t
+  :after gptel magit
   :config
-  (set-popup-rule! "^\\*lsp-copilot-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
-  (add-hook! '(
-               tsx-ts-mode-hook
-               js-ts-mode-hook
-               typescript-mode-hook
-               typescript-ts-mode-hook
-               rjsx-mode-hook
-               less-css-mode-hook web-mode-hook
-               python-ts-mode-hook
-               rust-mode-hook
-               rustic-mode-hook
-               rust-ts-mode-hook
-               toml-ts-mode-hook
-               conf-toml-mode-hook
-               bash-ts-mode-hook
-               ) #'lsp-copilot-mode)
-  (set-lookup-handlers! 'lsp-copilot-mode
-    :definition '(lsp-copilot-find-definition :async t)
-    :references '(lsp-copilot-find-references :async t)
-    :implementations '(lsp-copilot-find-implementations :async t)
-    :type-definition '(lsp-copilot-find-type-definition :async t)
-    :documentation '(lsp-copilot-describe-thing-at-point :async t)))
-;; (use-package! lsp-copilot
-;;   :load-path "~/.doom.d/extensions/lsp-copilot"
+  ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
+  ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
+  ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
+  ;; (magit-gptcommit-mode 1)
+
+  ;; Add gptcommit transient commands to `magit-commit'
+  ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
+  (magit-gptcommit-status-buffer-setup)
+  :bind (:map git-commit-mode-map
+              ("C-c C-g" . magit-gptcommit-commit-accept)))
+
+;; (use-package! lsp-proxy
 ;;   :config
-;;   (setq lsp-copilot-log-level 3)
-;;   (set-popup-rule! "^\\*lsp-copilot-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
+;;   (set-popup-rule! "^\\*lsp-proxy-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
 ;;   (add-hook! '(
 ;;                tsx-ts-mode-hook
 ;;                js-ts-mode-hook
@@ -509,19 +547,78 @@
 ;;                toml-ts-mode-hook
 ;;                conf-toml-mode-hook
 ;;                bash-ts-mode-hook
-;;                ) #'lsp-copilot-mode)
-;;   (setq lsp-copilot--send-changes-idle-time 0)
-;;   (set-lookup-handlers! 'lsp-copilot-mode
-;;     :definition '(lsp-copilot-find-definition :async t)
-;;     :references '(lsp-copilot-find-references :async t)
-;;     :implementations '(lsp-copilot-find-implementations :async t)
-;;     :type-definition '(lsp-copilot-find-type-definition :async t)
-;;     :documentation '(lsp-copilot-describe-thing-at-point :async t)))
-
-(use-package! aider
+;;                ) #'lsp-proxy-mode)
+;;   (set-lookup-handlers! 'lsp-proxy-mode
+;;     :definition '(lsp-proxy-find-definition :async t)
+;;     :references '(lsp-proxy-find-references :async t)
+;;     :implementations '(lsp-proxy-find-implementations :async t)
+;;     :type-definition '(lsp-proxy-find-type-definition :async t)
+;;     :documentation '(lsp-proxy-describe-thing-at-point :async t)))
+(use-package! lsp-proxy
+  :load-path "~/.doom.d/extensions/lsp-proxy"
   :config
-  (setq aider-args '("--deepseek"))
-  (setenv "DEEPSEEK_API_KEY" "sk-8fa07a35343f477f94a47294e616d398"))
+  (setq lsp-proxy-log-level 1)
+  (setq lsp-proxy-log-max 0)
+  (set-popup-rule! "^\\*lsp-proxy-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
+  (add-hook! '(
+               tsx-ts-mode-hook
+               js-ts-mode-hook
+               typescript-mode-hook
+               typescript-ts-mode-hook
+               rjsx-mode-hook
+               less-css-mode-hook web-mode-hook
+               python-mode-hook
+               python-ts-mode-hook
+               rust-mode-hook
+               rustic-mode-hook
+               rust-ts-mode-hook
+               toml-ts-mode-hook
+               conf-toml-mode-hook
+               bash-ts-mode-hook
+               dart-mode-hook
+               json-mode-hook
+               json-ts-mode-hook
+               ruby-ts-mode-hook
+               ) #'lsp-proxy-mode)
+  (setq lsp-proxy-inlay-hints-mode-config '(rust-mode rust-ts-mode tsx-ts-mode typescript-ts-mode))
+  ;; (add-hook! '(rust-mode-hook rust-ts-mode-hook) #'lsp-proxy-inlay-hints-mode)
+  (setq lsp-proxy--send-changes-idle-time 0)
+  (setq lsp-proxy-diagnostics-provider :auto)
+  (set-lookup-handlers! 'lsp-proxy-mode
+    :definition '(lsp-proxy-find-definition :async t)
+    :references '(lsp-proxy-find-references :async t)
+    :implementations '(lsp-proxy-find-implementations :async t)
+    :type-definition '(lsp-proxy-find-type-definition :async t)
+    :documentation '(lsp-proxy-describe-thing-at-point :async t)))
+
+(use-package! demo
+  :load-path "~/.doom.d/extensions/demo-jsonrpc")
+
+;; (use-package eglot-lsp-proxy
+;;   :load-path "~/.doom.d/extensions/eglot-lsp-proxy"
+;;   :after eglot
+;;   :config (eglot-proxy-mode))
+
+;; (use-package! tokio-jsonrpc
+;;   :load-path "~/.doom.d/extensions/tokio-jsonrpc-demo")
+
+;; (use-package! tabnine
+;;   :hook (
+;;          ;; (prog-mode . tabnine-mode)
+;; 	 (kill-emacs . tabnine-kill-process))
+;;   :config
+;;   (add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
+;;   (tabnine-start-process)
+;;   :bind
+;;   (:map  tabnine-completion-map
+;; 	 ("<tab>" . tabnine-accept-completion)
+;; 	 ("TAB" . tabnine-accept-completion)
+;; 	 ("M-f" . tabnine-accept-completion-by-word)
+;; 	 ("M-<return>" . tabnine-accept-completion-by-line)
+;; 	 ("C-g" . tabnine-clear-overlay)
+;; 	 ("M-[" . tabnine-previous-completion)
+;; 	 ("M-]" . tabnine-next-completion)))
+
 
 ;; utils
 

@@ -16,3 +16,6 @@
 [submodule "md-preview"]
 	path = home/.doom.d/extensions/md-preview
 	url = https://github.com/jadestrong/md-preview.git
+[submodule "lsp-copilot"]
+	path = home/.doom.d/extensions/lsp-copilot
+	url = https://github.com/jadestrong/lsp-copilot.git

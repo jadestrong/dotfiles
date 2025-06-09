@@ -21,6 +21,7 @@ alias pip "pip3"
 set -gx EDITOR "emacsclient -c -a emacs"
 set -gx LANG en_US.UTF-8
 
+set -gx PATH (brew --prefix ruby)/bin $PATH
 set -gx PATH ~/.emacs.d/bin $PATH # doom command
 set -gx PATH ~/.cargo/bin $PATH # rust
 set -gx PATH /Applications/Firefox.app/Contents/MacOS $PATH
@@ -31,10 +32,15 @@ set -gx PATH /usr/local/Cellar/universal-ctags/HEAD-c436bca/bin $PATH # must bel
 set -gx PATH /opt/homebrew/opt/openjdk/bin $PATH
 set -gx PATH ~/.bun/bin $PATH
 set -gx PATH /Users/bytedance/Library/Python/3.10/bin $PATH
+set -gx PATH ~/Documents/Github/flutter/bin $PATH
 set -x DENO_INSTALL /Users/bytedance/.deno
 set -gx PATH $DENO_INSTALL/bin $PATH
 set -g fish_user_paths "/usr/local/opt/luajit-openresty/bin" $fish_user_paths
-set -x IBRARY_PATH (brew --prefix)/lib
+set -x LIBRARY_PATH /opt/homebrew/Cellar/gcc/14.2.0_1/lib/gcc/14/gcc/aarch64-apple-darwin23/14
+set -x LIBRARY_PATH (brew --prefix)/lib $LIBRARY_PATH
+# set -x PATH /Applications/Emacs.app/Contents/MacOS/bin $PATH
+
+set -gx NODE_OPTIONS "--max-old-space-size=10240"
 
 [ -f /opt/homebrew/Cellar/autojump/22.5.3_3/share/autojump/autojump.fish ]; and source /opt/homebrew/Cellar/autojump/22.5.3_3/share/autojump/autojump.fish
 # starship init fish | source
@@ -91,3 +97,15 @@ if not string match -q -- $PNPM_HOME $PATH
   set -gx PATH "$PNPM_HOME" $PATH
 end
 # pnpm end
+
+# Created by `pipx` on 2024-08-16 03:00:29
+set PATH $PATH /Users/bytedance/.local/bin
+
+# if test -d "/Applications/Emacs.app/Contents/MacOS/bin"
+#     set -x PATH "/Applications/Emacs.app/Contents/MacOS/bin" $PATH
+#     alias emacs="emacs -nw" # Always launch "emacs" in terminal mode.
+# end
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init2.fish 2>/dev/null || :
