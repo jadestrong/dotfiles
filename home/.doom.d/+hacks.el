@@ -664,3 +664,12 @@ This will break if run in terminal mode, so use conditional to only run for GUI.
            `((space :align-to (- (+ right right-fringe right-margin)
                                  ,(ceiling (* scale (string-width str-r)))))))
           str-r))))))
+
+(defadvice! +evilmi-simple-jump (orig-fn info num)
+  "In tsx-ts-mode it does NOT work properly between {}
+when jsx element include {() => {}} attribute."
+  :around #'evilmi-simple-jump
+  (if (and (memq major-mode '(tsx-ts-mode))
+           (functionp 'evil-jump-item))
+      (funcall 'evil-jump-item)
+    (funcall orig-fn info num)))

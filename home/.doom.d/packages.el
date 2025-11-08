@@ -19,23 +19,30 @@
 ;; (package! emacsql-sqlite-builtin)
 ;; (unpin! (:completion company) (:completion corfu) (:editor evil))
 ;; (package! xwwp :recipe (:host github :repo "canatella/xwwp"))
-(package! jsdoc :recipe (:host github :repo "isamert/jsdoc.el"))
 (package! vimrc-mode)
 (package! tide :disable t)
+(package! company-sourcekit :disable t)
 (package! olivetti :recipe (:host github :repo "rnkn/olivetti"))
 (package! treesit-auto :recipe (:host github :repo "renzmann/treesit-auto"))
-(package! gptel)
 
-;; (package! aider :recipe (:host github :repo "tninja/aider.el" :files ("*.el")))
-(package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs" :files ("*.el")))
-(package! ivy-xref :recipe (:host github :repo "jdormit/ivy-xref"))
-
-(package! magit-gitcommit :recipe (:host github :repo "douo/magit-gptcommit" :branch "gptel" :files ("*.el")))
-
-;; (package! lsp-copilot :recipe (:host github :repo "jadestrong/lsp-copilot"
-;;                 :files ("lsp-copilot.el" "lsp-copilot")
-;;                 :pre-build (("cargo" "build" "--release") ("cp" "./target/release/lsp-copilot" "./"))))
+;; (package! ivy-xref :recipe (:host github :repo "jdormit/ivy-xref"))
 
 ;; (package! tabnine)
-(package! copilot
-  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
+;; (package! copilot
+;;   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
+
+(package! claude-code :recipe (:host github :repo "stevemolitor/claude-code.el"
+                               :files ("*.el" (:exclude "images/*"))))
+
+(when (modulep! :tools magit +forge)
+  (unpin! code-review)
+  (package! code-review
+    :recipe (:host github
+             :repo "jadestrong/code-review"
+             :files ("graphql" "code-review*.el"))
+    :pin "498d5a9d3fae39e9111db37d961db676c501059c"
+    ;; ...code-review depends on forge
+    :disable (version< emacs-version "29.1")))
+
+(package! expreg)
+

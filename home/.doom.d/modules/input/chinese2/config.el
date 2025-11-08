@@ -14,11 +14,12 @@
     ("C-`" . #'rime-send-keybinding))
   :custom
   (default-input-method "rime")
-  (rime-emacs-module-header-root "/opt/homebrew/Cellar/emacs-plus@30/30.1/include")
+  (rime-emacs-module-header-root "/Applications/Emacs.app/Contents/Resources/include")
   ;; (rime-librime-root "~/.doom.d/librime/dist")
   (rime-inline-ascii-trigger 'shift-l)
   (rime-show-candidate 'posframe)
-  (rime-librime-root "/opt/homebrew/opt/librime")
+  (rime-librime-root "/opt/homebrew")
+  ;; (rime-librime-root "/opt/homebrew/opt/librime")
   ;; (rime-user-data-dir "~/Library/Rime")
   :config
   ;; and (display-graphic-p)

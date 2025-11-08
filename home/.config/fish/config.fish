@@ -21,29 +21,37 @@ alias pip "pip3"
 set -gx EDITOR "emacsclient -c -a emacs"
 set -gx LANG en_US.UTF-8
 
+set -gx PATH /opt/homebrew/sbin $PATH
 set -gx PATH (brew --prefix ruby)/bin $PATH
 set -gx PATH ~/.emacs.d/bin $PATH # doom command
 set -gx PATH ~/.cargo/bin $PATH # rust
-set -gx PATH /Applications/Firefox.app/Contents/MacOS $PATH
 set -gx PATH ~/bin $PATH # system
 set -gx PATH (yarn global bin) $PATH
 set -gx PATH /usr/local/opt/make/libexec/gunbin $PATH
-set -gx PATH /usr/local/Cellar/universal-ctags/HEAD-c436bca/bin $PATH # must below nix.sh, it need override ctags from nix emacs
-set -gx PATH /opt/homebrew/opt/openjdk/bin $PATH
-set -gx PATH ~/.bun/bin $PATH
-set -gx PATH /Users/bytedance/Library/Python/3.10/bin $PATH
-set -gx PATH ~/Documents/Github/flutter/bin $PATH
-set -x DENO_INSTALL /Users/bytedance/.deno
-set -gx PATH $DENO_INSTALL/bin $PATH
+set -gx PATH /Applications/WezTerm.app/Contents/MacOS $PATH
 set -g fish_user_paths "/usr/local/opt/luajit-openresty/bin" $fish_user_paths
-set -x LIBRARY_PATH /opt/homebrew/Cellar/gcc/14.2.0_1/lib/gcc/14/gcc/aarch64-apple-darwin23/14
-set -x LIBRARY_PATH (brew --prefix)/lib $LIBRARY_PATH
-# set -x PATH /Applications/Emacs.app/Contents/MacOS/bin $PATH
+
+set -e LIBRARY_PATH
+set -e CFLAGS
+set -e LDFLAGS
+
+set -l brew_prefix (brew --prefix)
+set -l libgccjit_prefix (brew --prefix libgccjit)
+set -l libmps_prefix (brew --prefix libmps)
+
+set -gx LIBRARY_PATH "$libgccjit_prefix/lib/gcc/15" "$libgccjit_prefix/lib/gcc/current" "$brew_prefix/lib"
+set -gx CPPFLAGS "-I$libgccjit_prefix/include -I$libmps_prefix/include"
+set -gx LDFLAGS "-L$libgccjit_prefix/lib/gcc/15 -L$libgccjit_prefix/lib/gcc/current -L$libmps_prefix/lib"
+
+set -gx PKG_CONFIG_PATH "$brew_prefix/lib/pkgconfig"
+
 
 set -gx NODE_OPTIONS "--max-old-space-size=10240"
 
 [ -f /opt/homebrew/Cellar/autojump/22.5.3_3/share/autojump/autojump.fish ]; and source /opt/homebrew/Cellar/autojump/22.5.3_3/share/autojump/autojump.fish
-# starship init fish | source
+
+# alias cnpm "npm --registry=https://registry.npmmirror.com --cache=$HOME/.npm/.cache/cnpm --disturl=https://npmmirror.com/mirrors/node --userconfig=$HOME/.cnpmrc"
+alias tnpm "npm --registry=https://registry.npmmirror.com --cache=$HOME/.npm/.cache/cnpm --disturl=https://npmmirror.com/mirrors/node --userconfig=$HOME/.cnpmrc"
 
 # NVM
 function __check_rvm --on-variable PWD --description 'Do nvm stuff'
@@ -92,18 +100,17 @@ set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
 # pnpm
-set -gx PNPM_HOME "/Users/bytedance/Library/pnpm"
+set -gx PNPM_HOME "/Users/zhangyuqiang/Library/pnpm"
 if not string match -q -- $PNPM_HOME $PATH
   set -gx PATH "$PNPM_HOME" $PATH
 end
 # pnpm end
 
 # Created by `pipx` on 2024-08-16 03:00:29
-set PATH $PATH /Users/bytedance/.local/bin
+set PATH $PATH /Users/zhangyuqiang/.local/bin
 
 # if test -d "/Applications/Emacs.app/Contents/MacOS/bin"
 #     set -x PATH "/Applications/Emacs.app/Contents/MacOS/bin" $PATH
-#     alias emacs="emacs -nw" # Always launch "emacs" in terminal mode.
 # end
 
 # Added by OrbStack: command-line tools and integration

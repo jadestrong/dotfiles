@@ -152,15 +152,15 @@
     (setq +format-with-lsp (not +format-with-lsp))))
 
 (after! rustic
-  (setq rustic-analyzer-command '("/Users/bytedance/.vscode/extensions/rust-lang.rust-analyzer-0.3.2078-darwin-arm64/server/rust-analyzer"))
+  (setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.2078-darwin-arm64/server/rust-analyzer"))
   ;; Disable it only for rust buffers - doc not auto display in mini buffer
   (setq-hook! 'rustic-mode-hook lsp-signature-auto-activate nil))
 
-(setq treesit-extra-load-path '("/Users/bytedance/Documents/Github/tree-sitter-module/dist"))
+(setq treesit-extra-load-path '("~/Documents/Github/tree-sitter-module/dist"))
 
 ;; disalbe magit-diff to highlight the chunk of removed and added
 (after! magit
-  (setq magit-diff-refine-hunk nil)
+  (setq magit-diff-refine-hunk t)
   (setq magit-inhibit-save-previous-winconf t
         ;; transient-values '((magit-rebase "--autosquash"))
         ))
@@ -250,55 +250,55 @@
         ;; (lsp-mode (call-interactively 'lsp-execute-code-action))
         ))
 
-(map! :n [tab] (cmds! (and (modulep! :editor fold)
-                           (save-excursion (end-of-line) (invisible-p (point))))
-                      #'+fold/toggle
-                      (fboundp 'evil-jump-item)
-                      #'evil-jump-item)
-      :v [tab] (cmds! (and (bound-and-true-p yas-minor-mode)
-                           (or (eq evil-visual-selection 'line)
-                               (not (memq (char-after) (list ?\( ?\[ ?\{ ?\} ?\] ?\))))))
-                      #'yas-insert-snippet
-                      (fboundp 'evil-jump-item)
-                      #'evil-jump-item)
-      :n "[ e" #'flycheck-previous-error
-      :n "] e" #'flycheck-next-error
-      :n "M-n" #'evil-scroll-page-down
-      :n "M-p" #'evil-scroll-page-up
-      :n "M-i" #'switch-to-prev-buffer
-      :n "M-o" #'switch-to-next-buffer
-      :n "m m" #'better-jumper-set-jump
-      ;; avy
-      :g "M-g g" #'avy-goto-line
-      :g "M-g M-g" #'avy-goto-line
-      :g "M-]" #'+workspace/switch-right
-      :g "M-[" #'+workspace/switch-left
-      :g "M-p" #'evil-scroll-page-up
-      :g "M-n" #'evil-scroll-page-down
-      :g "M-f" #'forward-char
-      :g "M-=" #'er/expand-region
-      :g "M-," #'gptel-send
-      :g "M-;" #'gptel-menu
-      :g "M-l" #'my/gptel-find-chat
+(map!
+ ;; :n [tab] (cmds! (and (modulep! :editor fold)
+ ;;                           (save-excursion (end-of-line) (invisible-p (point))))
+ ;;                      #'+fold/toggle
+ ;;                      (bound-and-true-p code-review-mode)
+ ;;                      #'magit-section-toggle
+ ;;                      (fboundp 'evil-jump-item)
+ ;;                      #'evil-jump-item)
+ :v [tab] (cmds! (and (bound-and-true-p yas-minor-mode)
+                      (or (eq evil-visual-selection 'line)
+                          (not (memq (char-after) (list ?\( ?\[ ?\{ ?\} ?\] ?\))))))
+                 #'yas-insert-snippet
+                 (fboundp 'evil-jump-item)
+                 #'evil-jump-item)
+ :n "[ e" #'flycheck-previous-error
+ :n "] e" #'flycheck-next-error
+ :n "M-n" #'evil-scroll-page-down
+ :n "M-p" #'evil-scroll-page-up
+ :n "M-i" #'switch-to-prev-buffer
+ :n "M-o" #'switch-to-next-buffer
+ :n "m m" #'better-jumper-set-jump
+ ;; avy
+ :g "M-g g" #'avy-goto-line
+ :g "M-g M-g" #'avy-goto-line
+ :g "M-]" #'+workspace/switch-right
+ :g "M-[" #'+workspace/switch-left
+ :g "M-p" #'evil-scroll-page-up
+ :g "M-n" #'evil-scroll-page-down
+ :g "M-f" #'forward-char
+ :g "M-=" #'expreg-expand
+ :g "M-," #'gptel-send
+ :g "M-;" #'gptel-menu
+ :g "M-l" #'my/gptel-find-chat
+ :g "M-c" #'ignore
 
-      :g "C-c C-a" #'mc/mark-all-like-this
-      :leader
-      "w w" #'ace-window
-      "w 1" #'delete-other-windows
-      "w 0" #'+workspace/close-window-or-workspace
-      ";" #'counsel-M-x
-      ;; ":" #'pp-eval-expression
-      ;; "e e" #'flycheck-explain-error-at-point
-      ;; "c c" #'lsp-proxy-execute-code-action
-      "c c" #'my/lsp-execute-code-action
-      "c e" #'lsp-proxy-execute-command
-      "c f" #'my/lsp-format-buffer
-      "c F" #'+format/buffer
-      "c r" #'lsp-proxy-rename
-      "c b" #'aider-transient-menu
-      "a g" #'gptel
-      "a s" #'gptel-send
-      "a m" #'gptel-menu)
+ :g "C-c C-a" #'mc/mark-all-like-this
+ :leader
+ "w w" #'ace-window
+ "w 1" #'delete-other-windows
+ "w 0" #'+workspace/close-window-or-workspace
+ ";" #'counsel-M-x
+ ;; ":" #'pp-eval-expression
+ ;; "e e" #'flycheck-explain-error-at-point
+ ;; "c c" #'lsp-proxy-execute-code-action
+ "c c" #'my/lsp-execute-code-action
+ "c e" #'lsp-proxy-execute-command
+ "c f" #'my/lsp-format-buffer
+ "c F" #'+format/buffer
+ "c r" #'lsp-proxy-rename)
 
 ;; company
 (map! (:after company
@@ -345,14 +345,43 @@
       (:map with-editor-mode-map :n "M-c M-c" #'with-editor-finish)
       (:map wdired-mode-map :n "M-c M-c" #'wdired-finish-edit))
 
+(map! :leader
+      (:prefix ("o" . "open")
+               (:prefix ("c" . "claude-code")
+                :desc "Start Claude" "c" #'claude-code
+                :desc "Start in directory" "d" #'claude-code-start-in-directory
+                :desc "Continue the previous one" "C" #'claude-code-continue
+                :desc "Resume a Claude session" "r" #'claude-code-resume
+                :desc "Create a new instance" "i" #'claude-code-new-instance
+                :desc "Kill session" "k" #'claude-code-kill
+                :desc "Kill all sessions" "K" #'claude-code-kill-all
+                :desc "Send command to Claude" "s" #'claude-code-send-command
+                :desc "Send file and line context" "x" #'claude-code-send-command-with-context
+                :desc "Send region to Claude" "r" #'claude-code-send-region
+                :desc "Send file to Claude" "o" #'claude-code-send-file
+                :desc "Fix the error at the point" "e" #'claude-code-fix-error-at-point
+                :desc "Fork conversation" "f" #'claude-code-fork
+                :desc "Access slash commands menu" "/" #'claude-code-slash-commands
+                :desc "Toggle Claude window" "t" #'claude-code-toggle
+                :desc "Swith to the Claude buffer" "b" #'claude-code-switch-to-buffer
+                :desc "Select and switch a buffer" "B" #'claude-code-select-buffer
+                :desc "Toggle read-only mode" "z" #'claude-code-toggle-read-only-mode
+                :desc "Send Shift-Tab key" "M" #'claude-code-cycle-mode
+                :desc "Send return key" "M" #'claude-code-send-return
+                :desc "Send escape key" "n" #'claude-code-send-escape
+                :desc "Send 1" "1" #'claude-code-send-1
+                :desc "Send 2" "2" #'claude-code-send-2
+                :desc "Send 3" "3" #'claude-code-send-3)
+               :desc "Open with VSCode" "v" #'open-with-vscode
+               :desc "Open with VSCode" "z" #'open-with-zed))
+
 ;;; Modules
 
 (after! ivy
   ;; I prefer search matching to be ordered; it's more precise
   (add-to-list 'ivy-re-builders-alist '(counsel-projectile-find-file . ivy--regex-plus)))
 
-(add-hook 'js-mode-hook 'js2-minor-mode)
-(advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
+;; (advice-add 'js--multi-line-declaration-indentation :around (lambda (orig-fun &rest args) nil))
 
 
 ;;; :lang web
@@ -392,6 +421,7 @@
               (list end 1) ; We are closer to the closing tag.
             (list start 0))) ; We are closer to the opening tag.
       nil)))
+
 (defun evilmi-jtsx-jump (info _num)
   "Jump to the pair tag poision."
   (let* ((tag-type (nth 1 info)))
@@ -402,13 +432,62 @@
       (jtsx-jump-jsx-closing-tag)))
     (point)))
 
-(use-package! evil-matchit-mode
+(defvar evilmi-tsx-treesit--bracket-pairs
+  '(("(" . ")")
+    ("{" . "}")
+    ("[" . "]")))
+
+(defun evilmi-tsx-treesit--on-bracket-p (node-type)
+  "Check if NODE-TYPE is a bracket character."
+  (member node-type '("(" ")" "{" "}" "[" "]")))
+
+(defun evilmi-tsx-treesit--match-bracket ()
+  "Return matching bracket position if on a bracket."
+  (cond
+   ((looking-at-p "[({\\[]")
+    (list (save-excursion (forward-sexp) (point)) 0))
+   ((looking-back "[)}\\]]" 1)
+    (list (save-excursion (backward-sexp) (point)) 0))
+   (t nil)))
+
+(defun evilmi-tsx-treesit--match-jsx-tag ()
+  "Return matching JSX tag position if inside JSX."
+  (when (jtsx-jsx-context-p)
+    (let ((enclosing (jtsx-enclosing-jsx-element-at-point)))
+      (when enclosing
+        (let ((start (treesit-node-start enclosing))
+              (end (treesit-node-end enclosing)))
+          (if (> (point) (+ start (/ (- end start) 2)))
+              (list end 1) ; closer to closing
+            (list start 0)))))))
+
+(defun evilmi-tsx-treesit-get-tag ()
+  "evil-matchit get-tag function for TSX."
+  (let* ((node (jtsx-treesit-node-at (point)))
+         (type (treesit-node-type node)))
+    (or
+     ;; 1. 括号优先
+     (when (evilmi-tsx-treesit--on-bracket-p type)
+       (evilmi-tsx-treesit--match-bracket))
+     ;; 2. JSX 标签
+     (evilmi-tsx-treesit--match-jsx-tag)
+     ;; 3. 无匹配
+     nil)))
+
+(defun evilmi-tsx-treesit-jump (info _num)
+  "evil-matchit jump function for TSX."
+  (goto-char (car info)))
+
+(use-package! evil-matchit
   :hook (web-mode html-mode tsx-ts-mode)
   :init
   (evilmi-load-plugin-rules '(web-mode) '(simple template html))
   (evilmi-load-plugin-rules '(html-mode) '(simple template html))
-  (evilmi-load-plugin-rules '(tsx-ts-mode) '(simple javascript jtsx html)))
-;; (setq evilmi-debug t)
+  (evilmi-load-plugin-rules '(tsx-ts-mode) '(simple javascript jtsx html))
+  :config
+  ;; (global-evil-matchit-mode 1)
+  )
+(setq evilmi-debug nil)
 
 ;;; Customize function
 (defun ediff-copy-both-to-C ()
@@ -433,58 +512,62 @@
 
 
 ;;; New packages
-(use-package! jsdoc)
-
 (use-package! olivetti
   :config
+  ;; https://www.npmjs.com/package/readability-cli
   (setq eww-retrieve-command '("readable"))
+  ;; (setq eww-retrieve-command nil)
   :hook (eww-mode . olivetti-mode))
 
 (use-package! vimrc-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
 
-(use-package! treesit)
-(use-package! rust-ts-mode
-  :mode ("\\.rs$" . rust-ts-mode))
+;; (use-package! treesit)
+;; (use-package! rust-ts-mode
+;;   :mode ("\\.rs$" . rust-ts-mode))
 
-(use-package! treesit-auto
-  :config
-  (setq my/js-tsauto-config
-        (make-treesit-auto-recipe
-         :lang 'javascript
-         :ts-mode 'js-ts-mode
-         :remap '(js2-mode rjsx-mode js-mode javascript-mode)
-         :url "https://github.com/tree-sitter/tree-sitter-javascript"
-         :revision "master"
-         :source-dir "src"))
-  (setq my/tsx-tsauto-config
-        (make-treesit-auto-recipe
-         :lang 'tsx
-         :ts-mode 'tsx-ts-mode
-         :remap 'typescript-tsx-mode
-         :url "https://github.com/tree-sitter/tree-sitter-typescript"
-         :revision "master"
-         :source-dir "tsx/src"))
-  (add-to-list 'treesit-auto-recipe-list my/js-tsauto-config)
-  (add-to-list 'treesit-auto-recipe-list my/tsx-tsauto-config)
-  ;; (delete 'rust treesit-auto-langs)
-  (global-treesit-auto-mode)
-  (advice-add 'treesit-install-language-grammar
-              :after (lambda (&rest _r) (treesit-auto-apply-remap))))
+;; (use-package! treesit-auto
+;;   :config
+;;   ;; (setq my/js-tsauto-config
+;;   ;;       (make-treesit-auto-recipe
+;;   ;;        :lang 'javascript
+;;   ;;        :ts-mode 'js-ts-mode
+;;   ;;        :remap '(js2-mode rjsx-mode js-mode javascript-mode)
+;;   ;;        :url "https://github.com/tree-sitter/tree-sitter-javascript"
+;;   ;;        :revision "master"
+;;   ;;        :source-dir "src"))
+;;   ;; (setq my/tsx-tsauto-config
+;;   ;;       (make-treesit-auto-recipe
+;;   ;;        :lang 'tsx
+;;   ;;        :ts-mode 'tsx-ts-mode
+;;   ;;        :remap 'typescript-tsx-mode
+;;   ;;        :url "https://github.com/tree-sitter/tree-sitter-typescript"
+;;   ;;        :revision "master"
+;;   ;;        :source-dir "tsx/src"))
+;;   ;; (add-to-list 'treesit-auto-recipe-list my/js-tsauto-config)
+;;   ;; (add-to-list 'treesit-auto-recipe-list my/tsx-tsauto-config)
+;;   (setq treesit-auto-langs '(json javascript typescript rust tsx yaml toml))
+;;   (treesit-auto-add-to-auto-mode-alist '(rust toml json javascript typescript tsx))
+;;   ;; (delete 'rust treesit-auto-langs)
+;;   ;; (global-treesit-auto-mode)
+;;   )
 
-(use-package! gptel
-  :config
-  (setq gptel-model 'deepseek-chat)
-  ;; (setq gptel-model "moonshot-v1-8k")
-  (setq gptel-default-mode 'markdown-mode)
-  (setq gptel-log-level nil)
-  (setq gptel-backend (gptel-make-openai "DeepSeek"
+(after! gptel
+  (gptel-make-openai "DeepSeek"
     :key 'gptel-api-key
-    :host "api.deepseek.com"
-    :endpoint "/chat/completions"
+    :host "ark.cn-beijing.volces.com"
+    :endpoint "/api/v3/chat/completions"
     :stream t
-    :models '(deepseek-chat deepseek-coder)))
+    :models '("deepseek-v3-241226"))
+  (setq gptel-model 'claude-sonnet-4)
+  (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
+  (set-popup-rule! "^\\*Copilot" :side 'right :size 0.5 :quit nil :select t)
+
+  (map! :leader
+        :desc "Creat new chat"
+        "o l l" #'my/gptel-find-chat)
+
   (defun my/gptel-find-chat (&optional arg)
     "Creat new chat. with ARG, find previous chat."
     (interactive "P")
@@ -496,69 +579,80 @@
            (lambda (x) (member x '("." "..")))
            (directory-files (locate-user-emacs-file "mind-wave") t "\\.chat\\'")))
        (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
-    (markdown-mode)
-    (gptel-mode))
+    (funcall gptel-default-mode)
+    (unless gptel-mode (gptel-mode 1)))
 
-  ;; (setq gptel-backend
-  ;;       (gptel-make-openai "Doubao"
-  ;;         :key 'gptel-api-key
-  ;;         :models '("Doubao-pro-32k" "ep-20250115145004-k4jsr" "ep-20250115172533-ztbwr")
-  ;;         :host "ark-cn-beijing.bytedance.net"
-  ;;         :stream t
-  ;;         :endpoint "/api/v3/chat/completions")
-  ;;       ;; (gptel-make-openai "Moonshot"
-  ;;       ;;   :key 'gptel-api-key
-  ;;       ;;   :models '("moonshot-v1-8k"
-  ;;       ;;             "moonshot-v1-32k"
-  ;;       ;;             "moonshot-v1-128k")
-  ;;       ;;   :host "api.moonshot.cn")
-  ;;       )
-  )
+  (defun gptel-rename-chat (&optional _beg _end)
+    "Ask the LLM to suggest a concise filename for the current gptel chat buffer."
+    (interactive)
+    (unless gptel-mode
+      (user-error "This command is intended for gptel chat buffers."))
+    (when (s-suffix? ".chat" (buffer-file-name))
+      (let* ((orig-buffer (current-buffer))
+             (gptel-model 'gpt-4o-mini))
+        (gptel-request
+            (concat
+             "```" (if (eq major-mode 'org-mode) "org" "markdown") "\n"
+             (buffer-substring-no-properties (point-min) (point-max))
+             "\n```")
+          :system (format
+                   "I will provide a transcript of a chat with an LLM. \
+Suggest a short and informative name for a file to store this chat in. \
+Use the following guidelines:
+- be very concise, one very short sentence at most
+- no spaces, use underscores if required
+- return ONLY the title, no explanation or summary
+- append the extension .%s"
+                   (if (eq major-mode 'org-mode) "org" "md"))
+          :stream nil
+          :callback
+          (lambda (resp info)
+            (if (stringp resp)
+                (when (buffer-live-p orig-buffer)
+                  (with-current-buffer orig-buffer
+                    (rename-visited-file resp)))
+              (message "Error(%s): no response." (plist-get info :status))))))))
 
-(use-package! magit-gptcommit
-  :demand t
-  :after gptel magit
-  :config
-  ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
-  ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
-  ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
-  ;; (magit-gptcommit-mode 1)
 
-  ;; Add gptcommit transient commands to `magit-commit'
-  ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
-  (magit-gptcommit-status-buffer-setup)
-  :bind (:map git-commit-mode-map
-              ("C-c C-g" . magit-gptcommit-commit-accept)))
+  ;;   (setq gptel-directives
+  ;;         '((default . "You are a large language model and a professional programmer.
 
-;; (use-package! lsp-proxy
-;;   :config
-;;   (set-popup-rule! "^\\*lsp-proxy-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
-;;   (add-hook! '(
-;;                tsx-ts-mode-hook
-;;                js-ts-mode-hook
-;;                typescript-mode-hook
-;;                typescript-ts-mode-hook
-;;                rjsx-mode-hook
-;;                less-css-mode-hook web-mode-hook
-;;                python-ts-mode-hook
-;;                rust-mode-hook
-;;                rustic-mode-hook
-;;                rust-ts-mode-hook
-;;                toml-ts-mode-hook
-;;                conf-toml-mode-hook
-;;                bash-ts-mode-hook
-;;                ) #'lsp-proxy-mode)
-;;   (set-lookup-handlers! 'lsp-proxy-mode
-;;     :definition '(lsp-proxy-find-definition :async t)
-;;     :references '(lsp-proxy-find-references :async t)
-;;     :implementations '(lsp-proxy-find-implementations :async t)
-;;     :type-definition '(lsp-proxy-find-type-definition :async t)
-;;     :documentation '(lsp-proxy-describe-thing-at-point :async t)))
+  ;; A special requirement: at the end of the first response, always summarize the conversation into a very short title and output it surrounded by <summarized_title>.
+  ;; For example, if the user asks about the usage of asyncio in python, add <summarized_title>python-asyncio-usage</summarized_title> at the end.
+  ;; Only output the summarized title once. If it already present in the conversation history, don't output it again.
+
+  ;; ")))
+  ;;   (defun my/gptel-rename-buffer-from-title (beg end)
+  ;;     "Parse <summarized_title>...</summarized_title> from the LLM response and rename buffer."
+  ;;     (save-excursion
+  ;;       (message "here?")
+  ;;       (goto-char beg)
+  ;;       (when (re-search-forward "<summarized_title>\\([^<]+\\)</summarized_title>" end t)
+  ;;         (let ((title (match-string 1)))
+  ;;           (rename-buffer (format "*gptel*<%s>" (string-trim title)) t)))))
+  (add-hook 'gptel-post-response-functions #'gptel-rename-chat))
+
+(after! forge
+  (add-to-list 'forge-alist
+               '("git.tigerbrokers.net"
+                 "git.tigerbrokers.net/api/v4"
+                 "git.tigerbrokers.net"
+                 forge-gitlab-repository)))
+
+(after! code-review
+  (setq code-review-gitlab-host "git.tigerbrokers.net/api")
+  (setq code-review-gitlab-graphql-host "git.tigerbrokers.net/api")
+  (setq code-review-gitlab-base-url "git.tigerbrokers.net"))
+
 (use-package! lsp-proxy
   :load-path "~/.doom.d/extensions/lsp-proxy"
   :config
-  (setq lsp-proxy-log-level 1)
+  (setq lsp-proxy-log-level 0)
   (setq lsp-proxy-log-max 0)
+  (setq lsp-proxy-enable-bytecode nil)
+  (setq lsp-proxy-enable-hover-eldoc t)
+  (setq lsp-proxy-xref-optimization-strategy 'optimized)
+  ;; (setq lsp-proxy-xref-optimization-strategy 'lazy)
   (set-popup-rule! "^\\*lsp-proxy-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
   (add-hook! '(
                tsx-ts-mode-hook
@@ -579,11 +673,16 @@
                json-mode-hook
                json-ts-mode-hook
                ruby-ts-mode-hook
+               scss-mode-hook
+               lua-mode-hook
+               lua-ts-mode-hook
+               css-mode-hook
                ) #'lsp-proxy-mode)
   (setq lsp-proxy-inlay-hints-mode-config '(rust-mode rust-ts-mode tsx-ts-mode typescript-ts-mode))
   ;; (add-hook! '(rust-mode-hook rust-ts-mode-hook) #'lsp-proxy-inlay-hints-mode)
   (setq lsp-proxy--send-changes-idle-time 0)
   (setq lsp-proxy-diagnostics-provider :auto)
+  (setq lsp-proxy-max-completion-item 30)
   (set-lookup-handlers! 'lsp-proxy-mode
     :definition '(lsp-proxy-find-definition :async t)
     :references '(lsp-proxy-find-references :async t)
@@ -591,37 +690,20 @@
     :type-definition '(lsp-proxy-find-type-definition :async t)
     :documentation '(lsp-proxy-describe-thing-at-point :async t)))
 
-(use-package! demo
-  :load-path "~/.doom.d/extensions/demo-jsonrpc")
+(use-package! expreg)
 
-;; (use-package eglot-lsp-proxy
-;;   :load-path "~/.doom.d/extensions/eglot-lsp-proxy"
-;;   :after eglot
-;;   :config (eglot-proxy-mode))
+;; (use-package! lsp-proxy-remote
+;;   :load-path "~/.doom.d/extensions/lsp-proxy"
+;;   :after lsp-proxy)
 
-;; (use-package! tokio-jsonrpc
-;;   :load-path "~/.doom.d/extensions/tokio-jsonrpc-demo")
-
-;; (use-package! tabnine
-;;   :hook (
-;;          ;; (prog-mode . tabnine-mode)
-;; 	 (kill-emacs . tabnine-kill-process))
-;;   :config
-;;   (add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
-;;   (tabnine-start-process)
-;;   :bind
-;;   (:map  tabnine-completion-map
-;; 	 ("<tab>" . tabnine-accept-completion)
-;; 	 ("TAB" . tabnine-accept-completion)
-;; 	 ("M-f" . tabnine-accept-completion-by-word)
-;; 	 ("M-<return>" . tabnine-accept-completion-by-line)
-;; 	 ("C-g" . tabnine-clear-overlay)
-;; 	 ("M-[" . tabnine-previous-completion)
-;; 	 ("M-]" . tabnine-next-completion)))
-
+(use-package! claude-code
+  :custom
+  (claude-code-terminal-backend 'vterm)
+  :config
+  (claude-code-mode)
+  (set-popup-rule! "^\\*claude" :side 'right :size 0.5 :quit nil :select t))
 
 ;; utils
-
 (defun toggle-so-long-mode ()
   "Clear."
   (interactive)
@@ -638,6 +720,13 @@
   (let ((line (number-to-string (line-number-at-pos)))
         (column (number-to-string (current-column))))
     (apply 'call-process "code" nil nil nil (list (concat buffer-file-name ":" line ":" column) "--goto"))))
+
+(defun open-with-zed ()
+  "Open current file with vscode."
+  (interactive)
+  (let ((line (number-to-string (line-number-at-pos)))
+        (column (number-to-string (current-column))))
+    (apply 'call-process "zed" nil nil nil (list (concat buffer-file-name ":" line ":" column)))))
 
 (defun remove-dos-eol ()
   "Do not show ^M in files containing mixed UNIX and DOS line endings."
@@ -666,3 +755,148 @@ Operate on selected region on whole buffer."
        (list (region-beginning) (region-end))
      (list (point-min) (point-max))))
   (ansi-color-apply-on-region beg end))
+
+(setq code-review-log-raw-request-responses nil)
+
+(defun my-magit--normalize-log-args (args)
+  "Normalize log arguments to ensure they are a flat list of strings."
+  (cond
+   ((null args) (list "--graph" "--decorate"))
+   ((and (listp args) (listp (car args))) (car args))
+   ((listp args) args)
+   (t (list args))))
+
+;;;###autoload
+(defun my-magit-log-directory (directory &optional args files)
+  "Show git log for all files in DIRECTORY.
+With prefix argument, prompt for directory. Otherwise use current directory."
+  (interactive
+   (let* ((default-dir (if (and (buffer-file-name)
+                                (file-directory-p default-directory))
+                           default-directory
+                         (magit-toplevel)))
+          (dir (if current-prefix-arg
+                   (read-directory-name "Directory: " default-dir)
+                 default-dir)))
+     (list (expand-file-name dir))))
+  (let* ((rel-dir (file-relative-name directory (magit-toplevel)))
+         (log-args (my-magit--normalize-log-args (or args (magit-log-arguments))))
+         (path-spec (if (string= rel-dir ".") nil (list rel-dir))))
+    (magit-log-setup-buffer
+     nil                     ; revs (nil means current branch)
+     log-args               ; args
+     path-spec              ; files
+     nil                    ; locked
+     nil)))                 ; focus
+
+;;;###autoload
+(defun my-magit-log-current-directory ()
+  "Show git log for current directory."
+  (interactive)
+  (my-magit-log-directory default-directory))
+
+;;;###autoload
+(defun my-magit-log-directory-since (directory since)
+  "Show git log for DIRECTORY since a specific date/commit."
+  (interactive
+   (let ((dir (read-directory-name "Directory: "
+                                   (if (buffer-file-name)
+                                       (file-name-directory (buffer-file-name))
+                                     default-directory))))
+     (list dir
+           (read-string "Since (date/commit): " "--since=1.week.ago"))))
+  (let* ((rel-dir (file-relative-name directory (magit-toplevel)))
+         (args (list since "--graph" "--decorate" "--oneline"))
+         (path-spec (if (string= rel-dir ".") nil (list rel-dir))))
+    (magit-log-setup-buffer
+     nil        ; revs
+     args       ; args
+     path-spec  ; files
+     nil        ; locked
+     nil)))     ; focus
+
+;;;###autoload
+(defun my-magit-log-directory-with-stats (directory)
+  "Show git log for DIRECTORY with file change statistics."
+  (interactive
+   (list (read-directory-name "Directory: "
+                              (if (buffer-file-name)
+                                  (file-name-directory (buffer-file-name))
+                                default-directory))))
+  (let* ((rel-dir (file-relative-name directory (magit-toplevel)))
+         (args (list "--stat" "--graph" "--decorate"))
+         (path-spec (if (string= rel-dir ".") nil (list rel-dir))))
+    (magit-log-setup-buffer
+     nil        ; revs
+     args       ; args
+     path-spec  ; files
+     nil        ; locked
+     nil)))     ; focus
+
+;; 为 dired 模式添加便捷功能
+;;;###autoload
+(defun my-dired-magit-log-directory ()
+  "Show git log for directory in dired."
+  (interactive)
+  (when (derived-mode-p 'dired-mode)
+    (my-magit-log-directory (dired-current-directory))))
+
+;; 在文件中快速查看所在目录的 git log
+;;;###autoload
+(defun my-magit-log-file-directory ()
+  "Show git log for the directory containing current file."
+  (interactive)
+  (if (buffer-file-name)
+      (my-magit-log-directory (file-name-directory (buffer-file-name)))
+    (user-error "Current buffer is not visiting a file")))
+
+;; Doom Emacs 配置
+(after! magit
+  ;; 添加键绑定
+  (map! :localleader
+        :map magit-mode-map
+        (:prefix ("l" . "log")
+                 "d" #'my-magit-log-directory
+                 "D" #'my-magit-log-current-directory
+                 ;; "o" #'my-magit-log-directory-with-options
+                 "s" #'my-magit-log-directory-since
+                 ;; "a" #'my-magit-log-directory-by-author
+                 "S" #'my-magit-log-directory-with-stats
+                 ;; "f" #'my-magit-log-directory-files-only
+                 ))
+
+  ;; dired 模式键绑定
+  (map! :map dired-mode-map
+        :localleader
+        "g l" #'my-dired-magit-log-directory)
+
+  ;; 在 magit status buffer 中添加目录 log 的快捷操作
+  (transient-define-suffix my-magit-log-directory-transient (directory)
+    "Log directory"
+    :description "log directory"
+    :key "D"
+    (interactive (list (read-directory-name "Directory: " default-directory)))
+    (my-magit-log-directory directory))
+
+  ;; 将其添加到 magit-log transient 中
+  (transient-append-suffix 'magit-log "l"
+    '("D" "Directory log" my-magit-log-directory-transient)))
+
+;; 增强版：显示目录下文件的详细变更历史
+;;;###autoload
+(defun my-magit-log-directory-detailed (directory)
+  "Show detailed git log for DIRECTORY with patch information."
+  (interactive
+   (list (read-directory-name "Directory: "
+                              (if (buffer-file-name)
+                                  (file-name-directory (buffer-file-name))
+                                default-directory))))
+  (let* ((rel-dir (file-relative-name directory (magit-toplevel)))
+         (args (list "--patch" "--graph" "--decorate" "--follow"))
+         (path-spec (if (string= rel-dir ".") nil (list rel-dir))))
+    (magit-log-setup-buffer
+     nil        ; revs
+     args       ; args
+     path-spec  ; files
+     nil        ; locked
+     nil)))     ; focus

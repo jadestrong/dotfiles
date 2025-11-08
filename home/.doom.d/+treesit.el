@@ -221,8 +221,10 @@ inserts `</>' and places the cursor inside the new tag."
              (let ((node-type (treesit-node-type node)))
                ;; (message "node-type %s" node-type)
                (cond ((equal node-type "jsx_attribute")
-                      (comment-region-default beg end arg)
-                      (setq matched t))
+                      (let ((comment-start "// ")
+                            (comment-end ""))
+                        (comment-region-default beg end arg)
+                        (setq matched t)))
                      ((equal node-type "jsx_element")
                       (let ((comment-start "{/* ")
                             (comment-end " */}"))
@@ -247,6 +249,10 @@ inserts `</>' and places the cursor inside the new tag."
 
 ;; copy from hack.el
 (defun tsx-mode-uncomment-region (beg end &optional _)
+  (setq-local comment-use-syntax nil)
+  (setq-local comment-start-skip "[[:space:]]*\\(//+\\|{?/\\*+\\)")
+  ;; \n is included to get arround `comment-normalize-vars' and `comment-only-p'
+  (setq-local comment-end-skip "\\(\\*+/}?[[:space:]]*\\)\n?\\|\n")
   (goto-char beg)
   (setq end (copy-marker end))
   (let (cs ts te ce matched-start)
@@ -311,10 +317,10 @@ inserts `</>' and places the cursor inside the new tag."
 ;;          (t (message "default %s" node_type))))
 
 (add-hook! 'tsx-ts-mode-hook
-  (setq-local comment-use-syntax nil)
-  (setq-local comment-start-skip "[[:space:]]*\\(//+\\|{?/\\*+\\)")
-  ;; \n is included to get arround `comment-normalize-vars' and `comment-only-p'
-  (setq-local comment-end-skip "\\(\\*+/}?[[:space:]]*\\)\n?\\|\n")
+  ;; (setq-local comment-use-syntax nil)
+  ;; (setq-local comment-start-skip "[[:space:]]*\\(//+\\|{?/\\*+\\)")
+  ;; ;; \n is included to get arround `comment-normalize-vars' and `comment-only-p'
+  ;; (setq-local comment-end-skip "\\(\\*+/}?[[:space:]]*\\)\n?\\|\n")
   (setq-local comment-region-function 'tsx-mode-comment-region)
   (setq-local uncomment-region-function 'tsx-mode-uncomment-region))
 
