@@ -6,7 +6,7 @@ local key2App = {
     s = 'Finder',
     h = 'Arc',
     -- j = 'UTM',
-    l = 'iTerm',
+    l = 'Ghostty',
     m = 'MailMaster',
     v = 'code',
     c = 'Cursor',
@@ -14,7 +14,8 @@ local key2App = {
     -- p = 'PDF Expert',
     d = '飞书',
     e = 'Emacs',
-    k = '百度翻译',
+    -- k = '百度翻译',
+    k = 'Firefox',
     -- o = 'Outlook',
     -- x = 'XMind',
     -- n = 'PDF',
@@ -96,7 +97,7 @@ function toggle_application(_app)
     -- 如果当前的窗口和要打开的 app 的是一个且同时存在多个窗口时
     -- hs.alert.show(len)
     --  and  has_value(supportMultiApp, _app)
-    if focusedWindow:application():bundleID() == app:bundleID() and len > 1 then
+    if focusedWindow and focusedWindow:application():bundleID() == app:bundleID() and len > 1 then
       local idx = hs.fnutils.indexOf(wins, focusedWindow);
       -- hs.alert.show(focusedWindow)
       local next = idx + 1 > len and idx + 1 - len or idx + 1

@@ -677,9 +677,9 @@ Use the following guidelines:
                lua-mode-hook
                lua-ts-mode-hook
                css-mode-hook
+               swift-mode-hook
                ) #'lsp-proxy-mode)
   (setq lsp-proxy-inlay-hints-mode-config '(rust-mode rust-ts-mode tsx-ts-mode typescript-ts-mode))
-  ;; (add-hook! '(rust-mode-hook rust-ts-mode-hook) #'lsp-proxy-inlay-hints-mode)
   (setq lsp-proxy--send-changes-idle-time 0)
   (setq lsp-proxy-diagnostics-provider :auto)
   (setq lsp-proxy-max-completion-item 30)

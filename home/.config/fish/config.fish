@@ -46,7 +46,30 @@ set -gx LDFLAGS "-L$libgccjit_prefix/lib/gcc/15 -L$libgccjit_prefix/lib/gcc/curr
 set -gx PKG_CONFIG_PATH "$brew_prefix/lib/pkgconfig"
 
 
-set -gx NODE_OPTIONS "--max-old-space-size=10240"
+# 清理之前的设置
+set -e LIBRARY_PATH
+set -e CFLAGS
+set -e LDFLAGS
+
+# 基础路径
+set -l brew_prefix (brew --prefix)
+set -l libgccjit_prefix (brew --prefix libgccjit)
+set -l libmps_prefix (brew --prefix libmps)
+
+# 设置 libgccjit 相关路径
+set -gx LIBRARY_PATH "$libgccjit_prefix/lib/gcc/15" "$libgccjit_prefix/lib/gcc/current" "$brew_prefix/lib"
+set -gx CPPFLAGS "-I$libgccjit_prefix/include -I$libmps_prefix/include"
+set -gx LDFLAGS "-L$libgccjit_prefix/lib/gcc/15 -L$libgccjit_prefix/lib/gcc/current -L$libmps_prefix/lib"
+
+# 设置 PKG_CONFIG_PATH
+set -gx PKG_CONFIG_PATH "$brew_prefix/lib/pkgconfig"
+# set -x LIBRARY_PATH /opt/homebrew/Cellar/gcc/15.1.0/lib/gcc/15/gcc/aarch64-apple-darwin23/15
+# set -x LIBRARY_PATH (brew --prefix)/lib $LIBRARY_PATH
+
+# # libmps
+# set -l libmps_prefix (brew --prefix libmps)
+# set -gx CFLAGS "$CFLAGS -I$libmps_prefix/include"
+# set -gx LDFLAGS "$LDFLAGS -L$libmps_prefix/lib"
 
 [ -f /opt/homebrew/Cellar/autojump/22.5.3_3/share/autojump/autojump.fish ]; and source /opt/homebrew/Cellar/autojump/22.5.3_3/share/autojump/autojump.fish
 
