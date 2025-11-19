@@ -45,4 +45,3 @@
     :disable (version< emacs-version "29.1")))
 
 (package! expreg)
-

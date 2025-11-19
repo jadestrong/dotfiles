@@ -2,6 +2,8 @@ local hotkey = require 'hs.hotkey'
 local window = require 'hs.window'
 local application = require 'hs.application'
 
+application.enableSpotlightForNameSearches(true)
+
 local key2App = {
     s = 'Finder',
     h = 'Arc',
@@ -29,7 +31,7 @@ local otherKey2App = {
   p = 'PDF Expert',
 }
 
-local supportMultiApp = {'Arc', 'Finder', 'Emacs'}
+-- local supportMultiApp = {'Arc', 'Finder', 'Emacs'}
 
 for key, app in pairs(key2App) do
     hotkey.bind(hyper, key, function()
@@ -81,8 +83,13 @@ function toggle_application(_app)
     -- 过滤掉所有不可 focus 的窗口
     local wins = {}
     for i, win in ipairs(windows) do
-      if win:isStandard() then
+      -- hs.alert.show(i)
+      if _app == 'Arc' then
         table.insert(wins, win)
+      else
+        if win:isStandard() then
+          table.insert(wins, win)
+        end
       end
     end
     table.sort(wins, function(a, b) return a:id() < b:id() end)
@@ -129,7 +136,7 @@ function toggle_application(_app)
     -- focus app' screen
     local currentScreen = window.focusedWindow():screen();
     local pt = hs.geometry.rectMidPoint(currentScreen:fullFrame())
-    hs.mouse.setAbsolutePosition(pt)
+    hs.mouse.absolutePosition(pt)
 end
 
 function toggle_cocos_creator(_app)
@@ -185,5 +192,5 @@ function focusScreen(screen)
 
    -- Move mouse to center of screen
    local pt = geometry.rectMidPoint(screen:fullFrame())
-   hs.mouse.setAbsolutePosition(pt)
+   hs.mouse.absolutePosition(pt)
 end

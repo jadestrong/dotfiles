@@ -199,6 +199,7 @@
 
 (after! org
   (setq org-log-refile 'note)
+  (setq org-modern-fold-stars '(("▶" . "▼") ("▷" . "▽") ("⏵" . "⏷") ("▹" . "▿") ("▸" . "▾")))
   (setq org-directory "~/org/"
         org-archive-location (concat org-directory ".archive/%s::")
         org-roam-directory (concat org-directory "roam/")
@@ -211,14 +212,14 @@
         ;; org-superstar-headline-bullets-list '("#")
         ))
 
-(when IS-MAC
+(when (featurep :system 'macos)
   (setq mac-command-modifier 'meta
         mac-option-modifier 'meta
         mac-right-option-modifier 'meta)
   (defconst target-dir-path "~/Downloads/" "My Download directory")
   (setq create-lockfiles nil)) ;; backup file
 
-(when IS-LINUX
+(when (featurep :system 'linux)
   (setq x-super-keysym 'meta)
   (setq x-meta-keysym 'super)
   (defconst target-dir-path "/media/psf/Home/Downloads/" "My Download directory")
@@ -523,36 +524,6 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.vim\\(rc\\)?\\'" . vimrc-mode)))
 
-;; (use-package! treesit)
-;; (use-package! rust-ts-mode
-;;   :mode ("\\.rs$" . rust-ts-mode))
-
-;; (use-package! treesit-auto
-;;   :config
-;;   ;; (setq my/js-tsauto-config
-;;   ;;       (make-treesit-auto-recipe
-;;   ;;        :lang 'javascript
-;;   ;;        :ts-mode 'js-ts-mode
-;;   ;;        :remap '(js2-mode rjsx-mode js-mode javascript-mode)
-;;   ;;        :url "https://github.com/tree-sitter/tree-sitter-javascript"
-;;   ;;        :revision "master"
-;;   ;;        :source-dir "src"))
-;;   ;; (setq my/tsx-tsauto-config
-;;   ;;       (make-treesit-auto-recipe
-;;   ;;        :lang 'tsx
-;;   ;;        :ts-mode 'tsx-ts-mode
-;;   ;;        :remap 'typescript-tsx-mode
-;;   ;;        :url "https://github.com/tree-sitter/tree-sitter-typescript"
-;;   ;;        :revision "master"
-;;   ;;        :source-dir "tsx/src"))
-;;   ;; (add-to-list 'treesit-auto-recipe-list my/js-tsauto-config)
-;;   ;; (add-to-list 'treesit-auto-recipe-list my/tsx-tsauto-config)
-;;   (setq treesit-auto-langs '(json javascript typescript rust tsx yaml toml))
-;;   (treesit-auto-add-to-auto-mode-alist '(rust toml json javascript typescript tsx))
-;;   ;; (delete 'rust treesit-auto-langs)
-;;   ;; (global-treesit-auto-mode)
-;;   )
-
 (after! gptel
   (gptel-make-openai "DeepSeek"
     :key 'gptel-api-key
@@ -578,9 +549,12 @@
           (cl-remove-if
            (lambda (x) (member x '("." "..")))
            (directory-files (locate-user-emacs-file "mind-wave") t "\\.chat\\'")))
-       (concat user-emacs-directory "mind-wave/" (format-time-string "%FT%T") ".chat")))
+       (concat org-directory "chat/" (format-time-string "%FT%T") ".chat")))
     (funcall gptel-default-mode)
-    (unless gptel-mode (gptel-mode 1)))
+    (unless gptel-mode (gptel-mode 1))
+    (goto-char (point-max))
+    (skip-chars-backward "\t\r\n")
+    (if (bobp) (insert (gptel-prompt-prefix-string))))
 
   (defun gptel-rename-chat (&optional _beg _end)
     "Ask the LLM to suggest a concise filename for the current gptel chat buffer."
@@ -588,8 +562,7 @@
     (unless gptel-mode
       (user-error "This command is intended for gptel chat buffers."))
     (when (s-suffix? ".chat" (buffer-file-name))
-      (let* ((orig-buffer (current-buffer))
-             (gptel-model 'gpt-4o-mini))
+      (let* ((orig-buffer (current-buffer)))
         (gptel-request
             (concat
              "```" (if (eq major-mode 'org-mode) "org" "markdown") "\n"
@@ -610,26 +583,13 @@ Use the following guidelines:
             (if (stringp resp)
                 (when (buffer-live-p orig-buffer)
                   (with-current-buffer orig-buffer
-                    (rename-visited-file resp)))
+                    (rename-visited-file resp)
+                    (unless gptel-mode (gptel-mode 1))
+                    (goto-char (point-max))
+                    (skip-chars-backward "\t\r\n")
+                    (if (bobp) (insert (gptel-prompt-prefix-string)))))
               (message "Error(%s): no response." (plist-get info :status))))))))
 
-
-  ;;   (setq gptel-directives
-  ;;         '((default . "You are a large language model and a professional programmer.
-
-  ;; A special requirement: at the end of the first response, always summarize the conversation into a very short title and output it surrounded by <summarized_title>.
-  ;; For example, if the user asks about the usage of asyncio in python, add <summarized_title>python-asyncio-usage</summarized_title> at the end.
-  ;; Only output the summarized title once. If it already present in the conversation history, don't output it again.
-
-  ;; ")))
-  ;;   (defun my/gptel-rename-buffer-from-title (beg end)
-  ;;     "Parse <summarized_title>...</summarized_title> from the LLM response and rename buffer."
-  ;;     (save-excursion
-  ;;       (message "here?")
-  ;;       (goto-char beg)
-  ;;       (when (re-search-forward "<summarized_title>\\([^<]+\\)</summarized_title>" end t)
-  ;;         (let ((title (match-string 1)))
-  ;;           (rename-buffer (format "*gptel*<%s>" (string-trim title)) t)))))
   (add-hook 'gptel-post-response-functions #'gptel-rename-chat))
 
 (after! forge

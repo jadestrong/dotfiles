@@ -556,3 +556,9 @@ ELEMENT-NAME is the name of the new wrapping element."
                        (save-excursion (jtsx-goto-line (+ closing-line (if inline-element 0 1)))
                                        (pos-eol))))
     (message "Not inside jsx context")))
+
+(setq markdown-ts--code-block-language-map
+      '(("c++" . cpp)
+        ("c#" . c-sharp)
+        ("sh" . bash)
+        ("js" . javascript)))
