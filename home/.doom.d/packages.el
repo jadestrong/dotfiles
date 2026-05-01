@@ -45,3 +45,5 @@
     :disable (version< emacs-version "29.1")))
 
 (package! expreg)
+
+(package! jtsx :recipe (:host github :repo "llemaitre19/jtsx"))

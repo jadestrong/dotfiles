@@ -7,17 +7,19 @@ application.enableSpotlightForNameSearches(true)
 local key2App = {
     s = 'Finder',
     h = 'Arc',
-    -- j = 'UTM',
+    -- j = 'Obsidian',
+    j = 'Wechat',
+    -- j = 'company.thebrowser.dia',
     l = 'Ghostty',
-    m = 'MailMaster',
+    -- m = 'MailMaster',
+    m = 'mail',
     v = 'code',
-    c = 'Cursor',
+    c = 'wezterm',
     -- s = 'PxCook',
     -- p = 'PDF Expert',
     d = '飞书',
     e = 'Emacs',
     -- k = '百度翻译',
-    k = 'Firefox',
     -- o = 'Outlook',
     -- x = 'XMind',
     -- n = 'PDF',
@@ -73,7 +75,7 @@ end
 function toggle_application(_app)
     -- finds a running applications
     local app = application.find(_app)
-    -- hs.alert.show(app)
+    -- hs.alert.show(app:bundleID())
     if not app then
         -- application not running, launch app
         application.launchOrFocus(_app)
@@ -115,7 +117,10 @@ function toggle_application(_app)
       -- hs.alert.show(wins[next] == hs.window.focusedWindow())
     elseif mainwin then
       -- hs.alert.show(app:isFrontmost())
+      -- hs.alert.show(mainwin:application());
       if true == app:isFrontmost() then
+        -- app:hide()
+        -- hs.alert.show(result)
         mainwin:application():hide()
       else
         mainwin:application():activate(true)

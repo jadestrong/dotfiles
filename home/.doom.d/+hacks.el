@@ -285,158 +285,24 @@ Just like `forward-comment` but only for positive N and can use regexps instead 
                           (ElispFace     . ,(all-the-icons-material "format_paint"             :face 'all-the-icons-pink))))))))
 
 
-;;; @see https://github.com/johnsoncodehk/volar/issues/1118
-;; (defadvice! +lsp--create-filter-function (workspace)
-;;   :override #'lsp--create-filter-function
-;;   (let ((body-received 0)
-;;         leftovers body-length body chunk)
-;;     (lambda (_proc input)
-;;       (setf chunk (if (s-blank? leftovers)
-;;                       input
-;;                     (concat leftovers input)))
-
-;;       (let (messages)
-;;         (while (not (s-blank? chunk))
-;;           (if (not body-length)
-;;               ;; Read headers
-;;               (if-let ((body-sep-pos (string-match-p "\r\n\r\n" chunk)))
-;;                   ;; We've got all the headers, handle them all at once:
-;;                   (setf body-length (lsp--get-body-length
-;;                                      (mapcar #'lsp--parse-header
-;;                                              (split-string
-;;                                               (substring-no-properties chunk
-;;                                                                        (or (string-match-p "Content-Length" chunk)
-;;                                                                            (error "Unable to find Content-Length header."))
-;;                                                                        body-sep-pos)
-;;                                               "\r\n")))
-;;                         body-received 0
-;;                         leftovers nil
-;;                         chunk (substring-no-properties chunk (+ body-sep-pos 4)))
-
-;;                 ;; Haven't found the end of the headers yet. Save everything
-;;                 ;; for when the next chunk arrives and await further input.
-;;                 (setf leftovers chunk
-;;                       chunk nil))
-;;             (let* ((chunk-length (string-bytes chunk))
-;;                    (left-to-receive (- body-length body-received))
-;;                    (this-body (if (< left-to-receive chunk-length)
-;;                                   (prog1 (substring-no-properties chunk 0 left-to-receive)
-;;                                     (setf chunk (substring-no-properties chunk left-to-receive)))
-;;                                 (prog1 chunk
-;;                                   (setf chunk nil))))
-;;                    (body-bytes (string-bytes this-body)))
-;;               (push this-body body)
-;;               (setf body-received (+ body-received body-bytes))
-;;               (when (>= chunk-length left-to-receive)
-;;                 (condition-case err
-;;                     (with-temp-buffer
-;;                       (apply #'insert
-;;                              (nreverse
-;;                               (prog1 body
-;;                                 (setf leftovers nil
-;;                                       body-length nil
-;;                                       body-received nil
-;;                                       body nil))))
-;;                       (decode-coding-region (point-min)
-;;                                             (point-max)
-;;                                             'utf-8)
-;;                       (goto-char (point-min))
-;;                       (while (search-forward "\x00" nil t)
-;;                         (replace-match "" nil t))
-;;                       (goto-char (point-min))
-;;                       (push (lsp-json-read-buffer) messages))
-
-;;                   (error
-;;                    (lsp-warn "Failed to parse the following chunk:\n'''\n%s\n'''\nwith message %s"
-;;                              (concat leftovers input)
-;;                              err)))))))
-;;         (mapc (lambda (msg)
-;;                 (lsp--parser-on-message msg workspace))
-;;               (nreverse messages))))))
-
-
-;; 联合 company-dabbrev 使用的时候， (plist-get (text-properties-at 0 candidate) 'lsp-completion-start-point) 有可能是 nil 会报错
-;; 临时这么修复一下，会导致在注释里面补全的内容的高亮有问题，不知道怎么解
-(defadvice! +lsp-completion--company-match (candidate)
-  :override #'lsp-completion--company-match
-  (let* ((prefix (downcase
-                  (buffer-substring-no-properties
-                   (or (plist-get (text-properties-at 0 candidate) 'lsp-completion-start-point) (point))
-                   (point))))
-         (prefix-len (length prefix))
-         (prefix-pos 0)
-         (label (downcase candidate))
-         (label-len (length label))
-         (label-pos 0)
-         matches start)
-    (while (and (not matches)
-                (< prefix-pos prefix-len))
-      (while (and (< prefix-pos prefix-len)
-                  (< label-pos label-len))
-        (if (equal (aref prefix prefix-pos) (aref label label-pos))
-            (progn
-              (unless start (setq start label-pos))
-              (cl-incf prefix-pos))
-          (when start
-            (setq matches (nconc matches `((,start . ,label-pos))))
-            (setq start nil)))
-        (cl-incf label-pos))
-      (when start (setq matches (nconc matches `((,start . ,label-pos)))))
-      ;; Search again when the whole prefix is not matched
-      (when (< prefix-pos prefix-len)
-        (setq matches nil))
-      ;; Start search from next offset of prefix to find a match with label
-      (unless matches
-        (cl-incf prefix-pos)
-        (setq label-pos 0)))
-    matches))
-
-;; 在 document-frame 中显示 detail ，和 vscode 的表现一致
-(defadvice! +lsp-completion--get-documentation (item)
-  :override #'lsp-completion--get-documentation
-  (unless (get-text-property 0 'lsp-completion-resolved item)
-    (let ((resolved-item
-           (-some->> item
-             (get-text-property 0 'lsp-completion-item)
-             (lsp-completion--resolve)))
-          (len (length item)))
-      (put-text-property 0 len 'lsp-completion-item resolved-item item)
-      (put-text-property 0 len 'lsp-completion-resolved t item)))
-  (when-let* ((completion-item (get-text-property 0 'lsp-completion-item item)))
-    (cond ((lsp:completion-item-documentation? completion-item)
-           (lsp--render-element (lsp:completion-item-documentation? completion-item)))
-          ((lsp:completion-item-detail? completion-item)
-           (lsp--render-element (lsp:completion-item-detail? completion-item)))
-          (t nil))))
-
-;; (after! lsp-mode
-  ;; 优先使用系统按钮的 tsserver
-  ;; (setq lsp-clients-typescript-server-args `("--stdio"))
-  ;; (setq lsp-clients-typescript-tsserver '((path . "/opt/homebrew/bin/tsserver")))
-  ;; (setq lsp-clients-typescript-tsserver nil)
-  ;; )
-
-(after! eglot
-  (add-to-list 'eglot-server-programs '(typescript-tsx-mode . ("typescript-language-server" "--tsserver-path" "/opt/homebrew/bin/tsserver" "--stdio"))))
-
 ;; emacs-rime 有时候中文候选词的字体会变，大部分时候这个方法是解决了，但偶尔还是遇到了，待观察
-(when (display-graphic-p)
-  (setq resolution-factor (eval (/ (x-display-pixel-height) 1080.0))))
-(add-hook! 'doom-first-buffer-hook
-  (defun +my/change-cjk-font ()
-    "change the cjk font and its size to align the org/markdown tables when have
-cjk characters. Font should be twice the width of asci chars so that org tables align.
-This will break if run in terminal mode, so use conditional to only run for GUI."
-    (when (display-graphic-p)
-      (setq user-cjk-font
-            (cond
-             ((find-font (font-spec :name "Hiragino Sans GB")) "Hiragino Sans GB") ; for macos
-             ((find-font (font-spec :name "Noto Sans CJK SC")) "Noto Sans CJK SC") ; for linux
-             ))
-      (dolist (charset '(kana han cjk-misc bopomofo))
-        (set-fontset-font (frame-parameter nil 'font)
-                          charset (font-spec :family user-cjk-font
-                                             :size 16))))))
+;; (when (display-graphic-p)
+;;   (setq resolution-factor (eval (/ (x-display-pixel-height) 1080.0))))
+;; (add-hook! 'doom-first-buffer-hook
+;;   (defun +my/change-cjk-font ()
+;;     "change the cjk font and its size to align the org/markdown tables when have
+;; cjk characters. Font should be twice the width of asci chars so that org tables align.
+;; This will break if run in terminal mode, so use conditional to only run for GUI."
+;;     (when (display-graphic-p)
+;;       (setq user-cjk-font
+;;             (cond
+;;              ((find-font (font-spec :name "Hiragino Sans GB")) "Hiragino Sans GB") ; for macos
+;;              ((find-font (font-spec :name "Noto Sans CJK SC")) "Noto Sans CJK SC") ; for linux
+;;              ))
+;;       (dolist (charset '(kana han cjk-misc bopomofo))
+;;         (set-fontset-font (frame-parameter nil 'font)
+;;                           charset (font-spec :family user-cjk-font
+;;                                              :size 16))))))
 
 ;; https://emacs-lsp.github.io/lsp-mode/page/faq/#how-do-i-force-lsp-mode-to-forget-the-workspace-folders-for-multi-root
 ;; 默认 lsp 会记住所有之前打开的 vue 项目，并每次启动的时候都会在每个项目里面都启用一个 vls 服务，这里强制其遗忘

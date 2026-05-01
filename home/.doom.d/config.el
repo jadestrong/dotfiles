@@ -79,11 +79,17 @@
 (after! corfu
   (setq +corfu-want-minibuffer-completion nil)
   (setq global-corfu-minibuffer nil)
-  (setq corfu-auto-delay 0)
   (setq corfu-preselect 'first)
   (setq corfu-preview-current nil)
+  (setq corfu-auto-prefix 0)
+  (setq corfu-auto-delay 0)
   (advice-add #'lsp-proxy-completion-at-point :around #'cape-wrap-noninterruptible)
   (advice-add #'lsp-proxy-completion-at-point :around #'cape-wrap-nonexclusive))
+
+(after! corfu-auto
+  (setq corfu-auto-prefix 0)
+  (setq corfu-auto-delay 0))
+
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay '(0.1 . 0.1)))
 
@@ -152,9 +158,11 @@
     (setq +format-with-lsp (not +format-with-lsp))))
 
 (after! rustic
+  (setq rustic-lsp-setup-p nil)
   (setq rustic-analyzer-command '("~/.vscode/extensions/rust-lang.rust-analyzer-0.3.2078-darwin-arm64/server/rust-analyzer"))
   ;; Disable it only for rust buffers - doc not auto display in mini buffer
-  (setq-hook! 'rustic-mode-hook lsp-signature-auto-activate nil))
+  ;; (setq-hook! 'rustic-mode-hook lsp-signature-auto-activate nil)
+  )
 
 (setq treesit-extra-load-path '("~/Documents/Github/tree-sitter-module/dist"))
 
@@ -276,7 +284,7 @@
  :g "M-g g" #'avy-goto-line
  :g "M-g M-g" #'avy-goto-line
  :g "M-]" #'+workspace/switch-right
- :g "M-[" #'+workspace/switch-left
+ ;; :g "M-[" #'+workspace/switch-left
  :g "M-p" #'evil-scroll-page-up
  :g "M-n" #'evil-scroll-page-down
  :g "M-f" #'forward-char
@@ -300,6 +308,10 @@
  "c f" #'my/lsp-format-buffer
  "c F" #'+format/buffer
  "c r" #'lsp-proxy-rename)
+
+(when (or (daemonp)
+          (display-graphic-p))
+  (map! :g "M-[" #'+workspace/switch-left))
 
 ;; company
 (map! (:after company
@@ -374,7 +386,8 @@
                 :desc "Send 2" "2" #'claude-code-send-2
                 :desc "Send 3" "3" #'claude-code-send-3)
                :desc "Open with VSCode" "v" #'open-with-vscode
-               :desc "Open with VSCode" "z" #'open-with-zed))
+               :desc "Open with VSCode" "z" #'open-with-zed
+               :desc "Open with VSCode" "k" #'open-with-kiro))
 
 ;;; Modules
 
@@ -412,9 +425,11 @@
 ;;; Language customizations
 ;; evil-matchit 只在 web-mode 和 html-mode 下开启这个 mode ，因为它在 js 等 mode 下有 bug
 ;; 使用它主要解决 doom-emacs 自带的 % 功能不支持 html 标签匹配跳转
+;; ("jsx_element" "jsx_self_closing_element")
 (defun evilmi-jtsx-get-tag ()
   "Find the jsx element tag at point's pair tag."
-  (let ((enclosing-element (jtsx-enclosing-jsx-element-at-point)))
+  (let* ((node (jtsx-treesit-node-at (point)))
+         (enclosing-element (jtsx-enclosing-jsx-node node '("jsx_element" "jsx_self_closing_element") nil t)))
     (if enclosing-element
         (let ((start (treesit-node-start enclosing-element))
               (end (treesit-node-end enclosing-element)))
@@ -423,64 +438,83 @@
             (list start 0))) ; We are closer to the opening tag.
       nil)))
 
+
+(defun my/jtsx-jump-jsx-closing-tag ()
+  "Jump to the closing tag of the JSX element."
+  (interactive "^")
+  (let* ((node (jtsx-treesit-node-at (point)))
+         (enclosing-element (jtsx-enclosing-jsx-node node '("jsx_element" "jsx_self_closing_element") nil t)))
+    (if enclosing-element
+        (goto-char (1- (treesit-node-end enclosing-element))) ; -1 to jump right before the "/>"
+      (message "No JSX closing element found"))))
+
+(defun my/jtsx-jump-jsx-opening-tag ()
+  "Jump to the opening tag of the JSX element."
+  (interactive "^")
+  (let* ((node (jtsx-treesit-node-at (point)))
+         (enclosing-element (jtsx-enclosing-jsx-node node '("jsx_element" "jsx_self_closing_element") nil t)))
+    (if enclosing-element
+        (goto-char (1+ (treesit-node-start enclosing-element))) ; +1 to jump right after the "<"
+      (message "No JSX opening element found"))))
+
 (defun evilmi-jtsx-jump (info _num)
   "Jump to the pair tag poision."
   (let* ((tag-type (nth 1 info)))
     (cond
      ((eq 1 tag-type)
-      (jtsx-jump-jsx-opening-tag))
+      (my/jtsx-jump-jsx-opening-tag))
      ((eq 0 tag-type)
-      (jtsx-jump-jsx-closing-tag)))
+      (my/jtsx-jump-jsx-closing-tag)))
     (point)))
 
-(defvar evilmi-tsx-treesit--bracket-pairs
-  '(("(" . ")")
-    ("{" . "}")
-    ("[" . "]")))
+;; (defvar evilmi-tsx-treesit--bracket-pairs
+;;   '(("(" . ")")
+;;     ("{" . "}")
+;;     ("[" . "]")))
 
-(defun evilmi-tsx-treesit--on-bracket-p (node-type)
-  "Check if NODE-TYPE is a bracket character."
-  (member node-type '("(" ")" "{" "}" "[" "]")))
+;; (defun evilmi-tsx-treesit--on-bracket-p (node-type)
+;;   "Check if NODE-TYPE is a bracket character."
+;;   (member node-type '("(" ")" "{" "}" "[" "]")))
 
-(defun evilmi-tsx-treesit--match-bracket ()
-  "Return matching bracket position if on a bracket."
-  (cond
-   ((looking-at-p "[({\\[]")
-    (list (save-excursion (forward-sexp) (point)) 0))
-   ((looking-back "[)}\\]]" 1)
-    (list (save-excursion (backward-sexp) (point)) 0))
-   (t nil)))
+;; (defun evilmi-tsx-treesit--match-bracket ()
+;;   "Return matching bracket position if on a bracket."
+;;   (cond
+;;    ((looking-at-p "[({\\[]")
+;;     (list (save-excursion (forward-sexp) (point)) 0))
+;;    ((looking-back "[)}\\]]" 1)
+;;     (list (save-excursion (backward-sexp) (point)) 0))
+;;    (t nil)))
 
-(defun evilmi-tsx-treesit--match-jsx-tag ()
-  "Return matching JSX tag position if inside JSX."
-  (when (jtsx-jsx-context-p)
-    (let ((enclosing (jtsx-enclosing-jsx-element-at-point)))
-      (when enclosing
-        (let ((start (treesit-node-start enclosing))
-              (end (treesit-node-end enclosing)))
-          (if (> (point) (+ start (/ (- end start) 2)))
-              (list end 1) ; closer to closing
-            (list start 0)))))))
+;; (defun evilmi-tsx-treesit--match-jsx-tag ()
+;;   "Return matching JSX tag position if inside JSX."
+;;   (when (jtsx-jsx-context-p)
+;;     (let ((enclosing (jtsx-enclosing-jsx-element-at-point)))
+;;       (when enclosing
+;;         (let ((start (treesit-node-start enclosing))
+;;               (end (treesit-node-end enclosing)))
+;;           (if (> (point) (+ start (/ (- end start) 2)))
+;;               (list end 1) ; closer to closing
+;;             (list start 0)))))))
 
-(defun evilmi-tsx-treesit-get-tag ()
-  "evil-matchit get-tag function for TSX."
-  (let* ((node (jtsx-treesit-node-at (point)))
-         (type (treesit-node-type node)))
-    (or
-     ;; 1. 括号优先
-     (when (evilmi-tsx-treesit--on-bracket-p type)
-       (evilmi-tsx-treesit--match-bracket))
-     ;; 2. JSX 标签
-     (evilmi-tsx-treesit--match-jsx-tag)
-     ;; 3. 无匹配
-     nil)))
+;; (defun evilmi-tsx-treesit-get-tag ()
+;;   "evil-matchit get-tag function for TSX."
+;;   (let* ((node (jtsx-treesit-node-at (point)))
+;;          (type (treesit-node-type node)))
+;;     (or
+;;      ;; 1. 括号优先
+;;      (when (evilmi-tsx-treesit--on-bracket-p type)
+;;        (evilmi-tsx-treesit--match-bracket))
+;;      ;; 2. JSX 标签
+;;      (evilmi-tsx-treesit--match-jsx-tag)
+;;      ;; 3. 无匹配
+;;      nil)))
 
-(defun evilmi-tsx-treesit-jump (info _num)
-  "evil-matchit jump function for TSX."
-  (goto-char (car info)))
+;; (defun evilmi-tsx-treesit-jump (info _num)
+;;   "evil-matchit jump function for TSX."
+;;   (goto-char (car info)))
 
 (use-package! evil-matchit
-  :hook (web-mode html-mode tsx-ts-mode)
+  :hook (web-mode html-mode tsx-ts-mode typescript-ts-mode)
   :init
   (evilmi-load-plugin-rules '(web-mode) '(simple template html))
   (evilmi-load-plugin-rules '(html-mode) '(simple template html))
@@ -533,6 +567,7 @@
     :models '("deepseek-v3-241226"))
   (setq gptel-model 'claude-sonnet-4)
   (setq gptel-backend (gptel-make-gh-copilot "Copilot"))
+  (setq gptel-default-mode 'markdown-mode)
   (set-popup-rule! "^\\*Copilot" :side 'right :size 0.5 :quit nil :select t)
 
   (map! :leader
@@ -583,11 +618,14 @@ Use the following guidelines:
             (if (stringp resp)
                 (when (buffer-live-p orig-buffer)
                   (with-current-buffer orig-buffer
-                    (rename-visited-file resp)
-                    (unless gptel-mode (gptel-mode 1))
-                    (goto-char (point-max))
-                    (skip-chars-backward "\t\r\n")
-                    (if (bobp) (insert (gptel-prompt-prefix-string)))))
+                    (let* ((date-prefix (format-time-string "%Y%m%d_"))
+                           (suggested-name (string-trim resp))
+                           (new-name (concat date-prefix suggested-name)))
+                      (rename-visited-file new-name)
+                      (unless gptel-mode (gptel-mode 1))
+                      (goto-char (point-max))
+                      (skip-chars-backward "\t\r\n")
+                      (if (bobp) (insert (gptel-prompt-prefix-string))))))
               (message "Error(%s): no response." (plist-get info :status))))))))
 
   (add-hook 'gptel-post-response-functions #'gptel-rename-chat))
@@ -612,6 +650,7 @@ Use the following guidelines:
   (setq lsp-proxy-enable-bytecode nil)
   (setq lsp-proxy-enable-hover-eldoc t)
   (setq lsp-proxy-xref-optimization-strategy 'optimized)
+  (setq lsp-proxy-diagnostics-max-push-count 50)
   ;; (setq lsp-proxy-xref-optimization-strategy 'lazy)
   (set-popup-rule! "^\\*lsp-proxy-\\(help\\|diagnostics\\)" :size 0.35 :quit t :select t)
   (add-hook! '(
@@ -638,17 +677,33 @@ Use the following guidelines:
                lua-ts-mode-hook
                css-mode-hook
                swift-mode-hook
+               ;; org-mode-hook
+               ;; markdown-mode-hook
+               ;; markdown-ts-mode-hook
                ) #'lsp-proxy-mode)
-  (setq lsp-proxy-inlay-hints-mode-config '(rust-mode rust-ts-mode tsx-ts-mode typescript-ts-mode))
+  (setq lsp-proxy-inlay-hints-mode-config '(rust-mode rust-ts-mode tsx-ts-mode typescript-ts-mode rustic-mode))
   (setq lsp-proxy--send-changes-idle-time 0)
   (setq lsp-proxy-diagnostics-provider :auto)
   (setq lsp-proxy-max-completion-item 30)
+  (setq lsp-proxy-enable-org-babel t)
+  (setq lsp-proxy-org-babel-language-map
+        '(("shell" . "bash")
+          ("sh" . "bash")
+          ("tsx-ts" . "tsx")
+          ("typescript-ts" . "typescript")))
   (set-lookup-handlers! 'lsp-proxy-mode
     :definition '(lsp-proxy-find-definition :async t)
     :references '(lsp-proxy-find-references :async t)
     :implementations '(lsp-proxy-find-implementations :async t)
     :type-definition '(lsp-proxy-find-type-definition :async t)
     :documentation '(lsp-proxy-describe-thing-at-point :async t)))
+
+(map! :leader
+      (:prefix ("o" . "agent-shell")
+                (:prefix ("a" . "agnet-shell")
+                          :desc "Start agent" "a" #'agent-shell
+                          :desc "Toggle shell" "t" #'agent-shell-toggle
+                          :desc "New shell" "n" #'agent-shell-new-shell)))
 
 (use-package! expreg)
 
